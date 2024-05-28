@@ -10,7 +10,10 @@
 
 What is the purpose of this software? What problem does it solve? What is the unique value proposition? Why is your solution better than others?
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis. Curabitur dictum gravida mauris. Nam arcu libero, nonummy eget, consectetuer id, vulputate a, magna. Donec vehicula augue eu neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris ut leo. Cras viverra metus rhoncus sem. Nulla et lectus vestibulum urna fringilla ultrices. Phasellus eu tellus sit amet tortor gravida placerat. Integer sapien est, iaculis in, pretium quis, viverra ac, nunc. Praesent eget sem vel leo ultrices bibendum. Aenean faucibus. Morbi dolor nulla, malesuada eu, pulvinar at, mollis ac, nulla. Curabitur auctor semper nulla. Donec varius orci eget risus. Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam. Duis eget orci sit amet orci dignissim rutrum.
+The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. I believe this is really important because having a clear and efficient system will save time for instructors and department heads, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
+
+UVP:
+There is no such system now for the instrucoitrs and the department to see how many hours of working. This will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instrucots. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
 
 ### High-level project description and boundaries
 
@@ -39,6 +42,8 @@ What can the user do with your software? If there are multiple user groups, expl
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis. Curabitur dictum gravida mauris. Nam arcu libero, nonummy eget, consectetuer id, vulputate a, magna. Donec vehicula augue eu neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris ut leo. Cras viverra metus rhoncus sem. Nulla et lectus vestibulum urna fringilla ultrices. Phasellus eu tellus sit amet tortor gravida placerat. Integer sapien est, iaculis in, pretium quis, viverra ac, nunc. Praesent eget sem vel leo ultrices bibendum. Aenean faucibus. Morbi dolor nulla, malesuada eu, pulvinar at, mollis ac, nulla. Curabitur auctor semper nulla. Donec varius orci eget risus. Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam. Duis eget orci sit amet orci dignissim rutrum.
 
 ### Requirements:
+The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
+
 In the requirements section, make sure to clearly define/describe the **functional** requirements (what the system will do), **non-functional** requirements (performane/development), **user requirements (what the users will be able to do with the system and **technical** requirements.  These requirements will be used to develop the detailed uses in the design and form your feature list.
 #### Functional Requirements:
 - Describe the characteristics of the final deliverable in ordinary non-technical language
@@ -57,7 +62,10 @@ In the requirements section, make sure to clearly define/describe the **function
 - These emerge from the functional requirements to answer the questions: 
 -- How will the problem be solved this time and will it be solved technologically and/or procedurally? 
 -- Specify how the system needs to be designed and implemented to provide required functionality and fulfill required operational characteristics.
-  
+
+Let’s move on to the key functional requirements of our system. Firstly, we will implement a secure login system for department heads, staff, and instructors. This ensures that only authorized users can access the system, protecting sensitive data. I think this is crucial because it not only protects the privacy of the users but also ensures that the integrity of the data is maintained. By restricting access to authorized personnel, we can prevent unauthorized changes and potential misuse of the system.
+
+
 ## Tech Stack
 Identify the “tech stack” you are using. This includes the technology the user is using to interact with your software (e.g., a web browser, an iPhone, any smartphone, etc.), the technology required to build the interface of your software, the technology required to handle the logic of your software (which may be part of the same framework as the technology for the interface), the technology required to handle any data storage, and the programming language(s) involved. You may also need to use an established API, in which case, say what that is. (Please don’t attempt to build your API in this course as you will need years of development experience to do it right.) You can explain your choices in a paragraph, in a list of bullet points, or a table. Just make sure you identify the full tech stack.
 For each choice you make, provide a short justification based on the current trends in the industry. For example, don’t choose an outdated technology because you learned it in a course. Also, don’t choose a technology because one of the team members knows it well. You need to make choices that are good for the project and that meet the client’s needs, otherwise, you will be asked to change those choices.  Consider risk analysis. 
