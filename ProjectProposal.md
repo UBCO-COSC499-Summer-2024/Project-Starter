@@ -12,14 +12,24 @@ What is the purpose of this software? What problem does it solve? What is the un
 
 The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. I believe this is really important because having a clear and efficient system will save time for instructors and department heads, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
 
-UVP:
+#### UVP:
 There is no such system now for the instrucoitrs and the department to see how many hours of working. This will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instrucots. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
 
 ### High-level project description and boundaries
 
 Describe your MVP in a few statements and identify the boundaries of the system. 
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis. Curabitur dictum gravida mauris. Nam arcu libero, nonummy eget, consectetuer id, vulputate a, magna. Donec vehicula augue eu neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris ut leo. Cras viverra metus rhoncus sem. Nulla et lectus vestibulum urna fringilla ultrices. Phasellus eu tellus sit amet tortor gravida placerat. Integer sapien est, iaculis in, pretium quis, viverra ac, nunc. Praesent eget sem vel leo ultrices bibendum. Aenean faucibus. Morbi dolor nulla, malesuada eu, pulvinar at, mollis ac, nulla. Curabitur auctor semper nulla. Donec varius orci eget risus. Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam. Duis eget orci sit amet orci dignissim rutrum.
+#### MVP 
+We will develop a system for department heads to easilly log and track service roles for instructors, including Undergraduate Advisor, Graduate Advisor, and committee member roles. The system will store descriptions and expected hours per month for each service role without requiring instructors to log their time actively.
+
+We will also implement a feature to track course assignments, including student numbers, survey data, and other relevant metrics. This will allow department heads to see individual instructor data and overall department performance through charts and visualizations.
+
+Next, we will develop an dashboard for instructors to view their current service hours, course assigmnets, and overall visibility on their contribution to the department. Instructors will not have direct editing capabilities but can see their data and comparisons with departmental averages.
+
+To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty. 
+
+#### Boundaries
+
 
 ### Measurable project objectives and related success criteria (scope of project)
 
@@ -99,29 +109,30 @@ Use the table below to help line up everyone’s strengths and areas of improvem
 For **experience** provide a description of a previous project that would be similar to the technical difficulty of this project’s proposal.  None, if nothing
 For **good At**, list of skills relevant to the project that you think you are good at and can contribute to the project.  These could be soft skills, such as communication, planning, project management, and presentation.  Consider different aspects: design, coding, testing, and documentation. It is not just about the code.  You can be good at multiple things. List them all! It doesn’t mean you have to do it all.  Don’t ever leave this blank! Everyone is good at something!
 
-|  Category  | Team Member 1 | Team Member 2 | Team Member 3 | Team Member 4 | Team Member 5 | Team Member 6 | 
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+|  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
+|------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 |  **Experience**  |  |  |  |  |  |  | 
 |  **Good At**  |  |  |  |  |  |  | 
 |  **Expect to learn**  | Don’t ever leave this blank! We are all learning.  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
 
 Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
 
-|  Category of Work/Features  | Team Member 1 | Team Member 2 | Team Member 3 | Team Member 4 | Team Member 5 | Team Member 6 | 
-| ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: |
-|  **Project Management: Kanban Board Maintenance**  | :heavy_check_mark:  |  | :heavy_check_mark:  |  |  |  | 
-|  **System Architecture Designt**  |  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |  |  | 
-|  **User Interface Design**  | :heavy_check_mark:  | :heavy_check_mark: |  |  |  |  | 
-|  **CSS Development**  | :heavy_check_mark:  |  |  |  |  | :heavy_check_mark:  | 
-|  **Feature 1**  | :heavy_check_mark:  |  |  |  |  |  | 
-|  **Feature 2**  | :heavy_check_mark:  |  |  |  |  |  | 
-|  **...**  |  |  |  |  |  |  | 
-|  **Database setup**  |  |  | :heavy_check_mark:  | :heavy_check_mark:  |  |  | 
-|  **Presentation Preparation**  | :heavy_check_mark:  |  |  | :heavy_check_mark:  |  |  | 
-|  **Design Video Creation**  |  | :heavy_check_mark:  | :heavy_check_mark:  |  |  |  | 
-|  **Design Video Editing**  | :heavy_check_mark:  | :heavy_check_mark:  |  |  |  |  | 
-|  **Design Report**  | :heavy_check_mark:  |  |  |  |  |  | 
-|  **Final Video Creation**  | :heavy_check_mark:  |  |  |  |  | :heavy_check_mark:  | 
-|  **Final Video Editing**  | :heavy_check_mark:  |  |  |  |  | :heavy_check_mark:  | 
-|  **Final Team Report**  |  | :heavy_check_mark:  |  |  |  |  | 
-|  **Final Individual Report**  |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: | 
+
+|  Category of Work/Features  | Yiyang Du | Dichen Feng   | Marshall Kwok Guo  | Vaughn Janes  | Jiayao Ni | 
+| ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
+|  **Project Management: Kanban Board Maintenance**  | :heavy_check_mark:  |  | :heavy_check_mark:  |  |  |
+|  **System Architecture Designt**  |  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |  | 
+|  **User Interface Design**  | :heavy_check_mark:  | :heavy_check_mark: |  |  |  |
+|  **CSS Development**  | :heavy_check_mark:  |  |  |  | :heavy_check_mark:  | 
+|  **Feature 1**  | :heavy_check_mark:  |  |  |  |  | 
+|  **Feature 2**  | :heavy_check_mark:  |  |  |  |  | 
+|  **...**  |  |  |  |  |  |
+|  **Database setup**  |  | :heavy_check_mark:  | :heavy_check_mark:  |  |  | 
+|  **Presentation Preparation**  | :heavy_check_mark:  |  | :heavy_check_mark:  |  |  | 
+|  **Design Video Creation**  |  | :heavy_check_mark:  | :heavy_check_mark:  |  |  | 
+|  **Design Video Editing**  | :heavy_check_mark:  | :heavy_check_mark:  |  |  |  | 
+|  **Design Report**  | :heavy_check_mark:  |  |  |  |  | 
+|  **Final Video Creation**  | :heavy_check_mark:  |  |  |  | :heavy_check_mark:  | 
+|  **Final Video Editing**  | :heavy_check_mark:  |  |  |  | :heavy_check_mark:  | 
+|  **Final Team Report**  |  | :heavy_check_mark:  |  |  |  | 
+|  **Final Individual Report**  |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |
