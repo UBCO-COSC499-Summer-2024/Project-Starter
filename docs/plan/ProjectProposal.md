@@ -127,7 +127,7 @@ The department head will be able to log in to the web application, create/delete
 ## High-level risks
 
 > Describe and analyze any risks identified or associated with the project. 
-
+The risks in this project involve both management risks and technical risks. The management risks include not finishing the project on time or our deliveries not satisfying what the client wants. On the technical side, there are a couple of risks. The first is authentication. Since we need to let a user log in, ensuring the user did not bypass this login is one thing. We also have authorization, which means identifying if the user has the right to change the data, such as the staff and the instructor cannot change the data that the head can. Additionally, there are technical risks in the coding, such as XSS, CSRF, and SQL injection. These are common risks in web applications.
 ## Assumptions and constraints
 
 > What assumptions is the project team making and what are the constraints for the project?
