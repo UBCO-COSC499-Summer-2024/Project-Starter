@@ -8,33 +8,39 @@
 
 ### Project purpose or justification (UVP)
 
-> What is the purpose of this software? What problem does it solve? What is the unique value proposition? Why is your solution better than others?
-
-The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. We believe this is really important because having a clear and efficient system will save time for department heads and instructors, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
+>The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. We believe this is really important because having a clear and efficient system will save time for department heads and instructors, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
 
 #### UVP:
 
-There is no such system now for the instructors and the department to conveniently visualize the assignments of staff members and their working hours. Our program will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instructors. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
+>There is no such system now for the instructors and the department to conveniently visualize the assignments of staff members and their working hours. Our program will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instructors. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
 
 ### High-level project description and boundaries
 
-> Describe your MVP in a few statements and identify the boundaries of the system. 
 
 #### MVP 
-We will develop a system for department heads to easilly log and track service roles for instructors, including Undergraduate Advisor, Graduate Advisor, and committee member roles. The system will store descriptions and expected hours per month for each service role without requiring instructors to log their time actively.
+>We will develop a system for department heads to easilly log and track service roles for instructors, including Undergraduate Advisor, Graduate Advisor, and committee member roles. The system will store descriptions and expected hours per month for each service role without requiring instructors to log their time actively.
+<br>We will also implement a feature to track course assignments, including student numbers, survey data, and other relevant metrics. This will allow department heads to see individual instructor data and overall department performance through charts and visualizations.
+<br>Next, we will develop a dashboard for instructors to view their current service hours, course assigments, and see their contribution to the department. Instructors will not have editing capabilities but can see their data and comparisons with departmental averages.
+<br>To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty.
 
-We will also implement a feature to track course assignments, including student numbers, survey data, and other relevant metrics. This will allow department heads to see individual instructor data and overall department performance through charts and visualizations.
+#### Things are in Scope
 
-Next, we will develop a dashboard for instructors to view their current service hours, course assigments, and see their contribution to the department. Instructors will not have editing capabilities but can see their data and comparisons with departmental averages.
+- Tracking and logging an expected serivice hour for the instructor
+- Storing expected hours for various service roles.
+- Collect datas such as course assignments, number of student, studnet feedback.
+- Provide visualizations and chart for department head to analyze the performance of the department staffs.
+- Create an dashboard for instructor to view current assignments, service roles, serivce hour, and registered courses.
+- Add encourage message on the performance report.
 
-To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty.
+#### Things are out of Scope
 
-#### Boundaries
+- Real time loggin hours by instructors
+- Direct data editing capabilities by people other than the administor.
+- Extensive reward or incentive programs beyond simple encouraging messages.
 
 
 ### Measurable project objectives and related success criteria (scope of project)
 
-> Make sure to use simple but precise statement of goals for the project that will be included when it the project is completed.  Rememeber that goals must be clear and measurable and **SMART**.  It should be clearly understood what success means to the project and how the success will be measured (as a high level, what is success?).
 
 First, we want to make it super easy and quick to record and manage instructor service roles and teaching assignments, cutting down the time needed from hours to just minutes. Second, we’ll provide real-time visualizations and benchmarks so instructors can see how they’re doing and figure out where they can improve. Third, we’ll help make sure instructors are assigned to the right teaching and service roles based on their past performance. The scope of this project includes developing features for efficient data entry, creating visual performance dashboards, and integrating historical performance data for better role allocation. Success for us means having lots of users who are happy with the system, making life easier for instructors by cutting down their admin work, and improving how teaching and service roles are managed.
 
@@ -48,9 +54,7 @@ Tracking the **reduction** in admin time through time logs, aiming to reduce it 
 
 ## Users, Usage Scenarios and High Level Requirements 
 
-### Users Groups (Vaughn will do this part):
-
-> Provide a description of the primary users in the system and what their high-level goals are with the system (Hint: there is more than one group for most projects). Proto-personas will help to identify user groups and their wants/needs.
+### Users Groups:
 
 The two types of users of the CMPS Department Management Program will be:
 
@@ -62,9 +66,8 @@ The management system will be accessed by staff members (and the department head
 #### 2. Department Staff:
 Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential). The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive. The department staff generally just have viewing capabilities.
 
-### Envisioned Usage (Vaughn will do this part)
+### Envisioned Usage
 
-> What can the user do with your software? If there are multiple user groups, explain it from each of their perspectives. These are what we called *user scenarios* back in COSC 341. Use subsections if needed to make things more clear. Make sure you tell a full story about how the user will use your software. An MVP is a minimal and viable, so don’t go overboard with making things fancy (to claim you’ll put in a ton of extra features and not deliver in the end), and don’t focus solely on one part of your software so that the main purpose isn’t achievable. Scope wisely.  Don't forget about journey lines to describe the user scenarios.
 
 #### Department head usage example
 
