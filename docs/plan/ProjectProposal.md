@@ -157,10 +157,10 @@ The department head will be able to log in to the web application, create/delete
 |  Category of Work/Features  | Yiyang Du | Dichen Feng   | Marshall Kwok Guo  | Vaughn Janes  | Jiayao Ni | 
 | ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
 |  **Project Management: Kanban Board Maintenance**  |  |  :heavy_check_mark:  |  | :heavy_check_mark: |  |
-|  **System Architecture Design**  |  |  :heavy_check_mark:  |  | :heavy_check_mark: |  | 
-|  **User Interface Design**  |  |  :heavy_check_mark:  |  |  |  |
-|  **CSS Development**  |  |  :heavy_check_mark:  |  |  |  | 
-|  **Serverside development**  |  |  |  | :heavy_check_mark: |  | 
+|  **System Architecture Design**  |  |  :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |  | 
+|  **User Interface Design**  |  |  :heavy_check_mark:  | :heavy_check_mark: |  |  |
+|  **CSS Development**  |  |  :heavy_check_mark:  | :heavy_check_mark: |  |  | 
+|  **Serverside development**  |  |  | :heavy_check_mark: | :heavy_check_mark: |  | 
 |  **Feature 1**  |  |  |  |  |  | 
 |  **Feature 2**  |  |  |  |  |  | 
 |  **...**  |  |  |  |  |  |
@@ -169,7 +169,7 @@ The department head will be able to log in to the web application, create/delete
 |  **Design Video Creation**  |  |  :heavy_check_mark:  |  | :heavy_check_mark: |  | 
 |  **Design Video Editing**  |  |  :heavy_check_mark:   |  | :heavy_check_mark: |  | 
 |  **Design Report**  |  |  |  |  |  | 
-|  **Final Video Creation**  |  |  :heavy_check_mark:  |  | :heavy_check_mark: |  | 
-|  **Final Video Editing**  |  |  :heavy_check_mark:  |  | :heavy_check_mark: |  | 
+|  **Final Video Creation**  |  |  :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |  | 
+|  **Final Video Editing**  |  |  :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |  | 
 |  **Final Team Report**  |  |  :heavy_check_mark:  |  |  |  | 
 |  **Final Individual Report**  |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |
