@@ -16,6 +16,7 @@ There is no such system now for the instructors and the department to convenient
 
 ### High-level project description and boundaries
 
+> Describe your MVP in a few statements and identify the boundaries of the system. 
 
 #### MVP
 
@@ -58,23 +59,21 @@ Tracking the **reduction** in admin time through time logs, aiming to reduce it 
 
 ### Users Groups:
 
-
 The two types of users of the CMPS Department Management Program will be:
 
-#### 1. Department Head:
-The department head serves as the program administrator. The department head will be able to log into the web program and create staff profiles, create service roles/teaching assignments, and assign these roles/teaching assignments to the staff profiles. Metadata will be enterable by the department head for service roles/teaching assignments, such as the number of students in a class, the number of TAs, room number, etc.
-The department head will also be able to enter the number of hours worked per month for each staff profile (with the ability to edit hours for many staff profiles at once), and enter/update performance metrics for staff profiles. Once set up, the department head will be able to visualize working hours and performance metrics for entire selections of staff profiles (for all Statistics professors, for example), as well as individual staff profiles. Of course, the department head will also be able to delete staff profiles, service roles, assignments, etc.
-The management system will be accessed by staff members (and the department head) via user accounts, for which the Department Head will serve as the administrator, having the ability to create/delete accounts, reset passwords, and importantly, grant full visibility of certain staff profiles to certain user accounts (so that once a staff member creates an account, they'll be granted permission to see their own performance metrics).
+#### 1. Administrators:
+An administrator will be able to log into the web program, create staff profiles, create "jobs" (i.e. service roles/teaching assignments), and assign these jobs to the staff profiles. Metadata will be enterable by the department head for jobs, such as whether it is a teaching assignment or a service role, the number of students (if it's a teaching assignment), the number of TAs, room number, etc.
+The administrator will also be able to enter the number of hours worked per month for each staff profile (with the ability to edit hours for many staff profiles at once), and enter/update performance metrics for staff profiles. Once set up, the administrator will be able to visualize working hours and performance metrics for entire selections of staff profiles (for all Statistics professors, for example), as well as individual staff profiles. Of course, the administrator will also be able to delete staff profiles, jobs, assignments, etc.
+The management system will be accessed via user accounts, which the administrator will administrate, having the ability to create/delete accounts, reset passwords, and importantly, grant elevated visibility of certain staff profiles to certain user accounts (so that once a staff member creates an account, they'll be granted permission to see their own performance metrics—or, this feature can also be used to allow staff members to see performance metrics of other specific staff members, if desired, for lower-level managerial reasons).
 
 #### 2. Department Staff:
-Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential). The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive. The department staff generally just have viewing capabilities.
+Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential), or whoever's metrics they've specifically been granted access to view by the administrator. The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive. In general, the department staff mainly just have viewing capabilities.
 
 ### Envisioned Usage
 
+#### Administrator usage example
 
-#### Department head usage example
-
-1. Prof. Lawrence, the department head, visits the Management Program's web application by clicking the bookmarked URL in his browser
+1. Prof. Lawrence, a program administrator, visits the Management Program's web application by clicking the bookmarked URL in his browser
  2. Prof. Lawrence sees the login page, and enters his username and password, and logs in
  3. He sees the Management Program's dashboard, where there are charts and other visualizations of the CMPS department's working hours, assignments/roles, and performance metrics.
  4. A new employee, Mr. Magoo, was hired and needs to be added to the system as part of an onboarding process. Prof. Lawrence navigates to the web app's administration page, and fills out a form to create a new staff profile, which includes a name, and optionally metadata such as an employee number. He then presses the confirm button and a new staff profile is added to the database.
@@ -86,13 +85,15 @@ Department staff will be able to create an account at the login/sign up page of 
 #### Staff member usage example
 1. A staff member, Mr. Magoo, visits the CMPS Management Program's webpage and sees the login/sign up page. He presses the "sign up" button, and enters a username and password (twice, to confirm), as well as a UBC email.
 2. He receives an email which has a confirmation link, which he visits, and his sign-ups process is complete.
-3. In the future, after Prof. Lawrence has set up a staff profile for Mr. Magoo and binded it to his account, and entered his hours and performance metrics, Mr. Magoo logs in again. He clicks his username in the top-right corner of the page and is brought to his own account page, where he can see links to the staff profiles which he has permission to view. He clicks the link to his own profile.
-4. He sees his staff profile, just as anyone else would be able to if they had found it via searching the webpage, but since he is logged into an account that has permissions to view confidential data for this staff profile, he also sees his performance metrics displayed.
+3. In the future, after Prof. Lawrence has set up a staff profile for Mr. Magoo, granted elevated viewing permission for it to Mr. Magoo's account, and entered his hours and performance metrics, Mr. Magoo logs in again. He clicks his username in the top-right corner of the page and is brought to his own account page, where he can see links to the staff profiles which he has permission to view. He clicks the link to his own profile.
+4. He sees his staff profile, just as anyone else would be able to if they had found it via the search page, but since he is logged into an account that has permissions to view confidential data for this staff profile, he also sees his performance metrics displayed.
 5. He sees that he has worked 145 hours this week, and that he has some score X relating to his SEI surveys last semester. He has done what he came here to do, so he presses the log out button and leaves.
 
 ### Requirements:
 The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
 
+> In the requirements section, make sure to clearly define/describe the **functional** requirements (what the system will do), **non-functional** requirements (performane/development), **user requirements (what the users will be able to do with the system and **technical** requirements.  These requirements will be used to develop the detailed uses in the design and form your feature list.
+#### Functional Requirements:
 - Describe the characteristics of the final deliverable in ordinary non-technical language
 - Should be understandable to the customers
 - Functional requirements are what you want the deliverable to do
@@ -114,7 +115,7 @@ The department head will be able to log in to the web application, create/delete
 
 
 ## Tech Stack
-
+- Clientside device: The web app will only be available on desktop
 - Frontend: We chose to use React.js as our frontend, as it is the most popular front-end framework and has many plug-ins. It is also simple to get hands-on for basic usage.
 - CSS Library: We chose to use Tailwind for our CSS library, as it has very good documentation and makes CSS editing much easier with pre-built classes. 
 - Server OS: We chose to use Ubuntu Linux as our server OS, not only because it is the most popular OS used in the industry, but it is also easy to manage with a good eco-system. And the most famous free https cred service certbot has the best compatibility on Ubuntu.
@@ -125,7 +126,7 @@ The department head will be able to log in to the web application, create/delete
 
 ## High-level risks
 
-The risks in this project involve both management risks and technical risks. The management risks include not finishing the project on time or our deliveries not satisfying what the client wants. On the technical side, there are a couple of risks. The first is authentication. Since we need to let a user log in, ensuring the user did not bypass this login is one thing. We also have authorization, which means identifying if the user has the right to change the data, such as the staff and the instructor cannot change the data that the head can. Additionally, there are technical risks in the coding, such as XSS, CSRF, and SQL injection. These are common risks in web applications.
+The risks in this project involve both management risks and technical risks. The management risks include not finishing the project on time or our deliveries not satisfying what the client wants. On the technical side, there are a couple of risks. The first is authentication. Since we need to let a user log in, ensuring the user did not bypass this login is one thing. We also have authorization, which means identifying if the user has the right to change or view the data. Additionally, there are technical risks in the coding, such as XSS, CSRF, and SQL injection. These are common risks in web applications. In the end, what confidential information is at stake is working hours, passwords, SEI survey data, and other performance metrics.
 
 ## Assumptions and constraints
 
@@ -135,8 +136,6 @@ The risks in this project involve both management risks and technical risks. The
 - Instructors will have read-only access to their data, including service hours, course assignments, and performance comparisons.
 - Department heads will be responsible for entering and updating all relevant data (service roles, course assignments, survey results).
 - No real-time logging of hours by instructors will be required; expected hours per month will be used instead.
-
-
 
 
 ## Summary milestone schedule
@@ -164,33 +163,34 @@ The risks in this project involve both management risks and technical risks. The
 
 |  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
 |------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  | I have worked on a discord clone project using flask. Have experience on setup docker for database.    | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
-|  **Good At**  | Computer vision | Java, Python, MySQL, HTML and CSS  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
-|  **Expect to learn**  | Web programming, deployment| Experience an real world web development process. Learn ho to use fastAPI and React | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
+|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  |  | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
+|  **Good At**  | Computer vision |  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
+|  **Expect to learn**  | Web programming, deployment|  | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
+|  **"Expect to learn" original text (delete this row when we're done)**  | web programming, deployment  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
 
 > Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
 
 
 |  Category of Work/Features  | Yiyang Du | Dichen Feng   | Marshall Kwok Guo  | Vaughn Janes  | Jiayao Ni | 
 | ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
-|  **Project Management: Kanban Board Maintenance**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
-|  **System Architecture Design**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
-|  **Docker environment setup**  |  |:heavy_check_mark:  |  :heavy_check_mark:|  |  |
-|  **CSS Development**  |  | :heavy_check_mark: |  |  |:heavy_check_mark:  | 
+|  **Project Management: Kanban Board Maintenance**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **System Architecture Design**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **Docker environment setup**  |  |  |  :heavy_check_mark:|  |  |
+|  **CSS Development**  |  |  |  |  |:heavy_check_mark:  | 
 |  **Login Authentication logic**  | :heavy_check_mark: |  |  |  |  | 
 |  **Database schema design**  |  |  | :heavy_check_mark: |  |  |
-|  **Administration webpage database logic (big job)**  |  | :heavy_check_mark: |  |  | |
+|  **Administration webpage database logic (big job)**  |  |  |  |  | |
 |  **Login UI**  |  |   |  |  | :heavy_check_mark:|
 |  **Dashboard UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
 |  **Profile page UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
 |  **Administration webpage UI**  |  |  :heavy_check_mark:|  |  | :heavy_check_mark:|
-|  **Authorization logic**  |  | :heavy_check_mark: |  :heavy_check_mark:|  |  |
-|  **System Deployment**  |  | :heavy_check_mark: |  |  | |
+|  **Authorization logic**  |  |  |  :heavy_check_mark:|  |  |
+|  **System Deployment**  |  |  |  |  | |
 |  **Presentation Preparation**  |  |  |  |  | :heavy_check_mark: | 
 |  **Design Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **Design Video Editing**  |  |  :heavy_check_mark: |  | :heavy_check_mark: |  | 
+|  **Design Video Editing**  |  |   |  | :heavy_check_mark: |  | 
 |  **Design Report**  |  |  |  |  |  :heavy_check_mark:| 
 |  **Final Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **Final Video Editing**  |  | :heavy_check_mark: |  | :heavy_check_mark: |  | 
+|  **Final Video Editing**  |  |  |  | :heavy_check_mark: |  | 
 |  **Final Team Report**  |  |  |  |  | :heavy_check_mark: | 
 |  **Final Individual Report**  |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |
