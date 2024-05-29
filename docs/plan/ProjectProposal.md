@@ -164,34 +164,33 @@ The risks in this project involve both management risks and technical risks. The
 
 |  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
 |------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  |  | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
-|  **Good At**  | Computer vision |  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
-|  **Expect to learn**  | Web programming, deployment|  | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
-|  **"Expect to learn" original text (delete this row when we're done)**  | web programming, deployment  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
+|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  | I have worked on a discord clone project using flask. Have experience on setup docker for database.    | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
+|  **Good At**  | Computer vision | Java, Python, MySQL, HTML and CSS  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
+|  **Expect to learn**  | Web programming, deployment| Experience an real world web development process. Learn ho to use fastAPI and React | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
 
 > Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
 
 
 |  Category of Work/Features  | Yiyang Du | Dichen Feng   | Marshall Kwok Guo  | Vaughn Janes  | Jiayao Ni | 
 | ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
-|  **Project Management: Kanban Board Maintenance**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
-|  **System Architecture Design**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
-|  **Docker environment setup**  |  |  |  :heavy_check_mark:|  |  |
-|  **CSS Development**  |  |  |  |  |:heavy_check_mark:  | 
+|  **Project Management: Kanban Board Maintenance**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **System Architecture Design**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **Docker environment setup**  |  |:heavy_check_mark:  |  :heavy_check_mark:|  |  |
+|  **CSS Development**  |  | :heavy_check_mark: |  |  |:heavy_check_mark:  | 
 |  **Login Authentication logic**  | :heavy_check_mark: |  |  |  |  | 
 |  **Database schema design**  |  |  | :heavy_check_mark: |  |  |
-|  **Administration webpage database logic (big job)**  |  |  |  |  | |
+|  **Administration webpage database logic (big job)**  |  | :heavy_check_mark: |  |  | |
 |  **Login UI**  |  |   |  |  | :heavy_check_mark:|
 |  **Dashboard UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
 |  **Profile page UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
 |  **Administration webpage UI**  |  |  :heavy_check_mark:|  |  | :heavy_check_mark:|
-|  **Authorization logic**  |  |  |  :heavy_check_mark:|  |  |
-|  **System Deployment**  |  |  |  |  | |
+|  **Authorization logic**  |  | :heavy_check_mark: |  :heavy_check_mark:|  |  |
+|  **System Deployment**  |  | :heavy_check_mark: |  |  | |
 |  **Presentation Preparation**  |  |  |  |  | :heavy_check_mark: | 
 |  **Design Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **Design Video Editing**  |  |   |  | :heavy_check_mark: |  | 
+|  **Design Video Editing**  |  |  :heavy_check_mark: |  | :heavy_check_mark: |  | 
 |  **Design Report**  |  |  |  |  |  :heavy_check_mark:| 
 |  **Final Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **Final Video Editing**  |  |  |  | :heavy_check_mark: |  | 
+|  **Final Video Editing**  |  | :heavy_check_mark: |  | :heavy_check_mark: |  | 
 |  **Final Team Report**  |  |  |  |  | :heavy_check_mark: | 
 |  **Final Individual Report**  |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |
