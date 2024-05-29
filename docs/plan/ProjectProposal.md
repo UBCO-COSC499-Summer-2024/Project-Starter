@@ -1,4 +1,3 @@
-
 # Project Proposal for Project 1 (CMPS Department Management Program)
 
 **Team Number:** 12
@@ -103,25 +102,25 @@ The department head will be able to log in to the web application, create/delete
 - Focus is on the user experience with the system under all scenarios
 
 #### Technical Requirements:
-- These emerge from the functional requirements to answer the questions: 
+- These emerge from the functional requirements to answer the questions: 
 -- How will the problem be solved this time and will it be solved technologically and/or procedurally? 
--- Specify how the system needs to be designed and implemented to provide required functionality and fulfill required operational characteristics.
+-- Specify how the system needs to be designed and implemented to provide required functionality and fulfill required operational characteristics.
 
 > Let’s move on to the key functional requirements of our system. Firstly, we will implement a secure login system for department heads, staff, and instructors. This ensures that only authorized users can access the system, protecting sensitive data. I think this is crucial because it not only protects the privacy of the users but also ensures that the integrity of the data is maintained. By restricting access to authorized personnel, we can prevent unauthorized changes and potential misuse of the system.
 
 
 ## Tech Stack
-<!-- > Identify the “tech stack” you are using. This includes the technology the user is using to interact with your software (e.g., a web browser, an iPhone, any smartphone, etc.), the technology required to build the interface of your software, the technology required to handle the logic of your software (which may be part of the same framework as the technology for the interface), the technology required to handle any data storage, and the programming language(s) involved. You may also need to use an established API, in which case, say what that is. (Please don’t attempt to build your API in this course as you will need years of development experience to do it right.) You can explain your choices in a paragraph, in a list of bullet points, or a table. Just make sure you identify the full tech stack.
-> For each choice you make, provide a short justification based on the current trends in the industry. For example, don’t choose an outdated technology because you learned it in a course. Also, don’t choose a technology because one of the team members knows it well. You need to make choices that are good for the project and that meet the client’s needs, otherwise, you will be asked to change those choices.  Consider risk analysis. 
--->
-- Frontend: We chose to use React.js as our frontend, as it is the most popular front-end framework and has many plug-ins. It is also simple to get hands-on for basic usage. 
+> Identify the “tech stack” you are using. This includes the technology the user is using to interact with your software (e.g., a web browser, an iPhone, any smartphone, etc.), the technology required to build the interface of your software, the technology required to handle the logic of your software (which may be part of the same framework as the technology for the interface), the technology required to handle any data storage, and the programming language(s) involved. You may also need to use an established API, in which case, say what that is. (Please don’t attempt to build your API in this course as you will need years of development experience to do it right.) You can explain your choices in a paragraph, in a list of bullet points, or a table. Just make sure you identify the full tech stack.
+> For each choice you make, provide a short justification based on the current trends in the industry. For example, don’t choose an outdated technology because you learned it in a course. Also, don’t choose a technology because one of the team members knows it well. You need to make choices that are good for the project and that meet the client’s needs, otherwise, you will be asked to change those choices.  Consider risk analysis.
+
+- Frontend: We chose to use React.js as our frontend, as it is the most popular front-end framework and has many plug-ins. It is also simple to get hands-on for basic usage.
 - CSS Library: We chose to use Tailwind for our CSS library, as it has very good documentation and makes CSS editing much easier with pre-built classes. 
 - Server OS: We chose to use Ubuntu Linux as our server OS, not only because it is the most popular OS used in the industry, but it is also easy to manage with a good eco-system. And the most famous free https cred service certbot has the best compatibility on Ubuntu.
 -  Middleware: Although it is optional, we chose to use Apache as our middleware instead of exposing our backend directly. This allows us to run the backend on a port that is NOT 80 and do port forwarding, making the backend run without a sudo privilege. Apache also allows us to set up HTTPS easily with certbot.
 - Backend: We use FastAPI to build our backend, as it is simple to use with each function as an endpoint, and it has many plug-ins such as JWT. It also has an ORM database library that makes it easy to manage the database. 
 - Database: We chose MySQL as the database, as it is free (unlike SQLServer) and has an auth system (Unlike SQLite). 
-- OpenAI API: We chose to use OpenAI API to do some tricks to make the logic easier: such as loading unformatted data.
-  
+
+
 ## High-level risks
 
 > Describe and analyze any risks identified or associated with the project. 
@@ -155,9 +154,9 @@ The department head will be able to log in to the web application, create/delete
 
 |  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
 |------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-|  **Experience**  |  |  | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
-|  **Good At**  |  |  | I am good at React.js, python fastapi, and PyTorch.  | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
-|  **Expect to learn**  |  |  | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
+|  **Experience**  |  |  |  | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
+|  **Good At**  |  |  |  | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
+|  **Expect to learn**  |  |  |  | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
 |  **"Expect to learn" original text (delete this row when we're done)**  | Don’t ever leave this blank! We are all learning.  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
 
 > Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
@@ -167,22 +166,28 @@ The department head will be able to log in to the web application, create/delete
 | ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
 |  **Project Management: Kanban Board Maintenance**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
 |  **System Architecture Design**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **User Interface Design**  |  |  |  |  | :heavy_check_mark: |
+|  **Staff UI Design**  |  |  |  |  | :heavy_check_mark: |
+|  **Admin UI Design**  |  |  |  | :heavy_check_mark:  | |
+|  **Staff UI Review**  |  |  | :heavy_check_mark:  |  | |
+|  **Admin UI Review**  | :heavy_check_mark: |   |  |  | |
+|  **Login UI Design**  |  |   |  |  | :heavy_check_mark:|
+|  **Login UI Review**  |  :heavy_check_mark:|   |  |  | |
 |  **CSS Development**  |  |  |  |  |:heavy_check_mark:  | 
-|  **Serverside development**  |  |  |  | :heavy_check_mark: |  | 
-|  **admin login**  |  |  |  |  |  | 
-|  **staff login**  |  |  |  |  |  | 
-|  **staff info database (SID) setup**  |  |  |  |  |  |
-|  **course info database (CID) setup**  |  |  |  |  |  |
-|  **SID reader**  |  |  |  |  |  |
-|  **CID reader**  |  |  |  |  |  |
-|  **SID editor**  |  |  |  |  |  |
-|  **CID editor**  |  |  |  |  |  |
-|  **SID deletor**  |  |  |  |  |  |
-|  **CID deletor**  |  |  |  |  |  |
-|  **CID editor**  |  |  |  |  |  |
-|  **CID editor**  |  |  |  |  |  |
-|  **Database setup**  |  |  |  | :heavy_check_mark: |  :heavy_check_mark:| 
+|  **admin login**  | :heavy_check_mark: |  |  |  |  | 
+|  **staff login**  |  | :heavy_check_mark: |  |  |  | 
+|  **staff info table (SIT) setup**  |  |  | :heavy_check_mark: |  |  |
+|  **course info table (CIT) setup**  |  |  |  |:heavy_check_mark:  |  |
+|  **SIT reader**  |  |  |  |  | :heavy_check_mark: |
+|  **CIT reader**  |:heavy_check_mark:  |  |  |  |  |
+|  **SIT editor**  |  | :heavy_check_mark: |  |  |  |
+|  **CIT editor**  |  |  | :heavy_check_mark: |  |  |
+|  **SIT deletor**  |  |  |  | :heavy_check_mark: |  |
+|  **CIT deletor**  |  |  |  |  |  :heavy_check_mark:|
+|  **Dashboard UI**  | :heavy_check_mark: |  |  |  |  |
+|  **Administration webpage UI**  |  |  :heavy_check_mark:|  |  | 
+|  **staff viewing site code**  |  |  |  :heavy_check_mark:|  |  |
+|  **admin viewing site code**  |  |  |  | :heavy_check_mark: |  |
+|  **system deployment**  |  |  |  |  | :heavy_check_mark: |
 |  **Presentation Preparation**  |  |  |  |  | :heavy_check_mark: | 
 |  **Design Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
 |  **Design Video Editing**  |  |   |  | :heavy_check_mark: |  | 
