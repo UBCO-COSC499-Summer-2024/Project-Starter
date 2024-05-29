@@ -1,3 +1,4 @@
+
 # Project Proposal for Project 1 (CMPS Department Management Program)
 
 **Team Number:** 12
@@ -102,9 +103,9 @@ The department head will be able to log in to the web application, create/delete
 - Focus is on the user experience with the system under all scenarios
 
 #### Technical Requirements:
-- These emerge from the functional requirements to answer the questions: 
+- These emerge from the functional requirements to answer the questions: 
 -- How will the problem be solved this time and will it be solved technologically and/or procedurally? 
--- Specify how the system needs to be designed and implemented to provide required functionality and fulfill required operational characteristics.
+-- Specify how the system needs to be designed and implemented to provide required functionality and fulfill required operational characteristics.
 
 > Let’s move on to the key functional requirements of our system. Firstly, we will implement a secure login system for department heads, staff, and instructors. This ensures that only authorized users can access the system, protecting sensitive data. I think this is crucial because it not only protects the privacy of the users but also ensures that the integrity of the data is maintained. By restricting access to authorized personnel, we can prevent unauthorized changes and potential misuse of the system.
 
@@ -146,9 +147,9 @@ The department head will be able to log in to the web application, create/delete
 
 |  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
 |------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-|  **Experience**  |  |  |  | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
-|  **Good At**  |  |  |  | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
-|  **Expect to learn**  |  |  |  | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
+|  **Experience**  |  |  | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
+|  **Good At**  |  |  | I am good at React.js, python fastapi, and PyTorch.  | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
+|  **Expect to learn**  |  |  | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
 |  **"Expect to learn" original text (delete this row when we're done)**  | Don’t ever leave this blank! We are all learning.  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
 
 > Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
