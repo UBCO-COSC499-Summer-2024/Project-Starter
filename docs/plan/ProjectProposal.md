@@ -16,7 +16,6 @@ There is no such system now for the instructors and the department to convenient
 
 ### High-level project description and boundaries
 
-> Describe your MVP in a few statements and identify the boundaries of the system. 
 
 #### MVP
 
@@ -59,7 +58,6 @@ Tracking the **reduction** in admin time through time logs, aiming to reduce it 
 
 ### Users Groups:
 
-> Provide a description of the primary users in the system and what their high-level goals are with the system (Hint: there is more than one group for most projects). Proto-personas will help to identify user groups and their wants/needs.
 
 The two types of users of the CMPS Department Management Program will be:
 
@@ -73,7 +71,6 @@ Department staff will be able to create an account at the login/sign up page of 
 
 ### Envisioned Usage
 
-> What can the user do with your software? If there are multiple user groups, explain it from each of their perspectives. These are what we called *user scenarios* back in COSC 341. Use subsections if needed to make things more clear. Make sure you tell a full story about how the user will use your software. An MVP is a minimal and viable, so don’t go overboard with making things fancy (to claim you’ll put in a ton of extra features and not deliver in the end), and don’t focus solely on one part of your software so that the main purpose isn’t achievable. Scope wisely.  Don't forget about journey lines to describe the user scenarios.
 
 #### Department head usage example
 
@@ -96,8 +93,6 @@ Department staff will be able to create an account at the login/sign up page of 
 ### Requirements:
 The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
 
-> In the requirements section, make sure to clearly define/describe the **functional** requirements (what the system will do), **non-functional** requirements (performane/development), **user requirements (what the users will be able to do with the system and **technical** requirements.  These requirements will be used to develop the detailed uses in the design and form your feature list.
-#### Functional Requirements:
 - Describe the characteristics of the final deliverable in ordinary non-technical language
 - Should be understandable to the customers
 - Functional requirements are what you want the deliverable to do
@@ -119,8 +114,6 @@ The department head will be able to log in to the web application, create/delete
 
 
 ## Tech Stack
-> Identify the “tech stack” you are using. This includes the technology the user is using to interact with your software (e.g., a web browser, an iPhone, any smartphone, etc.), the technology required to build the interface of your software, the technology required to handle the logic of your software (which may be part of the same framework as the technology for the interface), the technology required to handle any data storage, and the programming language(s) involved. You may also need to use an established API, in which case, say what that is. (Please don’t attempt to build your API in this course as you will need years of development experience to do it right.) You can explain your choices in a paragraph, in a list of bullet points, or a table. Just make sure you identify the full tech stack.
-> For each choice you make, provide a short justification based on the current trends in the industry. For example, don’t choose an outdated technology because you learned it in a course. Also, don’t choose a technology because one of the team members knows it well. You need to make choices that are good for the project and that meet the client’s needs, otherwise, you will be asked to change those choices.  Consider risk analysis.
 
 - Frontend: We chose to use React.js as our frontend, as it is the most popular front-end framework and has many plug-ins. It is also simple to get hands-on for basic usage.
 - CSS Library: We chose to use Tailwind for our CSS library, as it has very good documentation and makes CSS editing much easier with pre-built classes. 
@@ -132,15 +125,17 @@ The department head will be able to log in to the web application, create/delete
 
 ## High-level risks
 
-> Describe and analyze any risks identified or associated with the project.
-
 The risks in this project involve both management risks and technical risks. The management risks include not finishing the project on time or our deliveries not satisfying what the client wants. On the technical side, there are a couple of risks. The first is authentication. Since we need to let a user log in, ensuring the user did not bypass this login is one thing. We also have authorization, which means identifying if the user has the right to change the data, such as the staff and the instructor cannot change the data that the head can. Additionally, there are technical risks in the coding, such as XSS, CSRF, and SQL injection. These are common risks in web applications.
 
 ## Assumptions and constraints
 
-> What assumptions is the project team making and what are the constraints for the project?
 - We assume the student survey result to be a percentage number for each course and we do not care about how the SEI questions will be like specifically nor how to gather and calculate all of the students feedback of a course.
 - We assume it would be a web based system, mainly used in PC.
+- Department heads will have full administrative access to log and track service roles, course assignments, and other performance metrics.
+- Instructors will have read-only access to their data, including service hours, course assignments, and performance comparisons.
+- Department heads will be responsible for entering and updating all relevant data (service roles, course assignments, survey results).
+- No real-time logging of hours by instructors will be required; expected hours per month will be used instead.
+
 
 
 
