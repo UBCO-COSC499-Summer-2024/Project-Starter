@@ -1,4 +1,4 @@
-# Project Proposal for \<project number\>
+# Project Proposal for Project 1 (CMPS Department Management Program)
 
 **Team Number:** \<team number\>
 
@@ -10,10 +10,10 @@
 
 What is the purpose of this software? What problem does it solve? What is the unique value proposition? Why is your solution better than others?
 
-The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. I believe this is really important because having a clear and efficient system will save time for instructors and department heads, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
+The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. We believe this is really important because having a clear and efficient system will save time for department heads and instructors, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
 
 #### UVP:
-There is no such system now for the instrucoitrs and the department to see how many hours of working. This will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instrucots. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
+There is no such system now for the instructors and the department to conveniently visualize the assignments of staff members and their working hours. Our program will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instructors. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
 
 ### High-level project description and boundaries
 
@@ -24,9 +24,9 @@ We will develop a system for department heads to easilly log and track service r
 
 We will also implement a feature to track course assignments, including student numbers, survey data, and other relevant metrics. This will allow department heads to see individual instructor data and overall department performance through charts and visualizations.
 
-Next, we will develop an dashboard for instructors to view their current service hours, course assigmnets, and overall visibility on their contribution to the department. Instructors will not have direct editing capabilities but can see their data and comparisons with departmental averages.
+Next, we will develop a dashboard for instructors to view their current service hours, course assigments, and see their contribution to the department. Instructors will not have editing capabilities but can see their data and comparisons with departmental averages.
 
-To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty. 
+To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty.
 
 #### Boundaries
 
@@ -43,19 +43,28 @@ Gathering user **feedback** surveys to gauge satisfaction (Specific, Measurable,
 
 Tracking the **reduction** in admin time through time logs, aiming to reduce it from hours to minutes (Specific, Measurable, Achievable, Relevant, Time-bound).
 
+
+
 ## Users, Usage Scenarios and High Level Requirements 
 
 ### Users Groups (Vaughn will do this part):
-Provide a description of the primary users in the system and what their high-level goals are with the system (Hint: there is more than one group for most projects).  Proto-personas will help to identify user groups and their wants/needs. 
+Provide a description of the primary users in the system and what their high-level goals are with the system (Hint: there is more than one group for most projects). Proto-personas will help to identify user groups and their wants/needs.
 
-The two types of users of the CMPS Department Management Program will be the department head, and the department staff. The department head will be able to create staff profiles (i.e. Professor Steve McGee), create courses (i.e. STAT 407), create roles (e.g. teaching a course, managing a sub-department), and assign department staff to roles (e.g. Prof. Steve McGee teaches STAT 407), so that the assignments of CMPS department staff can be fully visible, all in one place. Courses will have a description as well as other metadata, such as number of students, number of TAs, etc. As well, the Management Program will keep track of performance metrics for staff, such as SEI survey results, hours worked. The program will support the addition of new performance metrics. To maximize the visibility of the department, the program's main webpage will be a dashboard with visualizations/charts of department activities and performance. The department head will be able to inspect and visualize data for whole sub-departments (Math, Statistics, Physics, Computer Science), such as the distribution of performance metrics and hours.
+The two types of users of the CMPS Department Management Program will be 1: the department head, and 2: the department staff. The department head serves as the program administrator and the department staff generally just have viewing capabilities.
 
-Department staff will be able to log into the system and view all staff assignments, courses and course metadata, as this is public information, but will only be able to view their own performance metrics (this information is confidential). If the client wishes, the department staff's performance metrics can be displayed alongside anonymous metrics such as the average hours worked for their department as a perofrmance incentive.
+#### Department Head:
+The department head will be able to log into the web program and create staff profiles, create service roles/teaching assignments, and assign these roles/teaching assignments to the staff profiles. Metadata will be enterable by the department head for service roles/teaching assignments, such as the number of students in a class, the number of TAs, room number, etc.
+The department head will also be able to enter the number of hours worked per month for each staff profile (with the ability to edit hours for many staff profiles at once), and enter/update performance metrics for staff profiles. Once set up, the department head will be able to visualize working hours and performance metrics for entire selections of staff profiles (for all Statistics professors, for example), as well as individual staff profiles. Of course, the department head will also be able to delete staff profiles, service roles, assignments, etc.
+The management system will be accessed by staff members (and the department head) via user accounts, for which the Department Head will serve as the administrator, having the ability to create/delete accounts, reset passwords, and importantly, grant full visibility of certain staff profiles to certain user accounts (so that once a staff member creates an account, they'll be granted permission to see their own performance metrics).
+
+#### Department Staff:
+Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential). The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive.
 
 ### Envisioned Usage (Vaughn will do this part)
 What can the user do with your software? If there are multiple user groups, explain it from each of their perspectives. These are what we called *user scenarios* back in COSC 341. Use subsections if needed to make things more clear. Make sure you tell a full story about how the user will use your software. An MVP is a minimal and viable, so don’t go overboard with making things fancy (to claim you’ll put in a ton of extra features and not deliver in the end), and don’t focus solely on one part of your software so that the main purpose isn’t achievable. Scope wisely.  Don't forget about journey lines to describe the user scenarios.  
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis. Curabitur dictum gravida mauris. Nam arcu libero, nonummy eget, consectetuer id, vulputate a, magna. Donec vehicula augue eu neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris ut leo. Cras viverra metus rhoncus sem. Nulla et lectus vestibulum urna fringilla ultrices. Phasellus eu tellus sit amet tortor gravida placerat. Integer sapien est, iaculis in, pretium quis, viverra ac, nunc. Praesent eget sem vel leo ultrices bibendum. Aenean faucibus. Morbi dolor nulla, malesuada eu, pulvinar at, mollis ac, nulla. Curabitur auctor semper nulla. Donec varius orci eget risus. Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam. Duis eget orci sit amet orci dignissim rutrum.
+The following is an example of how the department head can use the software
+
 
 ### Requirements:
 The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
