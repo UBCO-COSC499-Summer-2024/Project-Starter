@@ -52,22 +52,37 @@ Tracking the **reduction** in admin time through time logs, aiming to reduce it 
 
 > Provide a description of the primary users in the system and what their high-level goals are with the system (Hint: there is more than one group for most projects). Proto-personas will help to identify user groups and their wants/needs.
 
-The two types of users of the CMPS Department Management Program will be 1: the department head, and 2: the department staff. The department head serves as the program administrator and the department staff generally just have viewing capabilities.
+The two types of users of the CMPS Department Management Program will be:
 
-#### Department Head:
-The department head will be able to log into the web program and create staff profiles, create service roles/teaching assignments, and assign these roles/teaching assignments to the staff profiles. Metadata will be enterable by the department head for service roles/teaching assignments, such as the number of students in a class, the number of TAs, room number, etc.
+#### 1. Department Head:
+The department head serves as the program administrator. The department head will be able to log into the web program and create staff profiles, create service roles/teaching assignments, and assign these roles/teaching assignments to the staff profiles. Metadata will be enterable by the department head for service roles/teaching assignments, such as the number of students in a class, the number of TAs, room number, etc.
 The department head will also be able to enter the number of hours worked per month for each staff profile (with the ability to edit hours for many staff profiles at once), and enter/update performance metrics for staff profiles. Once set up, the department head will be able to visualize working hours and performance metrics for entire selections of staff profiles (for all Statistics professors, for example), as well as individual staff profiles. Of course, the department head will also be able to delete staff profiles, service roles, assignments, etc.
 The management system will be accessed by staff members (and the department head) via user accounts, for which the Department Head will serve as the administrator, having the ability to create/delete accounts, reset passwords, and importantly, grant full visibility of certain staff profiles to certain user accounts (so that once a staff member creates an account, they'll be granted permission to see their own performance metrics).
 
-#### Department Staff:
-Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential). The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive.
+#### 2. Department Staff:
+Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential). The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive. The department staff generally just have viewing capabilities.
 
 ### Envisioned Usage (Vaughn will do this part)
 
 > What can the user do with your software? If there are multiple user groups, explain it from each of their perspectives. These are what we called *user scenarios* back in COSC 341. Use subsections if needed to make things more clear. Make sure you tell a full story about how the user will use your software. An MVP is a minimal and viable, so don’t go overboard with making things fancy (to claim you’ll put in a ton of extra features and not deliver in the end), and don’t focus solely on one part of your software so that the main purpose isn’t achievable. Scope wisely.  Don't forget about journey lines to describe the user scenarios.
 
-The following is an example of how the department head can use the software: TODO: finish this
+The following is an example of how the department head can use the software:
 
+1. Prof. Lawrence, the department head, visits the Management Program's web application by clicking the bookmarked URL in his browser
+ 2. Prof. Lawrence sees the login page, and enters his username and password, and logs in
+ 3. He sees the Management Program's dashboard, where there are charts and other visualizations of the CMPS department's working hours, assignments/roles, and performance metrics.
+ 4. A new employee, Mr. Magoo, was hired and needs to be added to the system as part of an onboarding process. Prof. Lawrence navigates to the web app's administration page, and fills out a form to create a new staff profile, which includes a name, and optionally metadata such as an employee number. He then presses the confirm button and a new staff profile is added to the database.
+ 5. Prof. Lawrence scrolls down to the "Create/modify Job" subsection, located on the same webpage for convenience, to create the course to which Mr. Magoo is assigned to teach (COSC 360). He enters the name "COSC 360 001" and hits the confirm button, and the course is added to the database. If COSC 360 001 already exists, then he doesn't need to do this (and if he does it anyway, then the database will be unchanged)
+ 6. Prof. Lawrence then scrolls down to the "Create/modify assignment" subsection, searches for Mr. Magoo in the first drop-down text box and selects him, searches for "COSC 360 001" in the second drop-down text box, and then presses the confirm button. In the database, COSC 360 001 is now added to Mr. Magoo's assignments.
+ 7. Prof. Lawrence either creates a new account for the employee, or the employee has created their own account. Prof. Lawrence navigates to the "Accounts management" subpage of the administration page, and fills out a form to bind Mr. Magoo's new account to his staff profile, and confirms it. Mr. Magoo will now be able to see his own confidential performance metrics when he logs in, once they are submitted.
+ 8. Prof. Lawrence logs out and goes to lunch
+
+The following is an example of how a staff member can use the software:
+1. A staff member, Mr. Magoo, visits the CMPS Management Program's webpage and sees the login/sign up page. He presses the "sign up" button, and enters a username and password (twice, to confirm), as well as a UBC email.
+2. He receives an email which has a confirmation link, which he visits, and his sign-ups process is complete.
+3. In the future, after Prof. Lawrence has set up a staff profile for Mr. Magoo and binded it to his account, and entered his hours and performance metrics, Mr. Magoo logs in again. He clicks his username in the top-right corner of the page and is brought to his own account page, where he can see links to the staff profiles which he has permission to view. He clicks the link to his own profile.
+4. He sees his staff profile, just as anyone else would be able to if they had found it via searching the webpage, but since he is logged into an account that has permissions to view confidential data for this staff profile, he also sees his performance metrics displayed.
+5. Todo:finish
 
 ### Requirements:
 The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
