@@ -66,7 +66,7 @@ Department staff will be able to create an account at the login/sign up page of 
 
 > What can the user do with your software? If there are multiple user groups, explain it from each of their perspectives. These are what we called *user scenarios* back in COSC 341. Use subsections if needed to make things more clear. Make sure you tell a full story about how the user will use your software. An MVP is a minimal and viable, so don’t go overboard with making things fancy (to claim you’ll put in a ton of extra features and not deliver in the end), and don’t focus solely on one part of your software so that the main purpose isn’t achievable. Scope wisely.  Don't forget about journey lines to describe the user scenarios.
 
-The following is an example of how the department head can use the software:
+#### Department head usage example
 
 1. Prof. Lawrence, the department head, visits the Management Program's web application by clicking the bookmarked URL in his browser
  2. Prof. Lawrence sees the login page, and enters his username and password, and logs in
@@ -77,12 +77,12 @@ The following is an example of how the department head can use the software:
  7. Prof. Lawrence either creates a new account for the employee, or the employee has created their own account. Prof. Lawrence navigates to the "Accounts management" subpage of the administration page, and fills out a form to bind Mr. Magoo's new account to his staff profile, and confirms it. Mr. Magoo will now be able to see his own confidential performance metrics when he logs in, once they are submitted.
  8. Prof. Lawrence logs out and goes to lunch
 
-The following is an example of how a staff member can use the software:
+#### Staff member usage example
 1. A staff member, Mr. Magoo, visits the CMPS Management Program's webpage and sees the login/sign up page. He presses the "sign up" button, and enters a username and password (twice, to confirm), as well as a UBC email.
 2. He receives an email which has a confirmation link, which he visits, and his sign-ups process is complete.
 3. In the future, after Prof. Lawrence has set up a staff profile for Mr. Magoo and binded it to his account, and entered his hours and performance metrics, Mr. Magoo logs in again. He clicks his username in the top-right corner of the page and is brought to his own account page, where he can see links to the staff profiles which he has permission to view. He clicks the link to his own profile.
 4. He sees his staff profile, just as anyone else would be able to if they had found it via searching the webpage, but since he is logged into an account that has permissions to view confidential data for this staff profile, he also sees his performance metrics displayed.
-5. Todo:finish
+5. He sees that he has worked 145 hours this week, and that he has some score X relating to his SEI surveys last semester. He has done what he came here to do, so he presses the log out button and leaves.
 
 ### Requirements:
 The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
