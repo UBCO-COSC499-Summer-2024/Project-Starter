@@ -36,8 +36,11 @@ To encourage instructors for a better distribution, we will also include feature
 Make sure to use simple but precise statement of goals for the project that will be included when it the project is completed.  Rememeber that goals must be clear and measurable and **SMART**.  It should be clearly understood what success means to the project and how the success will be measured (as a high level, what is success?). 
 
 First, we want to make it super easy and quick to record and manage instructor service roles and teaching assignments, cutting down the time needed from hours to just minutes. Second, we’ll provide real-time visualizations and benchmarks so instructors can see how they’re doing and figure out where they can improve. Third, we’ll help make sure instructors are assigned to the right teaching and service roles based on their past performance. The scope of this project includes developing features for efficient data entry, creating visual performance dashboards, and integrating historical performance data for better role allocation. Success for us means having lots of users who are happy with the system, making life easier for instructors by cutting down their admin work, and improving how teaching and service roles are managed.
+
 We’ll measure:
+
 Gathering user **feedback** surveys to gauge satisfaction (Specific, Measurable, Relevant).
+
 Tracking the **reduction** in admin time through time logs, aiming to reduce it from hours to minutes (Specific, Measurable, Achievable, Relevant, Time-bound).
 
 ## Users, Usage Scenarios and High Level Requirements 
