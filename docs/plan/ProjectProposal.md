@@ -165,7 +165,7 @@ The department head will be able to log in to the web application, create/delete
 |  **Feature 2**  |  |  |  |  |  | 
 |  **...**  |  |  |  |  |  |
 |  **Database setup**  |  |  |  | :heavy_check_mark: |  :heavy_check_mark:| 
-|  **Presentation Preparation**  |  |  |  |  |  | 
+|  **Presentation Preparation**  |  |  |  |  | :heavy_check_mark: | 
 |  **Design Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
 |  **Design Video Editing**  |  |   |  | :heavy_check_mark: |  | 
 |  **Design Report**  |  |  |  |  |  :heavy_check_mark:| 
