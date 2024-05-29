@@ -90,28 +90,31 @@ Department staff will be able to create an account at the login/sign up page of 
 5. He sees that he has worked 145 hours this week, and that he has some score X relating to his SEI surveys last semester. He has done what he came here to do, so he presses the log out button and leaves.
 
 ### Requirements:
-The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
-
 > In the requirements section, make sure to clearly define/describe the **functional** requirements (what the system will do), **non-functional** requirements (performane/development), **user requirements (what the users will be able to do with the system and **technical** requirements.  These requirements will be used to develop the detailed uses in the design and form your feature list.
 #### Functional Requirements:
-- Describe the characteristics of the final deliverable in ordinary non-technical language
-- Should be understandable to the customers
-- Functional requirements are what you want the deliverable to do
+- Secure Login System: Authorized access for department heads, staff, and instructors.
+- Visually information of the working hours for instructors and department
+- Adding, editing and deleting the database tables
+- Be able to manage the staff for administrator
+
 
 #### Non-functional Requirements:
-- Specify criteria that can be used to judge the final product or service that your project delivers
-- List restrictions or constraints to be placed on the deliverable and how to build it; remember that this is intended to restrict the number of solutions that will meet a set of requirements.
+- The system should be easy to use and the staff should spend less than 5 mins to view the information they want to see, such as their monthly working hours and course assignments
+- It is a web system based on PC.
+- We do not consider the how to gather the students feedback.
+- We use feature based development
 
 #### User Requirements:
-- Describes what the user needs to do with the system (links to FR)
-- Focus is on the user experience with the system under all scenarios
+- The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
+- The UI should be simple and easy to use to save time for the staff
+- Reducing the time of management to less than 20 mins
+- Visually showing the staff the working hours of each month
+- Motivate staff to work better
 
 #### Technical Requirements:
-- These emerge from the functional requirements to answer the questions: 
--- How will the problem be solved this time and will it be solved technologically and/or procedurally? 
--- Specify how the system needs to be designed and implemented to provide required functionality and fulfill required operational characteristics.
+- Database and login info be protected from potential attacks
+- It’s a website based system
 
-> Let’s move on to the key functional requirements of our system. Firstly, we will implement a secure login system for department heads, staff, and instructors. This ensures that only authorized users can access the system, protecting sensitive data. I think this is crucial because it not only protects the privacy of the users but also ensures that the integrity of the data is maintained. By restricting access to authorized personnel, we can prevent unauthorized changes and potential misuse of the system.
 
 
 ## Tech Stack
@@ -163,34 +166,33 @@ The risks in this project involve both management risks and technical risks. The
 
 |  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
 |------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  |  | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
-|  **Good At**  | Computer vision |  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
-|  **Expect to learn**  | Web programming, deployment|  | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
-|  **"Expect to learn" original text (delete this row when we're done)**  | web programming, deployment  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
+|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  | I have worked on a discord clone project using flask. Have experience on setup docker for database.    | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
+|  **Good At**  | Computer vision | Java, Python, MySQL, HTML and CSS  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
+|  **Expect to learn**  | Web programming, deployment| Experience an real world web development process. Learn ho to use fastAPI and React | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  |
 
 > Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
 
 
 |  Category of Work/Features  | Yiyang Du | Dichen Feng   | Marshall Kwok Guo  | Vaughn Janes  | Jiayao Ni | 
 | ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
-|  **Project Management: Kanban Board Maintenance**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
-|  **System Architecture Design**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
-|  **Docker environment setup**  |  |  |  :heavy_check_mark:|  |  |
-|  **CSS Development**  |  |  |  |  |:heavy_check_mark:  | 
-|  **Login Authentication logic**  | :heavy_check_mark: |  |  |  |  | 
-|  **Database schema design**  |  |  | :heavy_check_mark: |  |  |
-|  **Administration webpage database logic (big job)**  |  |  |  |  | |
+|  **Project Management: Kanban Board Maintenance**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **System Architecture Design**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **Docker environment setup**  |  |:heavy_check_mark:  |  :heavy_check_mark:| :heavy_check_mark: |  |
+|  **CSS Development**  |  | :heavy_check_mark: |  |  |:heavy_check_mark:  | 
+|  **Login Authentication logic**  | :heavy_check_mark: |  |  | :heavy_check_mark: |  | 
+|  **Database schema design**  |  |  | :heavy_check_mark: | :heavy_check_mark: |  |
+|  **Administration webpage database logic (big job)**  |  | :heavy_check_mark: |  | :heavy_check_mark: | |
 |  **Login UI**  |  |   |  |  | :heavy_check_mark:|
 |  **Dashboard UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
 |  **Profile page UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
 |  **Administration webpage UI**  |  |  :heavy_check_mark:|  |  | :heavy_check_mark:|
-|  **Authorization logic**  |  |  |  :heavy_check_mark:|  |  |
-|  **System Deployment**  |  |  |  |  | |
+|  **Authorization logic**  |  | :heavy_check_mark: |  :heavy_check_mark:| :heavy_check_mark: |  |
+|  **System Deployment**  |  | :heavy_check_mark: |  | :heavy_check_mark: | |
 |  **Presentation Preparation**  |  |  |  |  | :heavy_check_mark: | 
 |  **Design Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **Design Video Editing**  |  |   |  | :heavy_check_mark: |  | 
+|  **Design Video Editing**  |  |  :heavy_check_mark: |  | :heavy_check_mark: |  | 
 |  **Design Report**  |  |  |  |  |  :heavy_check_mark:| 
 |  **Final Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **Final Video Editing**  |  |  |  | :heavy_check_mark: |  | 
+|  **Final Video Editing**  |  | :heavy_check_mark: |  | :heavy_check_mark: |  | 
 |  **Final Team Report**  |  |  |  |  | :heavy_check_mark: | 
 |  **Final Individual Report**  |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |
