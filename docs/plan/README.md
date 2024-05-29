@@ -462,55 +462,55 @@ Use this opportunity to discuss with your team who may do what in the project. M
    </td>
    <td>
    </td>
-   <td>
+   <td> ✔️
    </td>
    <td>
    </td>
    <td>
    </td>
-   <td>Yes
+   <td> ✔️
    </td>
   </tr>
   <tr>
    <td>System Architect Design
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>User Interface Design
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>CSS Development
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
@@ -520,11 +520,11 @@ User Registration
    </td>
    <td>
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
@@ -540,9 +540,9 @@ Course Registration and Creation
    </td>
    <td>
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
@@ -554,7 +554,7 @@ Student Dashboard
    </td>
    <td>
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
@@ -566,7 +566,7 @@ Student Dashboard
 <p>
 Professor Dashboard
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
@@ -586,7 +586,7 @@ TA Dashboard
    </td>
    <td>
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
@@ -598,9 +598,9 @@ TA Dashboard
 <p>
 Teacher Training AI
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
@@ -618,11 +618,11 @@ TA Review Assignment
    </td>
    <td>
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
@@ -638,19 +638,19 @@ Course Deletion
    </td>
    <td>
    </td>
-   <td>
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>DataBase Setup
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
    <td>
    </td>
-   <td>
+   <td>✔️
    </td>
    <td>
    </td>
@@ -658,39 +658,39 @@ Course Deletion
   <tr>
    <td>Presentation Preparation
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>Design Video Creation
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>Design Video Editing
    </td>
-   <td>Yes
-   </td>
    <td>
    </td>
-   <td>Yes
+   <td>✔️
+   </td>
+   <td>
    </td>
    <td>
    </td>
@@ -700,71 +700,71 @@ Course Deletion
   <tr>
    <td>Design Report
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>Final Video Creation
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>Final Video Editing
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>Final Team Report
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
   <tr>
    <td>Final Individual Report
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
-   <td>
+   <td>✔️
    </td>
-   <td>Yes
+   <td>✔️
    </td>
   </tr>
 </table>
