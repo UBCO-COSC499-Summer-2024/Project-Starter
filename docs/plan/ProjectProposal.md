@@ -8,22 +8,27 @@
 
 ### Project purpose or justification (UVP)
 
->The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. We believe this is really important because having a clear and efficient system will save time for department heads and instructors, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
+The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. We believe this is really important because having a clear and efficient system will save time for department heads and instructors, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
 
 #### UVP:
 
->There is no such system now for the instructors and the department to conveniently visualize the assignments of staff members and their working hours. Our program will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instructors. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
+There is no such system now for the instructors and the department to conveniently visualize the assignments of staff members and their working hours. Our program will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instructors. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
 
 ### High-level project description and boundaries
 
+> Describe your MVP in a few statements and identify the boundaries of the system. 
 
-#### MVP 
->We will develop a system for department heads to easilly log and track service roles for instructors, including Undergraduate Advisor, Graduate Advisor, and committee member roles. The system will store descriptions and expected hours per month for each service role without requiring instructors to log their time actively.
-<br>We will also implement a feature to track course assignments, including student numbers, survey data, and other relevant metrics. This will allow department heads to see individual instructor data and overall department performance through charts and visualizations.
-<br>Next, we will develop a dashboard for instructors to view their current service hours, course assigments, and see their contribution to the department. Instructors will not have editing capabilities but can see their data and comparisons with departmental averages.
-<br>To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty.
+#### MVP
 
-#### Things are in Scope
+We will develop a system for department heads to easilly log and track service roles for instructors, including Undergraduate Advisor, Graduate Advisor, and committee member roles. The system will store descriptions and expected hours per month for each service role without requiring instructors to log their time actively.
+
+We will also implement a feature to track course assignments, including student numbers, survey data, and other relevant metrics. This will allow department heads to see individual instructor data and overall department performance through charts and visualizations.
+
+Next, we will develop a dashboard for instructors to view their current service hours, course assigments, and see their contribution to the department. Instructors will not have editing capabilities but can see their data and comparisons with departmental averages.
+
+To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty.
+
+#### Things that are in scope
 
 - Tracking and logging an expected serivice hour for the instructor
 - Storing expected hours for various service roles.
@@ -32,15 +37,13 @@
 - Create an dashboard for instructor to view current assignments, service roles, serivce hour, and registered courses.
 - Add encourage message on the performance report.
 
-#### Things are out of Scope
+#### Boundaries (Things that are out of scope)
 
-- Real time loggin hours by instructors
-- Direct data editing capabilities by people other than the administor.
-- Extensive reward or incentive programs beyond simple encouraging messages.
-
+- Specific times for staff working hours (it will only be on an "hours per month" or bi-weekly basis)
+- Direct data editing capabilities by people other than the administrator.
+- Extensive reward or incentive programs beyond simple encouraging messages/statistics
 
 ### Measurable project objectives and related success criteria (scope of project)
-
 
 First, we want to make it super easy and quick to record and manage instructor service roles and teaching assignments, cutting down the time needed from hours to just minutes. Second, we’ll provide real-time visualizations and benchmarks so instructors can see how they’re doing and figure out where they can improve. Third, we’ll help make sure instructors are assigned to the right teaching and service roles based on their past performance. The scope of this project includes developing features for efficient data entry, creating visual performance dashboards, and integrating historical performance data for better role allocation. Success for us means having lots of users who are happy with the system, making life easier for instructors by cutting down their admin work, and improving how teaching and service roles are managed.
 
@@ -56,6 +59,8 @@ Tracking the **reduction** in admin time through time logs, aiming to reduce it 
 
 ### Users Groups:
 
+> Provide a description of the primary users in the system and what their high-level goals are with the system (Hint: there is more than one group for most projects). Proto-personas will help to identify user groups and their wants/needs.
+
 The two types of users of the CMPS Department Management Program will be:
 
 #### 1. Department Head:
@@ -68,6 +73,7 @@ Department staff will be able to create an account at the login/sign up page of 
 
 ### Envisioned Usage
 
+> What can the user do with your software? If there are multiple user groups, explain it from each of their perspectives. These are what we called *user scenarios* back in COSC 341. Use subsections if needed to make things more clear. Make sure you tell a full story about how the user will use your software. An MVP is a minimal and viable, so don’t go overboard with making things fancy (to claim you’ll put in a ton of extra features and not deliver in the end), and don’t focus solely on one part of your software so that the main purpose isn’t achievable. Scope wisely.  Don't forget about journey lines to describe the user scenarios.
 
 #### Department head usage example
 
@@ -126,11 +132,17 @@ The department head will be able to log in to the web application, create/delete
 
 ## High-level risks
 
-> Describe and analyze any risks identified or associated with the project. 
+> Describe and analyze any risks identified or associated with the project.
+
 The risks in this project involve both management risks and technical risks. The management risks include not finishing the project on time or our deliveries not satisfying what the client wants. On the technical side, there are a couple of risks. The first is authentication. Since we need to let a user log in, ensuring the user did not bypass this login is one thing. We also have authorization, which means identifying if the user has the right to change the data, such as the staff and the instructor cannot change the data that the head can. Additionally, there are technical risks in the coding, such as XSS, CSRF, and SQL injection. These are common risks in web applications.
+
 ## Assumptions and constraints
 
 > What assumptions is the project team making and what are the constraints for the project?
+- We assume the student survey result to be a percentage number for each course and we do not care about how the SEI questions will be like specifically nor how to gather and calculate all of the students feedback of a course.
+- We assume it would be a web based system, mainly used in PC.
+
+
 
 ## Summary milestone schedule
 
@@ -157,10 +169,10 @@ The risks in this project involve both management risks and technical risks. The
 
 |  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
 |------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-|  **Experience**  |  |  |  | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
-|  **Good At**  |  |  |  | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
-|  **Expect to learn**  |  |  |  | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
-|  **"Expect to learn" original text (delete this row when we're done)**  | Don’t ever leave this blank! We are all learning.  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
+|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  |  | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
+|  **Good At**  | Computer vision |  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
+|  **Expect to learn**  | Web programming, deployment|  | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  | 
+|  **"Expect to learn" original text (delete this row when we're done)**  | web programming, deployment  | Understanding your limits is important. Where do you expect you will need help? | It may not be technical skills. You may be a good coder but never worked with people in a team. Maybe you built a web- site but not used a framework. | It may also be a theoretical concept you already learned but never applied in practice. | Think about different project aspects: design, data security, web security, IDE tools, inte- gration testing, CICD, etc. There will be something. | Don’t ever leave this blank! We are all learning. | 
 
 > Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
 
@@ -168,29 +180,18 @@ The risks in this project involve both management risks and technical risks. The
 |  Category of Work/Features  | Yiyang Du | Dichen Feng   | Marshall Kwok Guo  | Vaughn Janes  | Jiayao Ni | 
 | ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
 |  **Project Management: Kanban Board Maintenance**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
-|  **System Architecture Design**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
-|  **Staff UI Design**  |  |  |  |  | :heavy_check_mark: |
-|  **Admin UI Design**  |  |  |  | :heavy_check_mark:  | |
-|  **Staff UI Review**  |  |  | :heavy_check_mark:  |  | |
-|  **Admin UI Review**  | :heavy_check_mark: |   |  |  | |
-|  **Login UI Design**  |  |   |  |  | :heavy_check_mark:|
-|  **Login UI Review**  |  :heavy_check_mark:|   |  |  | |
+|  **System Architecture Design**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **Docker environment setup**  |  |  |  :heavy_check_mark:|  |  |
 |  **CSS Development**  |  |  |  |  |:heavy_check_mark:  | 
-|  **admin login**  | :heavy_check_mark: |  |  |  |  | 
-|  **staff login**  |  | :heavy_check_mark: |  |  |  | 
-|  **staff info table (SIT) setup**  |  |  | :heavy_check_mark: |  |  |
-|  **course info table (CIT) setup**  |  |  |  |:heavy_check_mark:  |  |
-|  **SIT reader**  |  |  |  |  | :heavy_check_mark: |
-|  **CIT reader**  |:heavy_check_mark:  |  |  |  |  |
-|  **SIT editor**  |  | :heavy_check_mark: |  |  |  |
-|  **CIT editor**  |  |  | :heavy_check_mark: |  |  |
-|  **SIT deletor**  |  |  |  | :heavy_check_mark: |  |
-|  **CIT deletor**  |  |  |  |  |  :heavy_check_mark:|
-|  **Dashboard UI**  | :heavy_check_mark: |  |  |  |  |
-|  **Administration webpage UI**  |  |  :heavy_check_mark:|  |  | 
-|  **staff viewing site code**  |  |  |  :heavy_check_mark:|  |  |
-|  **admin viewing site code**  |  |  |  | :heavy_check_mark: |  |
-|  **system deployment**  |  |  |  |  | :heavy_check_mark: |
+|  **Login Authentication logic**  | :heavy_check_mark: |  |  |  |  | 
+|  **Database schema design**  |  |  | :heavy_check_mark: |  |  |
+|  **Administration webpage database logic (big job)**  |  |  |  |  | |
+|  **Login UI**  |  |   |  |  | :heavy_check_mark:|
+|  **Dashboard UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
+|  **Profile page UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
+|  **Administration webpage UI**  |  |  :heavy_check_mark:|  |  | :heavy_check_mark:|
+|  **Authorization logic**  |  |  |  :heavy_check_mark:|  |  |
+|  **System Deployment**  |  |  |  |  | |
 |  **Presentation Preparation**  |  |  |  |  | :heavy_check_mark: | 
 |  **Design Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
 |  **Design Video Editing**  |  |   |  | :heavy_check_mark: |  | 
