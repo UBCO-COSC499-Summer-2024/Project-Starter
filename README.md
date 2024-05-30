@@ -10,6 +10,9 @@ Project Goal: To create a responsive web application that supports the marking a
 - Nic Kouwenhoven - 60504180
 - Jay Bhullar - 21474457
 
+# Project Proposal
+[Project Proposal](https://docs.google.com/document/d/1zOaMVCP4g7hHWp7Qluo33w_p2ru9F0pD477ubs9iEsE/edit?usp=sharing)
+
 
 
 
