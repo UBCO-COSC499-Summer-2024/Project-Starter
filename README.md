@@ -13,7 +13,7 @@ Project Goal: To create a responsive web application that supports the marking a
 # Project Proposal
 [Project Proposal](https://docs.google.com/document/d/1zOaMVCP4g7hHWp7Qluo33w_p2ru9F0pD477ubs9iEsE/edit?usp=sharing)
 
-Use Cases
+# Use Cases
 [Use Cases](https://docs.google.com/document/d/1WE7EXHfUTALE_AgHnilFO0-UUh1g97v341OtwB4C79k/edit?usp=sharing)
 
 
