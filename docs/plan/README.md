@@ -90,6 +90,7 @@ What can the user do with your software? If there are multiple user groups, expl
 * The AI will be able to flag where a mistake was made for Teacher or TA review
 * The AI will flag any uncertainty in grading for Teacher or TA review
 * A course that is no longer actively being managed will be archived, then deleted after an expiration date
+* Any of the Teacher's assignments and rubrics can be resued across courses
 
 ### Non-functional Requirements
 
