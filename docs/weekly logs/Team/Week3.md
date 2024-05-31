@@ -19,3 +19,5 @@ Dates: May 27 - Jun 2
 
 ## Things todo
 - Set meeting time with client to get feedback on project proposal
+- Staff dashboard prototype
+- Admin dashboard prototype
