@@ -19,9 +19,51 @@ Extending from your requirements, the team will need to develop a set of usage s
 Provide an ER diagram of the entities and relationships you anticipate having in your system (this will most likely change, but you need a starting point).  In a few sentences, explain why the data is modelled this way and what is the purpose of each table/attribute.  For this part, you only need to have ONE diagram and an explanation.
 
 ## Data Flow Diagram (Level 0/Level 1)
+### Level 0
 
-The team is required to create comprehensive Level 0 and Level 1 Data Flow Diagrams (DFDs) to visually represent the system’s data flow, including key processes, data stores, and data movements.  The deliverables will include a high-level context diagram, a detailed Level 1 DFD, and supporting documentation to facilitate the understanding of data movement within the system.   Remember that within a L1 DFD, the same general level of abstraction should apply to all processes (review 310 notes for guidance),
+This Level 0 Data Flow Diagram (DFD) depicts the interactions between the Instructor, the Department Management System, and the Department Head/Department Staff within an educational institution. 
 
+In this diagram, the instructor can do the following:
+- The instructor's credentials are validated by the Department Management System.
+- The instructor receives their service role from the department head or the department staff.
+- The instructor views their expected working hours from the Department Management System.
+- The instructor views their performance data through the Department Management System.
+
+And the Department Head and Staff can do the following:
+- The department head/staff undergo user validation by the system.
+- The department head/staff input the service roles into the Department Management System.
+- The department head/staff log expected monthly hours for the instructors into the system.
+- The department head/staff manage performance data within the system.
+- The department head/staff create and log meeting hours into the system.
+- The department head/staff create course assignments within the system.
+
+For the departemnt manage system, This is the central system that manages various operations and data flows between instructors and the department head/staff. It contains the following interactions:
+- The department head/staff enters service roles into the system.
+- The department head/staff enter the monthly working hours of the instructors.
+- The system validates the credentials of both instructors and department head/staff.
+- The system manages performance data for instructors.
+- The system logs meeting hours.
+- The system allows the creation of course assignments.
+
+
+
+![level_0](./DFD_level_0.png)
+
+### Level 1
+This Level 1 Data Flow Diagram (DFD) provides a more detailed view of the processes and data interactions within the system, involving the Instructor, Department Head/Staff, and various system components.
+
+First, the instructor, department head and department staff need to g0 through the authentication process inorder to log in to the system. 
+
+Once authenticated, instructors can view their service roles, log hours, view performance data, and view course assignments. And the department head/staff can assign service role, entering monthly hours, manage performance data, log meeting hours and create course assignments.All these operations are done through the dashboard of instructor or admin.  
+
+The instructor dashboard interfaces with the database to access performance data, log hours, service roles, and course assignments for the instructors.
+
+The admin dashboard is used by department heads or staff to assign service roles, enter monthly hours, manage performance data, log meeting hours, and create course assignments. This dashboard stores and retrieves necessary information into or from the database.
+
+Lastly, about the database. The database stores and provides access to log hours, performance data, service roles, and course assignments. The database also retrieves data for both the instructor and admin dashboards.
+
+![level_1](./DFD_level_1.png)
 ## User Interface (UI) Design
-
-The team is required to put forward a series of UI mock-ups that will be used as starting points for the design of the system   They can be minimal but the team will need to  have at least made some choices about the interaction flow of the application.  You should consider the different major aspects of user interactions and develop UI mockups for those (think about the different features/use cases and what pages are needed; you will have a number most likely).  Additionally, create a diagram to explain the navigation flow for the MVP  prototype (and any alternate flows).  When considering your UI, think about usability, accessibility, desktop and mobile uses.  As a team, you will need to discuss design choices for the system.
+![course_page](./UI%20Mockups/Course%20Page/Course%20Page.png)
+![staff_dashboard](./UI%20Mockups/Dashboard/Staff_individual_dashboard.png)
+![service_role_page](./UI%20Mockups/Service%20Role%20Page/Service%20Role%20Page.png)
