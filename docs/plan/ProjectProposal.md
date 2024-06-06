@@ -53,20 +53,20 @@ Gathering user **feedback** surveys to gauge satisfaction (Specific, Measurable,
 
 Tracking the **reduction** in admin time through time logs, aiming to reduce it from hours to minutes (Specific, Measurable, Achievable, Relevant, Time-bound).
 
+## Users, Usage Scenarios and High Level Requirements
 
-
-## Users, Usage Scenarios and High Level Requirements 
-
-### Users Groups:
+### Users Groups
 
 The two types of users of the CMPS Department Management Program will be:
 
-#### 1. Administrators:
+#### 1. Administrators
+
 An administrator will be able to log into the web program, create staff profiles, create "jobs" (i.e. service roles/teaching assignments), and assign these jobs to the staff profiles. Metadata will be enterable by the department head for jobs, such as whether it is a teaching assignment or a service role, the number of students (if it's a teaching assignment), the number of TAs, room number, etc.
 The administrator will also be able to enter the number of hours worked per month for each staff profile (with the ability to edit hours for many staff profiles at once), and enter/update performance metrics for staff profiles. Once set up, the administrator will be able to visualize working hours and performance metrics for entire selections of staff profiles (for all Statistics professors, for example), as well as individual staff profiles. Of course, the administrator will also be able to delete staff profiles, jobs, assignments, etc.
 The management system will be accessed via user accounts, which the administrator will administrate, having the ability to create/delete accounts, reset passwords, and importantly, grant elevated visibility of certain staff profiles to certain user accounts (so that once a staff member creates an account, they'll be granted permission to see their own performance metrics—or, this feature can also be used to allow staff members to see performance metrics of other specific staff members, if desired, for lower-level managerial reasons).
 
-#### 2. Department Staff:
+#### 2. Department Staff
+
 Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential), or whoever's metrics they've specifically been granted access to view by the administrator. The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive. In general, the department staff mainly just have viewing capabilities.
 
 ### Envisioned Usage
