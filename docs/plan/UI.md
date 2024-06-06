@@ -8,8 +8,6 @@ The above one shows how a department head can add the role to change the data.
 The above one shows a department head can change all the data all at once.
 ![image](https://github.com/UBCO-COSC499-Summer-2024/team-12-capstone-team-12/assets/112981522/5eb5e2ff-f04c-4bf4-93e0-2dd70b6591b5)
 The above one shows a department head can manage the student survey results for every instructor.
-
-
 <img width="1079" alt="Screenshot 2024-06-05 at 6 17 46 PM" src="https://github.com/UBCO-COSC499-Summer-2024/team-12-capstone-team-12/assets/112981522/6ff7631e-83a6-4c57-b1c9-6b67f09f2025">
 The above one is the login page, where you can choose what role you will be and login.
 <img width="1097" alt="Screenshot 2024-06-05 at 6 17 57 PM" src="https://github.com/UBCO-COSC499-Summer-2024/team-12-capstone-team-12/assets/112981522/dad1109b-4cfc-415c-8b7d-917f85a97692">
