@@ -24,7 +24,7 @@ Another important feature enabled by the database's schema is the ability to nat
 
 Separate tables are used to keep track of evaluation types and evaluation metrics (aka the generic name for "survey question"), in order to enforce data integrity—that is, it prevents evaluation metric descriptions from becoming inconsistent across an evaluation type. Evaluation entries can correspond to a course, an instructor, or both simultaneously.
 
-Courses are kept track of on a subject-code-section-year-session-term-campus basis, so that when instructors are assigned to a course such as COSC 360, it is a specific COSC 360 course with a corresponding location, number of students, mode of delivery, etc. (if defined), rather than some abstract "COSC 360". There are plenty of metadata tags for courses in order to support viewing statistics/metrics for any specific subset of courses.
+Courses are kept track of on a subject-code-section-year-session-term-campus basis, so that when instructors are assigned to a course such as COSC 360, it is a specific COSC 360 course with a corresponding location, number of students, mode of delivery, etc. (if each defined), rather than some abstract "COSC 360". There are plenty of optional metadata tags for courses in order to support viewing statistics/metrics for any specific subset of courses.
 
 ![](./ER%20Diagram/ER%20Diagram.png)
 
