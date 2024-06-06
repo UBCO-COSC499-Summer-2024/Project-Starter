@@ -2,9 +2,7 @@
 
 ## Introduction
 
-Start with a brief introduction of **what** you are building, reminding the reader of the high-level usage scenarios (project purpose).   Complete each section with the required components.  Don't forget that you can include [images in your markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images).  
-
-Start each section with a lead-in, detailing what it is.  Also, do not just have a collection of images.   Each diagram must be explained clearly. **Do not assume that the reader understands the intentions of your designs**.
+We are developing a comprehensive system designed to manage and track various aspects of the UBCO CMPS Department and its instructors. This system primarily focuses on monitoring instructor performance metrics, managing billable events such as meetings and other activities, and facilitating the assignment and tracking of service roles and course assignments for instructors. The system aims to simplify and streamline the processes involved in logging hours, evaluating performance, and managing events, ensuring that all relevant data is accurately recorded and easily accessible for reporting, analysis, and visualization.
 
 ## System Architecture Design
 
@@ -18,9 +16,17 @@ We use Supabase for both database management and authentication because it uses 
 
 ## Database Design
 
-Provide an ER diagram of the entities and relationships you anticipate having in your system (this will most likely change, but you need a starting point).  In a few sentences, explain why the data is modelled this way and what is the purpose of each table/attribute.  For this part, you only need to have ONE diagram and an explanation.
+This is our ER diagram which enables our program to have a number of features. Events such as meetings can be created as entries in the `event` table, having a specified duration, and instructors can be recorded as having attended this meeting (for a specific amount of time, if desired, but by default will be the same duration as the meeting). An important reason for including the `event` table instead of having meeting hours be kept track of simply by adding hours onto a set of instructors total hours for a given month, is that meetings can easily be deleted or edited without needing to keep track of whose hours had been altered (and possibly messed up).
 
+Of course, instructors can be simply assigned to existing service roles via the `service_role_assign` table. Instructors can also be assigned to courses in much the same way, but also with an enumerable field `position` which can take on the values "professor" or "TA" (and perhaps other positions if desired) in order to help keep track of course TAs in addition to, and separate from, professors.
 
+Another important feature enabled by the database's schema is the ability to natively accomodate new future performance metrics (in addition to just the current SEI results), which can be either of a singular numeric format (e.g. a "rating"), or a survey format just like the SEI. As well, it only needs one table to store both types of metrics (turns out they're not that different when it comes down to it).
+
+Separate tables are used to keep track of evaluation types and evaluation metrics (aka the generic name for "survey question"), in order to enforce data integrity—that is, it prevents evaluation metric descriptions from becoming inconsistent across an evaluation type. Evaluation entries can correspond to a course, an instructor, or both simultaneously.
+
+Courses are kept track of on a subject-code-section-year-session-term-campus basis, so that when instructors are assigned to a course such as COSC 360, it is a specific COSC 360 course with a corresponding location, number of students, mode of delivery, etc. (if defined), rather than some abstract "COSC 360". There are plenty of metadata tags for courses in order to support viewing statistics/metrics for any specific subset of courses.
+
+![](./ER%20Diagram/ER%20Diagram.png)
 
 ## Data Flow Diagram (Level 0/Level 1)
 
@@ -75,7 +81,7 @@ Lastly, about the database. The database stores and provides access to log hours
 ## User Interface (UI) Design
 
 ![](./UI%20Mockups/Login_Signup%20Page/Login%20Page.png)
-The above one is the login page, where you can choose what role you will be and login.
+The above image is the login page, where you can choose what role you will be and log in.
 
 ![](./UI%20Mockups/Dashboard/Dept%20Head%20Dashboard%201.png)
 The above image is the dashboard for the department head. The chart on the left shows the average working hours of every instructor in the department. The chart on the right shows the SEI rating distributions.
