@@ -91,7 +91,7 @@ export default function Home() {
                         </div>
                     </Col>
 
-                    {/* <Col xs={6}>
+                    <Col xs={6}>
                     <div className="tw-mt-6">
                             <DataGrid
                                 rows={rows2}
