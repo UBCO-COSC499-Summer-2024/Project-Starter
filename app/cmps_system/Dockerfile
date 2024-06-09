@@ -1,5 +1,5 @@
-# Use a Node.js image that meets Next.js requirements
-FROM node:18.17.0
+# Use a Node.js image that supports multi-platform
+FROM --platform=$BUILDPLATFORM node:18.17.0
 
 # Set the working directory
 WORKDIR /usr/src/app

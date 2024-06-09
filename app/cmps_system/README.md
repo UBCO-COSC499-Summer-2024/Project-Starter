@@ -2,9 +2,19 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## How to run it
 
-All's you gotta do is run `docker compose up`. I think you need to have node installed, though. And Docker, obviously.
+### Step 1
 
-Then, open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### AMD64
+
+Run `docker compose up`
+
+#### ARM
+
+Run `docker buildx create --use` then `docker buildx build --platform linux/amd64,linux/arm64 -t my-local-image:latest --load .` then `docker-compose up`
+
+### Step 2
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
