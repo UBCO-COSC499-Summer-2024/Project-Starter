@@ -10,7 +10,7 @@ Run `docker compose up`
 
 #### ARM
 
-Run `docker buildx create --use` then `docker buildx build --platform linux/amd64,linux/arm64 -t my-local-image:latest --load .` then `docker-compose up`
+Run `docker buildx create --use` then `docker buildx build --platform linux/amd64,linux/arm64 -t my-local-image:latest --load .` then `docker-compose up --build`
 
 ### Step 2
 
