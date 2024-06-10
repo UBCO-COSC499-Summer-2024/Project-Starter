@@ -4,13 +4,27 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ### Step 1
 
-#### AMD64
+Run the following 6 commands (you can run them one at a time or just download the following text as a bash script (.sh) and run that once
 
-Run `docker compose up`
+```
+#!/bin/bash
 
-#### ARM
+# Step 1: Ensure Buildx is enabled and set up
+docker buildx create --use
 
-Run `docker buildx create --use` then `docker buildx build --platform linux/amd64,linux/arm64 -t my-local-image:latest --load .` then `docker-compose up --build`
+# Step 2: Build and load for amd64
+docker buildx build --platform linux/amd64 -t my-local-image:amd64 --load .
+
+# Step 3: Build and load for arm64
+docker buildx build --platform linux/arm64 -t my-local-image:arm64 --load .
+
+# Step 4: Tag the loaded images with the same name for simplicity
+docker tag my-local-image:amd64 my-local-image:latest
+docker tag my-local-image:arm64 my-local-image:latest
+
+# Step 5: Run Docker Compose
+docker-compose up --build
+```
 
 ### Step 2
 
