@@ -35,7 +35,7 @@ services:
       - '5000:5000'
 
   frontend:
-    image: my-local-image:latest
+    build: .
     ports:
       - '3000:3000'
     depends_on:
