@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  supabase-db:
+    image: supabase/postgres
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf 
+    environment:
+      POSTGRES_PASSWORD: example_password
+      POSTGRES_DB: example_db
+      POSTGRES_USER: example_user
+    ports:
+      - '5432:5432'
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+
+  supabase-auth:
+    image: supabase/gotrue:v1.3.3
+    environment:
+      GOTRUE_JWT_SECRET: your_secret_jwt
+      GOTRUE_API_URL: http://localhost:9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://example_user:example_password@supabase-db:5432/example_db
+    depends_on:
+      - supabase-db
+    ports:
+      - '9999:9999'
+
+  supabase-storage:
+    image: supabase/storage-api:v1.3.3
+    environment:
+      SUPABASE_DB_URL: postgres://example_user:example_password@supabase-db:5432/example_db
+    depends_on:
+      - supabase-db
+    ports:
+      - '5000:5000'
+
+  frontend:
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - supabase-db
+      - supabase-auth
+      - supabase-storage
+
+volumes:
+  supabase-db-data:
