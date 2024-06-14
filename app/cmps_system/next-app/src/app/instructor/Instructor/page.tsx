@@ -6,8 +6,12 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import NavLink from 'react-bootstrap/NavLink';
-import './style.css'; // Ensure this is the correct path
-import { supabase } from '../../supabaseClient'; // Ensure this is the correct path
+import Navbar from '@/app/components/NavBar';
+import NavbarBrand from 'react-bootstrap/NavbarBrand';
+import './style.css';
+import { supabase } from '../../supabaseClient';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const Instructor = () => {
   const [instructors, setInstructors] = useState([]);
@@ -29,56 +33,14 @@ const Instructor = () => {
 
   return (
     <Container fluid className="banner">
-      <div className="top-bar">
-        <div className="header-text">CMPS Department Management</div>
-        <img className="profile-img" src="https://via.placeholder.com/69x74" style={{ width: 69, height: 74 }} />
-        <div className="profile-name">dingusmcgee</div>
-      </div>
-      <Row className="mt-4">
-        <Col className="d-flex justify-content-around">
-          <ul className="navbarButtonsList">
-            <li className="navbarButton">
-              <a href="/instructor_dashboard/instructor" className="navbarButtonText">
-                INSTRUCTORS
-              </a>
-            </li>
-            <li className="navbarButton">
-              <a href="/instructor_dashboard/courses" className="navbarButtonText">
-                COURSES
-              </a>
-            </li>
-            <li className="navbarButton">
-              <a href="/instructor_dashboard/service_roles" className="navbarButtonText">
-                SERVICE ROLES
-              </a>
-            </li>
-            <li className="navbarButton">
-              <a href="/instructor_dashboard/evaluations" className="navbarButtonText">
-                EVALUATIONS
-              </a>
-            </li>
-            <li className="navbarButton">
-              <a href="/instructor_dashboard/time_tracking" className="navbarButtonText">
-                TIME TRACKING
-              </a>
-            </li>
-            <li className="navbarButton">
-              <a href="/instructor_dashboard/tools" className="navbarButtonText">
-                TOOLS
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      <div className="add-instructor">
-        <div className="icon-container">
-          <div className="icon-background"></div>
-          <div className="icon-foreground"></div>
-        </div>
-        <NavLink href="/instructor_dashboard/add_instructor" className="text">
-          Create new Instructor
-        </NavLink>
-      </div>
+      <Navbar />
+      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <h1 style={{ marginRight: "10px" }}>Instructors</h1>
+                <Link href="/instructor/Instructor/create_new_instructor" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
+                    <Image src="/plus.svg" alt="Add new instructor plus icon" width={20} height={20} style={{ margin: '20px' }} />
+                    Create new instructor
+                </Link>
+            </span>
       <div className="table-container">
         {loading ? (
           <p>Loading...</p>

@@ -22,7 +22,7 @@ const NavBar = () => {
                     </Link>
                 </li>
                 <li className={styles.navbarButton}>
-                    <Link href="/instructors" className={styles.navbarButtonText}>
+                    <Link href="/instructor/Instructor" className={styles.navbarButtonText}>
                         INSTRUCTORS
                     </Link>
                 </li>
