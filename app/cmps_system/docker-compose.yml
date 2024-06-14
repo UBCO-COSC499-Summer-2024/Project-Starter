@@ -8,15 +8,16 @@ name: cmps-mgt-sys
 version: "3.8"
 
 services:
-  react-app:
+  next-app:
     build:
-      context: ./react-app
-      dockerfile: Dockerfile.dev # uncomment this to run in dev mode for hot-reloading. Otherwise, it will make a production build in `react-build`, served by apache.
+      context: ./next-app
+      dockerfile: Dockerfile.dev # uncomment this to run in dev mode for hot-reloading. Otherwise, it will make a production build in `next-build`, served by apache.
     ports:
-      - "8888:8888"
+      - "3000:3000"
     volumes:
-      - ./react-app:/app
-      - ./react-build/:/app/build
+      - ./next-app:/app
+      - /app/node_modules
+      - ./next-build/:/app/build
     environment:
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
@@ -27,7 +28,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./react-build/:/usr/local/apache2/htdocs
+      - ./next-build/:/usr/local/apache2/htdocs
     restart: always
 
   studio:
@@ -453,4 +454,4 @@ services:
 
 volumes:
   db-config:
-  react-build:
+  next-build:
