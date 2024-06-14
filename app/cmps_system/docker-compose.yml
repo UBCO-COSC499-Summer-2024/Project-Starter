@@ -19,6 +19,7 @@ services:
       - ./react-build/:/app/build
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
 
   apache:
     build:
