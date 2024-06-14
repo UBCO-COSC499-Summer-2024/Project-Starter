@@ -6,7 +6,7 @@ const NavBar = () => {
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Link href="/dashboard" className={styles.ubcLogoAndTitle}>
+                <Link href="/instructor/personal" className={styles.ubcLogoAndTitle}>
                     <Image src="/ubc_logo.png" alt="UBC Logo" width={50} height={50} style={{ margin: '20px' }} />
                     <h1>CMPS Department Management</h1>
                 </Link>
@@ -17,7 +17,7 @@ const NavBar = () => {
             </div>
             <ul className={styles.navbarButtonsList}>
                 <li className={styles.navbarButton}>
-                    <Link href="/dashboard" className={styles.navbarButtonText}>
+                    <Link href="/instructor/personal" className={styles.navbarButtonText}>
                         DASHBOARD
                     </Link>
                 </li>

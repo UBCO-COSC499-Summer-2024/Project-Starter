@@ -41,7 +41,19 @@ export default function Home() {
         { id: 3, name: "Peter Griffin", emp_number: "46934876", title: "Associate Professor", date_hired: "2001/03/13" },
         { id: 4, name: "Joe Swanson", emp_number: "30946839", title: "Super Professor", date_hired: "1999/12/31" },
         { id: 5, name: "Quagmire", emp_number: "38467936", title: "Professor", date_hired: "3000/03/04" },
-        { id: 6, name: "COSC 400", emp_number: "23985759", title: "Professor", date_hired: "2024/03/31" },
+        { id: 6, name: "COSC 400", emp_number: "23985759", title: "Super Ultra Professor", date_hired: "2024/03/31" },
+        { id: 7, name: "John Doe", emp_number: "12345678", title: "Assistant Professor", date_hired: "2010/05/20" },
+        { id: 8, name: "Opie", emp_number: "87654321", title: "Professor", date_hired: "2018/09/10" },
+        { id: 9, name: "Alice Johnson", emp_number: "98765432", title: "Professor", date_hired: "2015/02/28" },
+        { id: 14, name: "Stewie Griffin", emp_number: "9876543210", title: "Professor", date_hired: "2000/01/01" },
+        { id: 15, name: "Lois Griffin", emp_number: "0123456789", title: "Professor", date_hired: "1999/12/31" },
+        { id: 16, name: "Meg Griffin", emp_number: "2468135790", title: "Professor", date_hired: "2002/03/15" },
+        { id: 17, name: "Chris Griffin", emp_number: "1357924680", title: "Professor", date_hired: "2004/07/22" },
+        { id: 18, name: "Brian Griffin", emp_number: "3692581470", title: "Talking Dog", date_hired: "2000/05/05" },
+        { id: 10, name: "Bob Smith", emp_number: "123456789", title: "Assistant Professor", date_hired: "2012/09/15" },
+        { id: 11, name: "Emily Davis", emp_number: "987654321", title: "Professor", date_hired: "2019/06/10" },
+        { id: 12, name: "Michael Johnson", emp_number: "456789123", title: "Professor", date_hired: "2008/03/22" },
+        { id: 13, name: "Sarah Thompson", emp_number: "789123456", title: "Associate Professor", date_hired: "2011/11/05" },
     ])
 
     const renderTable = () => {
