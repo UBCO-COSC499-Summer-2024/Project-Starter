@@ -1,4 +1,4 @@
 import { redirect } from 'next/navigation';
 export default async function Home({ params }) {
-  redirect('/instructor/personal');
+  redirect('/login');
 }
