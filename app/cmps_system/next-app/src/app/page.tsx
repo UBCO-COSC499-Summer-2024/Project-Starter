@@ -12,6 +12,10 @@ export default function Home() {
           <Link href="/instructor/personal">
             Go to instructor/personal
           </Link>
+          <br />
+          <Link href="/login">
+            Go to /login
+          </Link>
         </p>
       </div>
     </main >
