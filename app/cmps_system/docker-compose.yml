@@ -13,7 +13,7 @@ services:
       context: ./react-app
       dockerfile: Dockerfile.dev # uncomment this to run in dev mode for hot-reloading. Otherwise, it will make a production build in `react-build`, served by apache.
     ports:
-      - "3000:3000"
+      - "8888:8888"
     volumes:
       - ./react-app:/app
       - ./react-build/:/app/build
