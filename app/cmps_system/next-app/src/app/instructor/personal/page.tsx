@@ -142,7 +142,7 @@ export default function Home() {
                     <NavbarBrand><b className="tw-text-white">Instructor Dashboard</b></NavbarBrand>
                     <Nav className="me-auto">
                         <NavLink href="/instructor_dashboard/individual"><span className="tw-text-white tw-font-bold">Dashboard</span></NavLink>
-                        <NavLink href="/instructor_dashboard/department"><span className="tw-text-white">Instructors</span></NavLink>
+                        <NavLink href="/instructor/Instructor"><span className="tw-text-white">Instructors</span></NavLink>
                         <NavLink href="/instructor_dashboard/department"><span className="tw-text-white">Courses</span></NavLink>
                         <NavLink href="/instructor_dashboard/department"><span className="tw-text-white">Service Roles</span></NavLink>
                          
