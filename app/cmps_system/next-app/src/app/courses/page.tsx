@@ -1,6 +1,8 @@
 'use client'
 import Container from 'react-bootstrap/Container';
 import Navbar from "@/app/components/NavBar"
+import Link from 'next/link';
+import Image from 'next/image';
 import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormLabel, Modal, ModalBody, ModalDialog, ModalFooter, ModalHeader, ModalTitle, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
 import {
     Chart as ChartJS,
@@ -60,9 +62,15 @@ export default function Home() {
         );
     }
     return (
-        < main >
+        <main>
             <Navbar />
-            <h1>Courses</h1>
+            <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <h1 style={{ marginRight: "10px" }}>Courses</h1>
+                <Link href="/courses/create_new_course" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
+                    <Image src="/plus.svg" alt="Add new course plus icon" width={20} height={20} style={{ margin: '20px' }} />
+                    Create new course
+                </Link>
+            </span>
             {renderTable()}
         </main >
     );
