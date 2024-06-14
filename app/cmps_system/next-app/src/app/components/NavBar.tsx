@@ -17,7 +17,7 @@ const NavBar = () => {
             </div>
             <ul className={styles.navbarButtonsList}>
                 <li className={styles.navbarButton}>
-                    <Link href="/dashboard" className={styles.navbarButtonText}>
+                    <Link href="/instructor/personal" className={styles.navbarButtonText}>
                         DASHBOARD
                     </Link>
                 </li>
