@@ -3,7 +3,7 @@ import Image from "next/image";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
+import Navbar from '@/app/components/NavBar';
 import NavbarBrand from 'react-bootstrap/NavbarBrand';
 import Button from 'react-bootstrap/Button';
 import Card from "react-bootstrap/esm/Card";
@@ -137,21 +137,7 @@ export default function Home() {
     console.log(working_hour["2023S"])
     return (
         <main>
-            <Navbar style={{ backgroundColor: "#002145" }} expand="lg">
-                <Container>
-                    <NavbarBrand><b className="tw-text-white">Instructor Dashboard</b></NavbarBrand>
-                    <Nav className="me-auto">
-                        <NavLink href="/instructor_dashboard/individual"><span className="tw-text-white tw-font-bold">Dashboard</span></NavLink>
-                        <NavLink href="/instructor/Instructor"><span className="tw-text-white">Instructors</span></NavLink>
-                        <NavLink href="/instructor_dashboard/department"><span className="tw-text-white">Courses</span></NavLink>
-                        <NavLink href="/instructor_dashboard/department"><span className="tw-text-white">Service Roles</span></NavLink>
-                         
-                    </Nav>
-                    <Nav justify-content-end>
-                        <NavLink><span className="tw-text-white">My Account</span></NavLink>
-                    </Nav>
-                </Container>
-            </Navbar>
+            <Navbar />
 
             <Container>
                 <Row className="tw-pt-3">
@@ -212,7 +198,7 @@ export default function Home() {
                 <Row>
                     <Col className="pt-3">
                         <Card className="tw-mb-3">
-                        <b className="tw-mt-2 tw-ml-2 tw-text-lg">Historical Working Hours</b>
+                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Historical Working Hours</b>
 
                             <Dropdown className="tw-ml-2">
                                 <DropdownToggle>
