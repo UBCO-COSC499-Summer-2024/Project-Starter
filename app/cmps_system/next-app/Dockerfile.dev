@@ -13,8 +13,7 @@ RUN npm install
 # Copy the rest of the application code
 COPY . ./
 
-EXPOSE 8888
+EXPOSE 3000
 
 # Command to run the Nextjs development server
-# CMD ["npm", "run", "dev", "--port 8888"]
-RUN npm run dev --port 8888
+CMD ["npm", "run", "dev"]
