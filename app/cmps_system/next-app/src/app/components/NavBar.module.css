@@ -1,7 +1,8 @@
 /* src/app/components/NavBar.module.css */
-.nav {
+.nav * {
     background-color: #002145;
     color: white;
+    text-decoration: none;
 }
 
 .ubcLogoAndTitle {
