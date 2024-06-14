@@ -13,8 +13,7 @@ RUN npm install
 # Copy the rest of the application code
 COPY . ./
 
-# Expose the port Vite runs on
 EXPOSE 3000
 
-# Command to run the Vite development server
+# Command to run the Nextjs development server
 CMD ["npm", "run", "dev"]
