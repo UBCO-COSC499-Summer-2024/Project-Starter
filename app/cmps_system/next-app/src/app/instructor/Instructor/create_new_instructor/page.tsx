@@ -56,7 +56,7 @@ const InstructorForm = () => {
                     </div>
 
                     <div className="buttons">
-                        <button className="back-button" onClick={() => window.location.href = '/instructors'}>Back</button>
+                        <button className="back-button" onClick={() => window.location.href = '/instructor/Instructor'}>Back</button>
                         <button type="submit">Submit</button>
                     </div>
                 </form>
