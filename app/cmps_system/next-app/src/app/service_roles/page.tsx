@@ -83,7 +83,7 @@ export default function Home() {
             <Navbar />
             <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <h1 style={{ marginRight: "10px" }}>Courses</h1>
-                <Link href="/events/create_new_serviceRoles" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
+                <Link href="/service_roles/create_new_serviceRoles" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
                     <Image src="/plus.svg" alt="Add new course plus icon" width={20} height={20} style={{ margin: '20px' }} />
                     Create new course
                 </Link>
