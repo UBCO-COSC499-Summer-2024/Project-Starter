@@ -66,10 +66,10 @@ export default function Home() {
         <main>
             <Navbar />
             <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <h1 style={{ marginRight: "10px" }}>Courses</h1>
+                <h1 style={{ marginRight: "10px" }}>Service Roles</h1>
                 <Link href="/service_roles/create_new_serviceRoles" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
                     <Image src="/plus.svg" alt="Add new service roles plus icon" width={20} height={20} style={{ margin: '20px' }} />
-                    Create new course
+                    Create new service Roles
                 </Link>
             </span>
             {renderTable()}
