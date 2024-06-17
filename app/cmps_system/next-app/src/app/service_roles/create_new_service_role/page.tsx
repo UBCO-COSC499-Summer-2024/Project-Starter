@@ -8,29 +8,25 @@ const CourseForm = () => {
             <NavBar />
             <div className="container">
                 <form className="service-form">
-                    <h1>Add New Service Roles</h1>
+                    <h1>Add New Service Role</h1>
                     <div className="form-group">
-                        <label htmlFor="serviceCode">Service Code:</label>
-                        <input type="text" id="serviceCode" name="serviceCode" required />
+                        <label htmlFor="serviceRoleName">Service Role Name:</label>
+                        <input type="text" id="serviceRoleName" name="serviceRoleName" required />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="serviceRolesName">Service Roles Names:</label>
-                        <input type="text" id="serviceRolesName" name="serviceRolesName" required />
+                        <label htmlFor="description">Description:</label>
+                        <input type="text" id="description" name="description" />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="instructorName">Instructor Name:</label>
-                        <input type="text" id="instructorName" name="instructorName" required />
+                        <label htmlFor="location">Location:</label>
+                        <input type="text" id="location" name="location" />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="session">Session:</label>
-                        <input type="text" id="session" name="session" required />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="hours">Hours:</label>
-                        <input type="text" id="hours" name="hours" required />
+                        <label htmlFor="default_hours">Default Expected Hours:</label>
+                        <input type="number" id="default_hours" name="default_hours" required />
                     </div>
                     <div className="buttons">
                         <button className="back-button" onClick={() => window.location.href = '/service_roles'}>Back</button>

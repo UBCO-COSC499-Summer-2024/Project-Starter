@@ -29,20 +29,20 @@ ChartJS.register(
 export default function Home() {
 
     const tableColumns = [
-        { field: 'serviceRoles_name', headerName: 'Service Roles', width: 100, editable: true },
-        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true },
-        { field: 'session', headerName: 'Session', width: 200, editable: true },
-        { field: 'hours', headerName: 'Hours', width: 200, editable: true },
+        { field: 'service_role_name', headerName: 'Service Role', width: 200, editable: true },
+        { field: 'description', headerName: 'Description', width: 300, editable: true },
+        { field: 'hours', headerName: 'Default Monthly Hours', width: 200, editable: true },
+        { field: 'assignees', headerName: 'Number of Assignees', width: 200, editable: true }
 
     ]
 
     const [courseData, setCourseData] = useState([
-        { id: 0, serviceRoles_name: "CS advisor",  instructor: "Professor Dingus", session: "2021W", hours: "200" },
-        { id: 1, serviceRoles_name: "student advisor",  instructor: "Professor Dingus", session: "2021W", hours: "200" },
-        { id: 2, serviceRoles_name: "Academic advisor",  instructor: "Professor Hahaha", session: "2021W", hours: "200" },
-        { id: 3, serviceRoles_name: "Academic advisor",  instructor: "Professor hehehe", session: "2021W", hours: "200" },
-        { id: 4, serviceRoles_name: "Academic advisor",  instructor: "Professor lalala", session: "2022W", hours: "200" },
-        { id: 5, serviceRoles_name: "Academic advisor",  instructor: "Professor huhuhu", session: "2023S", hours: "200" },
+        { id: 0, service_role_name: "Undergraduate Advisor", description: "An advisor for undergraduate students", hours: "20", assignees: "2" },
+        { id: 1, service_role_name: "Graduate Advisor", description: "An advisor for graduate students", hours: "10", assignees: "1" },
+        { id: 2, service_role_name: "Service Role C", description: "blah blah blah", hours: "15", assignees: "2" },
+        { id: 3, service_role_name: "Service Role D", description: "blah blah blah", hours: "25", assignees: "1" },
+        { id: 4, service_role_name: "Service Role E", description: "blah blah blah", hours: "20", assignees: "3" },
+        { id: 5, service_role_name: "Service Role F", description: "blah blah blah", hours: "15", assignees: "2" },
 
     ]);
 
@@ -67,9 +67,9 @@ export default function Home() {
             <Navbar />
             <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <h1 style={{ marginRight: "10px" }}>Service Roles</h1>
-                <Link href="/service_roles/create_new_serviceRoles" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
+                <Link href="/service_roles/create_new_service_role" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
                     <Image src="/plus.svg" alt="Add new service roles plus icon" width={20} height={20} style={{ margin: '20px' }} />
-                    Create new service Roles
+                    Create new service role
                 </Link>
             </span>
             {renderTable()}
