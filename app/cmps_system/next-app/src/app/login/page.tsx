@@ -7,10 +7,10 @@ export default function Home() {
         <div className="tw-grid tw-place-content-center tw-mt-80">
             <Card className="tw-w-80 tw-rounded-lg tw-bg-slate-500 tw-text-center tw-p-10">
                 <b>Login or Signup</b>
-                <Link href="/instructor/personal">
+                <Link href="/dashboard">
                     <Button className="tw-m-3">With Google</Button>
                 </Link>
-                <Link href="/instructor/personal">
+                <Link href="/dashboard">
                     <Button className="tw-m-3">With GitHub</Button>
                 </Link>
             </Card>
