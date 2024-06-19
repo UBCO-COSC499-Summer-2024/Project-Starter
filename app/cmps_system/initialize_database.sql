@@ -12,6 +12,14 @@ CREATE TABLE "instructor"(
 );
 ALTER TABLE
     "instructor" ADD PRIMARY KEY("instructor_id");
+
+
+--This Grants the permission for anon to read from the instructor table
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE instructor TO anon;
+--This Grants the permission for anon to edit the instructor table
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE instructor_instructor_id_seq TO anon;
+
+
 CREATE TABLE "evaluation_entry"(
     "evaluation_entry_id" SERIAL NOT NULL,
     "evaluation_type_id" INTEGER NOT NULL,
