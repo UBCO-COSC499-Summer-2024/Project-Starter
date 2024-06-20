@@ -6,8 +6,8 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 export default function Home() {
     return (
-        <div className="tw-grid tw-place-content-center tw-mt-40">
-            <Card className="tw-w-96 tw-rounded-lg tw-bg-slate-500 tw-text-center tw-p-10">
+        <div className="tw-grid tw-place-content-center tw-mt-40 tw-bg-white  ">
+            <Card className="tw-w-96 tw-rounded-lg  tw-bg-white tw-text-center tw-p-10">
                 <b>Login or Signup</b>
                 <Form.Control
                 className="tw-grid tw-place-content-center tw-mt-6"
@@ -17,20 +17,17 @@ export default function Home() {
                 aria-describedby="basic-addon1"
                  />
                 <Link href="/dashboard">
-                    <Button className="tw-m-3 tw-w-24">Login</Button>
+                    <Button className="tw-m-3 tw-bg-slate-800 tw-w-72">Login</Button>
                 </Link>
-                <Container>
-                    <Row>
-                        <Col>
+ 
+                    
                         <Link href="/dashboard">
-                    <Button className="tw-m-3 tw-w-24">With Google</Button>
+                    <Button className="tw-m-3 tw-bg-neutral-200 tw-text-slate-950 tw-w-72">With Google</Button>
                 </Link>
-                </Col><Col>
+
                 <Link href="/dashboard">
-                    <Button className="tw-m-3 tw-w-24 bg-gray-800 hover:bg-gray-900">With GitHub</Button>
-                </Link></Col>
-                    </Row>
-                </Container>
+                    <Button className="tw-m-3 tw-bg-neutral-200 tw-text-slate-950 tw-w-72">With GitHub</Button>
+                </Link>
             </Card>
         </div>
     )
