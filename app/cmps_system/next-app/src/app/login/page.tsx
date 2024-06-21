@@ -17,7 +17,7 @@ export default function Home() {
                 aria-describedby="basic-addon1"
                  />
                 <Link href="/dashboard">
-                    <Button className="tw-m-3 tw-bg-slate-800 tw-border-white tw-w-72">Login</Button>
+                    <Button className="tw-m-3 tw-bg-slate-800 tw-border-white tw-w-72">Login/Sign Up</Button>
                 </Link>
  
                     
