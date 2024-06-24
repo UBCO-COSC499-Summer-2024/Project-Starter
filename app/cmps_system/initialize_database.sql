@@ -182,4 +182,4 @@ ALTER TABLE
     "event_attendance" ADD CONSTRAINT "event_attendance_instructor_id_foreign" FOREIGN KEY("instructor_id") REFERENCES "instructor"("instructor_id");
 ALTER TABLE
     "course_assign" ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY("instructor_id") REFERENCES "instructor"("instructor_id");
-CREATE VIEW instructor_view AS SELECT prefix, first_name, last_name, suffix, title from instructor
+CREATE VIEW v_instructor_instructor AS SELECT instructor_id, prefix, first_name, last_name, suffix, title from instructor
