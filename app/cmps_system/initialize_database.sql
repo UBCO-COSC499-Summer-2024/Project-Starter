@@ -182,3 +182,5 @@ ALTER TABLE
     "event_attendance" ADD CONSTRAINT "event_attendance_instructor_id_foreign" FOREIGN KEY("instructor_id") REFERENCES "instructor"("instructor_id");
 ALTER TABLE
     "course_assign" ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY("instructor_id") REFERENCES "instructor"("instructor_id");
+
+CREATE VIEW v_events_and_attendance AS SELECT * from event JOIN event_attendance ON event_id=event_id
