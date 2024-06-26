@@ -133,12 +133,12 @@ ALTER TABLE
         "month"
     );
 CREATE TABLE "event_attendance"(
-    "meeting_id" INTEGER NOT NULL,
+    "event_id" INTEGER NOT NULL,
     "instructor_id" INTEGER NOT NULL,
     "attendance_duration" TIME(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
-    "event_attendance" ADD PRIMARY KEY("meeting_id", "instructor_id");
+    "event_attendance" ADD PRIMARY KEY("event_id", "instructor_id");
 CREATE TABLE "evaluation_type"(
     "evaluation_type_id" SERIAL NOT NULL,
     "evaluation_type" VARCHAR(255) NOT NULL,
@@ -157,7 +157,7 @@ ALTER TABLE
 ALTER TABLE
     "evaluation_entry" ADD CONSTRAINT "evaluation_entry_service_role_id_foreign" FOREIGN KEY("service_role_id") REFERENCES "service_role"("service_role_id");
 ALTER TABLE
-    "event_attendance" ADD CONSTRAINT "event_attendance_meeting_id_foreign" FOREIGN KEY("meeting_id") REFERENCES "event"("event_id");
+    "event_attendance" ADD CONSTRAINT "event_attendance_event_id_foreign" FOREIGN KEY("event_id") REFERENCES "event"("event_id");
 ALTER TABLE
     "service_role_assign" ADD CONSTRAINT "service_role_assign_service_role_id_foreign" FOREIGN KEY("service_role_id") REFERENCES "service_role"("service_role_id");
 ALTER TABLE
