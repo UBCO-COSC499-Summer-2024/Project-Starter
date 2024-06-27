@@ -1,10 +1,12 @@
 'use client'
+import AddIcon from '@mui/icons-material/Add';
 import Container from 'react-bootstrap/Container';
 import Navbar from "@/app/components/NavBar"
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link';
 import Image from 'next/image';
 import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormLabel, Modal, ModalBody, ModalDialog, ModalFooter, ModalHeader, ModalTitle, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
+import {Button} from '@mui/material';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -15,7 +17,7 @@ import {
     Legend,
 } from 'chart.js';
 import { useState, useEffect } from "react";
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
 import React from "react";
 
 ChartJS.register(
@@ -52,7 +54,19 @@ export default function Home() {
     const [courseData, setCourseData] = useState([
         { id: 0, course_name: "COSC 400", location: "FIP 123", instructor: "Professor Dingus", num_students: 120, num_TAs: 4, average_grade: 70, year_level: 4, session: "2021W" },
     ]);
+    const EditToolbar = () => {
+        return (
+            <GridToolbarContainer>
+                <Button color="primary" onClick={()=>{alert}}>
+                ➕ Add record
+                </Button>
 
+                <Button color="primary" onClick={()=>{alert}}>
+                    ✏️ Edit As CSV
+                </Button>
+            </GridToolbarContainer>
+        )
+    }
     const renderTable = () => {
         return (
             <Container>
@@ -63,6 +77,7 @@ export default function Home() {
                             rows={courseData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
+                            slots={{toolbar: EditToolbar as GridSlots['toolbar']}}
                         />
                     </div>
                 </Row>
