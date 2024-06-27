@@ -11,6 +11,7 @@ export default function Home() {
                     <Button className="tw-m-3">With Google</Button>
                 </Link>
                 <Link href="/dashboard">
+                <a>aaa</a>
                     <Button className="tw-m-3">With GitHub</Button>
                 </Link>
             </Card>
