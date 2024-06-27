@@ -56,7 +56,7 @@ CREATE TABLE "course"(
         "course_title" VARCHAR(255) NULL,
         "mode_of_delivery" VARCHAR(255)
     CHECK
-        ("mode_of_delivery" IN('')) NULL,
+        ("mode_of_delivery" IN('In Person','Online')) NULL,
         "req_in_person_attendance" BOOLEAN NULL,
         "building" VARCHAR(255) NULL,
         "room_num" VARCHAR(255) NULL,
