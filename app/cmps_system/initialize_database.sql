@@ -46,17 +46,17 @@ CREATE TABLE "course"(
     "course_id" SERIAL NOT NULL,
     "academic_year" INTEGER NOT NULL,
     "session" VARCHAR(255) CHECK
-        ("session" IN('')) NOT NULL,
+        ("session" IN('winter', 'summer')) NOT NULL,
         "term" VARCHAR(255)
     CHECK
-        ("term" IN('')) NOT NULL,
+        ("term" IN('1', '2')) NOT NULL,
         "subject_code" CHAR(4) NOT NULL,
         "course_num" INTEGER NOT NULL,
         "section_num" INTEGER NOT NULL,
         "course_title" VARCHAR(255) NULL,
         "mode_of_delivery" VARCHAR(255)
     CHECK
-        ("mode_of_delivery" IN('In Person','Online','Hybride')) NULL,
+        ("mode_of_delivery" IN('online', 'in person', 'hybrid')) NULL,
         "req_in_person_attendance" BOOLEAN NULL,
         "building" VARCHAR(255) NULL,
         "room_num" VARCHAR(255) NULL,
@@ -87,7 +87,7 @@ CREATE TABLE "course_assign"(
     "instructor_id" INTEGER NOT NULL,
     "course_id" INTEGER NOT NULL,
     "position" VARCHAR(255) CHECK
-        ("position" IN('')) NOT NULL,
+        ("position" IN('instructor', 'ta')) NOT NULL,
         "start_date" DATE NOT NULL,
         "end_date" DATE NOT NULL
 );
