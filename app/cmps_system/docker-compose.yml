@@ -383,8 +383,7 @@ services:
   # Comment out everything below this point if you are using an external Postgres database
   db:
     container_name: supabase-db
-    build:
-      context: ./db
+    image: supabase/postgres:15.1.1.41
     healthcheck:
       test: pg_isready -U postgres -h localhost
       interval: 5s
@@ -428,7 +427,7 @@ services:
       - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
       # Use named volume to persist pgsodium decryption key between restarts
       - db-config:/etc/postgresql-custom
-      - ./db/initialize_database.sql:/docker-entrypoint-initdb.d/init-scripts/99_initialize_database.sql:Z
+      - ./initialize_database.sql:/docker-entrypoint-initdb.d/init-scripts/98_initialize_database.sql:Z
 
   vector:
     container_name: supabase-vector
@@ -453,6 +452,21 @@ services:
     environment:
       LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
     command: [ "--config", "etc/vector/vector.yml" ]
+
+  db-testing:
+    container_name: supabase-db-testing
+    build:
+      context: ./db-testing
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./db-testing/tests:/tests
+    entrypoint: ["/usr/local/bin/run_tests.sh"]
 
 volumes:
   db-config:
