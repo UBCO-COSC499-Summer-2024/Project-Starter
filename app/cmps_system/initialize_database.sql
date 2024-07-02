@@ -24,7 +24,7 @@ CREATE TABLE "evaluation_entry"(
     "answer" INTEGER NULL
 );
 ALTER TABLE
-    "evaluation_entry" ADD CONSTRAINT "evaluation_entry_evaluation_type_id_metric_num_course_id_instructor_id_evaluation_date_unique" UNIQUE(
+    "evaluation_entry" ADD CONSTRAINT "evaluation_entry_unique" UNIQUE(
         "evaluation_type_id",
         "metric_num",
         "course_id",
@@ -47,17 +47,17 @@ CREATE TABLE "course"(
     "course_id" SERIAL NOT NULL,
     "academic_year" INTEGER NOT NULL,
     "session" VARCHAR(255) CHECK
-        ("session" IN('winter', 'summer')) NOT NULL,
+        ("session" IN('Winter', 'Summer')) NOT NULL,
         "term" VARCHAR(255)
     CHECK
-        ("term" IN('1', '2')) NOT NULL,
+        ("term" IN('Term 1', 'Term 2', 'Term 1-2')) NOT NULL,
         "subject_code" CHAR(4) NOT NULL,
         "course_num" INTEGER NOT NULL,
         "section_num" INTEGER NOT NULL,
         "course_title" VARCHAR(255) NULL,
         "mode_of_delivery" VARCHAR(255)
     CHECK
-        ("mode_of_delivery" IN('online', 'in person', 'hybrid')) NULL,
+        ("mode_of_delivery" IN('Online', 'In-Person', 'Hybrid', 'Multi-access')) NULL,
         "req_in_person_attendance" BOOLEAN NULL,
         "building" VARCHAR(255) NULL,
         "room_num" VARCHAR(255) NULL,
@@ -88,12 +88,12 @@ CREATE TABLE "course_assign"(
     "instructor_id" INTEGER NOT NULL,
     "course_id" INTEGER NOT NULL,
     "position" VARCHAR(255) CHECK
-        ("position" IN('instructor', 'ta')) NOT NULL,
+        ("position" IN('Instructor', 'TA','Other')) NOT NULL,
         "start_date" DATE NOT NULL,
         "end_date" DATE NOT NULL
 );
 ALTER TABLE
-    "course_assign" ADD CONSTRAINT "course_assign_instructor_id_course_id_unique" UNIQUE("instructor_id", "course_id");
+    "course_assign" ADD CONSTRAINT "course_assign_unique" UNIQUE("instructor_id", "course_id");
 ALTER TABLE
     "course_assign" ADD PRIMARY KEY("assignment_id");
 CREATE TABLE "service_role_assign"(
@@ -105,7 +105,7 @@ CREATE TABLE "service_role_assign"(
     "expected_hours" INTEGER NOT NULL
 );
 ALTER TABLE
-    "service_role_assign" ADD CONSTRAINT "service_role_assign_instructor_id_service_role_id_unique" UNIQUE("instructor_id", "service_role_id");
+    "service_role_assign" ADD CONSTRAINT "service_role_assign_unique" UNIQUE("instructor_id", "service_role_id");
 ALTER TABLE
     "service_role_assign" ADD PRIMARY KEY("service_role_assign_id");
 CREATE TABLE "event"(
@@ -127,7 +127,7 @@ CREATE TABLE "service_hours_entry"(
     "hours" INTEGER NOT NULL
 );
 ALTER TABLE
-    "service_hours_entry" ADD CONSTRAINT "service_hours_entry_service_role_id_instructor_id_year_month_unique" UNIQUE(
+    "service_hours_entry" ADD CONSTRAINT "service_hours_entry_unique" UNIQUE(
         "service_role_id",
         "instructor_id",
         "year",
