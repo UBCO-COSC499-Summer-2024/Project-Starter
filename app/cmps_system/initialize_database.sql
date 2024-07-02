@@ -46,17 +46,17 @@ CREATE TABLE "course"(
     "course_id" SERIAL NOT NULL,
     "academic_year" INTEGER NOT NULL,
     "session" VARCHAR(255) CHECK
-        ("session" IN('')) NOT NULL,
+        ("session" IN('winter', 'summer')) NOT NULL,
         "term" VARCHAR(255)
     CHECK
-        ("term" IN('')) NOT NULL,
+        ("term" IN('1', '2')) NOT NULL,
         "subject_code" CHAR(4) NOT NULL,
         "course_num" INTEGER NOT NULL,
         "section_num" INTEGER NOT NULL,
         "course_title" VARCHAR(255) NULL,
         "mode_of_delivery" VARCHAR(255)
     CHECK
-        ("mode_of_delivery" IN('')) NULL,
+        ("mode_of_delivery" IN('online', 'in person', 'hybrid')) NULL,
         "req_in_person_attendance" BOOLEAN NULL,
         "building" VARCHAR(255) NULL,
         "room_num" VARCHAR(255) NULL,
@@ -87,7 +87,7 @@ CREATE TABLE "course_assign"(
     "instructor_id" INTEGER NOT NULL,
     "course_id" INTEGER NOT NULL,
     "position" VARCHAR(255) CHECK
-        ("position" IN('')) NOT NULL,
+        ("position" IN('instructor', 'ta')) NOT NULL,
         "start_date" DATE NOT NULL,
         "end_date" DATE NOT NULL
 );
@@ -133,12 +133,12 @@ ALTER TABLE
         "month"
     );
 CREATE TABLE "event_attendance"(
-    "meeting_id" INTEGER NOT NULL,
+    "event_id" INTEGER NOT NULL,
     "instructor_id" INTEGER NOT NULL,
     "attendance_duration" TIME(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
-    "event_attendance" ADD PRIMARY KEY("meeting_id", "instructor_id");
+    "event_attendance" ADD PRIMARY KEY("event_id", "instructor_id");
 CREATE TABLE "evaluation_type"(
     "evaluation_type_id" SERIAL NOT NULL,
     "evaluation_type" VARCHAR(255) NOT NULL,
@@ -157,7 +157,7 @@ ALTER TABLE
 ALTER TABLE
     "evaluation_entry" ADD CONSTRAINT "evaluation_entry_service_role_id_foreign" FOREIGN KEY("service_role_id") REFERENCES "service_role"("service_role_id");
 ALTER TABLE
-    "event_attendance" ADD CONSTRAINT "event_attendance_meeting_id_foreign" FOREIGN KEY("meeting_id") REFERENCES "event"("event_id");
+    "event_attendance" ADD CONSTRAINT "event_attendance_event_id_foreign" FOREIGN KEY("event_id") REFERENCES "event"("event_id");
 ALTER TABLE
     "service_role_assign" ADD CONSTRAINT "service_role_assign_service_role_id_foreign" FOREIGN KEY("service_role_id") REFERENCES "service_role"("service_role_id");
 ALTER TABLE
@@ -182,3 +182,5 @@ ALTER TABLE
     "event_attendance" ADD CONSTRAINT "event_attendance_instructor_id_foreign" FOREIGN KEY("instructor_id") REFERENCES "instructor"("instructor_id");
 ALTER TABLE
     "course_assign" ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY("instructor_id") REFERENCES "instructor"("instructor_id");
+
+CREATE VIEW v_instructor_instructor AS SELECT instructor_id, prefix, first_name, last_name, suffix, title from instructor;
