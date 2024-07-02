@@ -35,18 +35,18 @@ ChartJS.register(
 export default function Home() {
     useEffect(() => {
         (async () => {
-            console.log(process.env.ANON_KEY)
-            const supabase = createClient("https://congenial-rotary-phone-q9rgv7jp6wjcx7v4-8000.app.github.dev/", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE");
-            const { data } = await supabase.from("course").select();
+            // console.log(process.env.ANON_KEY)
+            const supabase = createClient("https://ubiquitous-system-6r67v9q45rpfp65-8000.app.github.dev/", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE");
+            const { data } = await supabase.from("v_course").select();
             console.log(data)
-
+            setCourseData(data)
         })()
     }, [])
 
     const tableColumns = [
-        { field: 'course_name', headerName: 'Course', width: 100, editable: true },
+        { field: 'course_title', headerName: 'Course', width: 100, editable: true },
         { field: 'location', headerName: 'Location', width: 200, editable: true },
-        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true },
+        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true },
         { field: 'num_students', headerName: 'Number of Students', width: 200, editable: true },
         { field: 'num_TAs', headerName: 'Number of TAs', width: 200, editable: true },
         { field: 'average_grade', headerName: 'Average Grade', width: 200, editable: true },
@@ -55,7 +55,6 @@ export default function Home() {
     ]
 
     const [courseData, setCourseData] = useState([
-        { id: 0, course_name: "COSC 400", location: "FIP 123", instructor: "Professor Dingus", num_students: 120, num_TAs: 4, average_grade: 70, year_level: 4, session: "2021W" },
     ]);
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
