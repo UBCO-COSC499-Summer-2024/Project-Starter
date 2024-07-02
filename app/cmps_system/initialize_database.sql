@@ -1,7 +1,6 @@
 --TODO: rename long constraint names
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
-
 CREATE TABLE "instructor"(
     "instructor_id" SERIAL NOT NULL,
     "ubc_employee_num" BIGINT NOT NULL,
@@ -186,3 +185,5 @@ ALTER TABLE
     "course_assign" ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY("instructor_id") REFERENCES "instructor"("instructor_id");
 
 CREATE VIEW v_instructor_instructor AS SELECT instructor_id, prefix, first_name, last_name, suffix, title from instructor;
+
+CREATE VIEW v_course AS SELECT course_assign.assignment_id as id, course_title, CONCAT(building, ' ' , room_num) as location, CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_name, num_students, course."num_TAs", average_grade, year_level, session FROM course JOIN course_assign on course.course_id = course_assign.course_id JOIN instructor ON instructor.instructor_id=course_assign.instructor_id;

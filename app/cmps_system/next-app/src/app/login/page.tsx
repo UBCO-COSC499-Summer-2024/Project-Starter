@@ -26,6 +26,8 @@ export default function Home() {
                 </Link>
 
                 <Link href="/dashboard">
+
+                    <Button className="tw-m-3">With GitHub</Button>
                     <Button className="tw-m-3 tw-bg-neutral-200 tw-text-slate-950 tw-border-white tw-w-72">With GitHub</Button>
                 </Link>
             </Card>
