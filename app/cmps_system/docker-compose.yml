@@ -26,7 +26,7 @@ services:
     build:
       context: ./apache
     ports:
-      - "80:80"
+      - "3001:80"
     volumes:
       - ./next-build/:/usr/local/apache2/htdocs
     restart: always
@@ -420,13 +420,15 @@ services:
       - ./volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:Z
       # Initialize the database settings with JWT_SECRET and JWT_EXP
       - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
+      ## PGDATA directory is persisted between restarts
+      #- ./volumes/db/data:/var/lib/postgresql/data:Z
       # PGDATA directory is persisted between restarts
-      - ./volumes/db/data:/var/lib/postgresql/data:Z
+      - db:/var/lib/postgresql/data:Z
       # Changes required for Analytics support
       - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
       # Use named volume to persist pgsodium decryption key between restarts
       - db-config:/etc/postgresql-custom
-      - ./initialize_database.sql:/docker-entrypoint-initdb.d/initialize_database.sql:Z
+      - ./initialize_database.sql:/docker-entrypoint-initdb.d/init-scripts/98_initialize_database.sql:Z
 
   vector:
     container_name: supabase-vector
@@ -452,6 +454,24 @@ services:
       LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
     command: [ "--config", "etc/vector/vector.yml" ]
 
+  db-testing:
+    container_name: supabase-db-testing
+    build:
+      context: ./db-testing
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./db-testing/tests:/tests
+    entrypoint: ["/usr/local/bin/run_tests.sh"]
+
 volumes:
   db-config:
+  db:
   next-build:
