@@ -1,5 +1,7 @@
 --TODO: rename long constraint names
 
+CREATE EXTENSION IF NOT EXISTS pgtap;
+
 CREATE TABLE "instructor"(
     "instructor_id" SERIAL NOT NULL,
     "ubc_employee_num" BIGINT NOT NULL,
