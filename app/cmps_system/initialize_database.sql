@@ -58,7 +58,7 @@ CREATE TABLE "course"(
         "course_title" VARCHAR(255) NULL,
         "mode_of_delivery" VARCHAR(255)
     CHECK
-        ("mode_of_delivery" IN('online', 'in person', 'hybrid')) NULL,
+        ("mode_of_delivery" IN('online', 'in person', 'hybrid', 'field course', 'co-op')) NULL,
         "req_in_person_attendance" BOOLEAN NULL,
         "building" VARCHAR(255) NULL,
         "room_num" VARCHAR(255) NULL,
@@ -89,7 +89,7 @@ CREATE TABLE "course_assign"(
     "instructor_id" INTEGER NOT NULL,
     "course_id" INTEGER NOT NULL,
     "position" VARCHAR(255) CHECK
-        ("position" IN('instructor', 'ta')) NOT NULL,
+        ("position" IN('instructor', 'ta','others')) NOT NULL,
         "start_date" DATE NOT NULL,
         "end_date" DATE NOT NULL
 );
