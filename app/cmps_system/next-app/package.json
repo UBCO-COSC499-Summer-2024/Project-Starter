@@ -11,8 +11,11 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
     "@mui/x-data-grid": "^7.7.0",
+    "@supabase/ssr": "^0.4.0",
+    "@supabase/supabase-js": "^2.44.1",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.3",
     "json-2-csv": "^5.5.1",
@@ -22,7 +25,7 @@
     "react-bootstrap": "^2.10.2",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
-    "@supabase/supabase-js": "^1.35.7"
+    "supabase": "^1.178.2"
   },
   "devDependencies": {
     "@types/node": "^20",
