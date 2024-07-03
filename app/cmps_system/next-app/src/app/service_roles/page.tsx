@@ -16,7 +16,6 @@ import {
 } from 'chart.js';
 import { useState, useEffect } from "react";
 import { DataGrid } from '@mui/x-data-grid';
-import React from "react";
 import { supabase } from '../supabaseClient';
 
 ChartJS.register(
@@ -36,7 +35,7 @@ export default function Home() {
             width: 200,
             editable: false,
             renderCell: (params) => (
-                <Link href={`/service_roles/${params.row.id}`} passHref>
+                <Link href={`/service_roles/service_role_detail?title=${params.row.title}&description=${params.row.description}&default_expected_hours=${params.row.default_expected_hours}&building=${params.row.building}&room_num=${params.row.room_num}`} legacyBehavior>
                     {params.value}
                 </Link>
             )
@@ -60,6 +59,8 @@ export default function Home() {
                         title,
                         description,
                         default_expected_hours,
+                        building,
+                        room_num,
                         service_role_assign (instructor_id)
                     `);
                 if (error) throw error;
@@ -69,6 +70,8 @@ export default function Home() {
                     title: role.title,
                     description: role.description,
                     default_expected_hours: role.default_expected_hours,
+                    building: role.building,
+                    room_num: role.room_num,
                     assignees: role.service_role_assign.length
                 }));
 
