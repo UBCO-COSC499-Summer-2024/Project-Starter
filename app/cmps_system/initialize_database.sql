@@ -15,11 +15,6 @@ ALTER TABLE
     "instructor" ADD PRIMARY KEY("instructor_id");
 
 
---This Grants the permission for anon to read from the instructor table
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE instructor TO anon;
---This Grants the permission for anon to edit the instructor table
-GRANT USAGE, SELECT, UPDATE ON SEQUENCE instructor_instructor_id_seq TO anon;
-
 
 CREATE TABLE "evaluation_entry"(
     "evaluation_entry_id" SERIAL NOT NULL,
@@ -161,6 +156,12 @@ CREATE TABLE "service_hours_benchmark"(
     "year" INTEGER NOT NULL,
     "hours" INTEGER NOT NULL
 );
+-- Grant all privileges on all tables to anon
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon;
+
+-- Grant all privileges on all sequences to anon
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO anon;
+
 ALTER TABLE
     "service_hours_benchmark" ADD PRIMARY KEY("benchmark_id");
 ALTER TABLE

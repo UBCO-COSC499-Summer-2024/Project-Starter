@@ -54,7 +54,11 @@ const Instructor = () => {
             </div>
             {instructors.map((instructor) => (
               <div className="table-row" key={instructor.instructor_id}>
-                <div>{instructor.first_name} {instructor.last_name}</div>
+                <div>
+                  <Link href={`/instructor/Instructor/instructor_detail?id=${instructor.instructor_id}`}>
+                    {instructor.first_name} {instructor.last_name}
+                  </Link>
+                </div>
                 <div>{instructor.ubc_employee_num}</div>
                 <div>{instructor.title}</div>
                 <div>{instructor.hire_date}</div>
