@@ -1,6 +1,3 @@
--- Plan for the number of tests
-BEGIN;
-
 -- Plan the number of tests
 SELECT
     plan (1);

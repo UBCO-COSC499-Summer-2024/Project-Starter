@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT plan(2);
 
 -- Create
@@ -21,7 +19,4 @@ SELECT is(
     'First name should be updated to Jane'
 );
 
-
-SELECT finish();
-
-ROLLBACK;
+SELECT * FROM finish();

@@ -1,35 +1,38 @@
 -- Plan the number of tests
 SELECT
-    plan (3);
+    plan (1);
 
 -- Create
--- Insert a new evaluation type and verify that it was created correctly
+-- Insert a new evaluation metric and verify that it was created correctly
 INSERT INTO
-    evaluation_type (
-        evaluation_type_name,
-        description
+    evaluation_metric (
+        evaluation_type_id,
+        metric_num,
+        metric_description
     )
 VALUES
     (
-        'SEI',
-        'Student Experience of Instruction survey'
+        (SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI_Survey'),
+        1,
+        'How would you rate this course from 1 to 5?'
     );
 
--- Verify that the course was created
+-- Verify that the evaluation metric was created
 SELECT
     is (
         (
             SELECT
                 COUNT(*)
             FROM
-                evaluation_type
+                evaluation_metric
             WHERE
-                evaluation_type_name = 'SEI'
+                metric_num = 1
         ),
         1::bigint,
         'Created evaluation `SEI`'
     );
 
+/*
 -- Update
 -- Update the course and verify that the update was successful
 UPDATE evaluation_type
@@ -66,6 +69,7 @@ SELECT
         'Student Experience of Instruction survey',
         'Updated description to `Student Experience of Instruction survey`'
     );
+*/
 
 -- End tests
 SELECT

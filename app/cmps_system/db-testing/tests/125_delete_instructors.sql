@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT plan(1);
 
 -- Delete
@@ -10,6 +8,4 @@ SELECT is(
     'Instructor should have been deleted'
 );
 
-SELECT finish();
-
-ROLLBACK;
+SELECT * FROM finish();
