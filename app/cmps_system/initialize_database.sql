@@ -67,8 +67,8 @@ CREATE TABLE "course"(
         "start_time" TIME(0) WITHOUT TIME ZONE NULL,
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
         "num_students" INTEGER NULL,
-        "num_TAs" INTEGER NULL,
-        "average_grade" DECIMAL(3, 2) NULL,
+        "num_tas" INTEGER NULL,
+        "average_grade" DECIMAL(5, 3) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
         "registration_status" VARCHAR(255) NULL,
@@ -186,4 +186,4 @@ ALTER TABLE
 
 CREATE VIEW v_instructor_instructor AS SELECT instructor_id, prefix, first_name, last_name, suffix, title from instructor;
 
-CREATE VIEW v_course AS SELECT course_assign.assignment_id as id, course_title, CONCAT(building, ' ' , room_num) as location, CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_name, num_students, course."num_TAs", average_grade, year_level, session FROM course JOIN course_assign on course.course_id = course_assign.course_id JOIN instructor ON instructor.instructor_id=course_assign.instructor_id;
+CREATE VIEW v_course AS SELECT course_assign.assignment_id as id, course_title, CONCAT(building, ' ' , room_num) as location, CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_name, num_students, course."num_tas", average_grade, year_level, session FROM course JOIN course_assign on course.course_id = course_assign.course_id JOIN instructor ON instructor.instructor_id=course_assign.instructor_id;
