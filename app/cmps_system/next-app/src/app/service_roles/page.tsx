@@ -1,9 +1,10 @@
-'use client'
+'use client';
+
 import Container from 'react-bootstrap/Container';
-import Navbar from "@/app/components/NavBar"
+import Navbar from "@/app/components/NavBar";
 import Link from 'next/link';
 import Image from 'next/image';
-import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormLabel, Modal, ModalBody, ModalDialog, ModalFooter, ModalHeader, ModalTitle, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
+import { Row } from "react-bootstrap";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -13,9 +14,10 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataGrid } from '@mui/x-data-grid';
 import React from "react";
+import { supabase } from '../supabaseClient';
 
 ChartJS.register(
     CategoryScale,
@@ -27,33 +29,74 @@ ChartJS.register(
 );
 
 export default function Home() {
-
     const tableColumns = [
-        { field: 'service_role_name', headerName: 'Service Role', width: 200, editable: true },
+        {
+            field: 'title',
+            headerName: 'Service Role',
+            width: 200,
+            editable: false,
+            renderCell: (params) => (
+                <Link href={`/service_roles/${params.row.id}`} passHref>
+                    {params.value}
+                </Link>
+            )
+        },
         { field: 'description', headerName: 'Description', width: 300, editable: true },
-        { field: 'hours', headerName: 'Default Monthly Hours', width: 200, editable: true },
+        { field: 'default_expected_hours', headerName: 'Default Monthly Hours', width: 200, editable: true },
         { field: 'assignees', headerName: 'Number of Assignees', width: 200, editable: true }
+    ];
 
-    ]
+    const [serviceRoles, setServiceRoles] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const [courseData, setCourseData] = useState([
-        { id: 0, service_role_name: "Undergraduate Advisor", description: "An advisor for undergraduate students", hours: "20", assignees: "2" },
-        { id: 1, service_role_name: "Graduate Advisor", description: "An advisor for graduate students", hours: "10", assignees: "1" },
-        { id: 2, service_role_name: "Service Role C", description: "blah blah blah", hours: "15", assignees: "2" },
-        { id: 3, service_role_name: "Service Role D", description: "blah blah blah", hours: "25", assignees: "1" },
-        { id: 4, service_role_name: "Service Role E", description: "blah blah blah", hours: "20", assignees: "3" },
-        { id: 5, service_role_name: "Service Role F", description: "blah blah blah", hours: "15", assignees: "2" },
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('service_role')
+                    .select(`
+                        service_role_id,
+                        title,
+                        description,
+                        default_expected_hours,
+                        service_role_assign (instructor_id)
+                    `);
+                if (error) throw error;
 
-    ]);
+                const transformedData = data.map((role) => ({
+                    id: role.service_role_id,
+                    title: role.title,
+                    description: role.description,
+                    default_expected_hours: role.default_expected_hours,
+                    assignees: role.service_role_assign.length
+                }));
+
+                setServiceRoles(transformedData);
+            } catch (error) {
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const renderTable = () => {
+        if (loading) {
+            return <p>Loading...</p>;
+        }
+        if (error) {
+            return <p>Error fetching service roles: {error}</p>;
+        }
         return (
             <Container>
                 <Row className="h-32">
                     <div className="tw-p-3">
                         <DataGrid
                             editMode="row"
-                            rows={courseData}
+                            rows={serviceRoles}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
                         />
@@ -61,7 +104,8 @@ export default function Home() {
                 </Row>
             </Container>
         );
-    }
+    };
+
     return (
         <main>
             <Navbar />
