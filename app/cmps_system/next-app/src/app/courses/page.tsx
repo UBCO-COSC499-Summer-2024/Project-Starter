@@ -37,6 +37,7 @@ export default function Home() {
         (async () => {
             // console.log(process.env.ANON_KEY)
             try
+            // !Change this link to your own supabase link! https://legendary-memory-6q7wp999jvqfxxp4-8000.app.github.dev
             {const supabase = createClient("https://legendary-memory-6q7wp999jvqfxxp4-8000.app.github.dev", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE");
                 const { data, error } = await supabase.from("v_course").select();
                 if (error) throw error;
