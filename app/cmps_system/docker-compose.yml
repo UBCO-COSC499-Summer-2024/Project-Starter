@@ -19,8 +19,10 @@ services:
       - /app/node_modules
       - ./next-build/:/app/build
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
+      NEXT_PUBLIC_SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+      NEXT_PUBLIC_ANON_KEY: ${ANON_KEY}
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
 
   apache:
     build:

@@ -35,18 +35,16 @@ ChartJS.register(
 export default function Home() {
     useEffect(() => {
         (async () => {
-            // console.log(process.env.ANON_KEY)
-            try
-            // !Change this link to your own supabase link! https://legendary-memory-6q7wp999jvqfxxp4-8000.app.github.dev
-            {const supabase = createClient("https://legendary-memory-6q7wp999jvqfxxp4-8000.app.github.dev", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE");
+            try {
+                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 const { data, error } = await supabase.from("v_course").select();
                 if (error) throw error;
                 console.log(data)
                 setCourseData(data)
             }
-            
-            catch(error)
-            {console.error("Error fetching data:", error)
+
+            catch (error) {
+                console.error("Error fetching data:", error)
 
             }
         })()
@@ -94,9 +92,9 @@ export default function Home() {
         500: '#007FFF',
         600: '#0072E5',
         900: '#003A75',
-      };
-      
-      const grey = {
+    };
+
+    const grey = {
         50: '#F3F6F9',
         100: '#E5EAF2',
         200: '#DAE2ED',
@@ -107,8 +105,8 @@ export default function Home() {
         700: '#434D5B',
         800: '#303740',
         900: '#1C2025',
-      };
-      
+    };
+
     const TextareaAutosize = styled(BaseTextareaAutosize)(
         ({ theme }) => `
         box-sizing: border-box;
@@ -138,7 +136,7 @@ export default function Home() {
           outline: 0;
         }
       `,
-      );
+    );
     const csv = useRef(null);
     return (
         <main>
@@ -171,25 +169,25 @@ export default function Home() {
                     boxShadow: 24,
                     p: 4,
                 }}>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Batch Editing
-                </Typography>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
-                </Typography>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Batch Editing
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
+                    </Typography>
 
 
 
-                <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                <Button className="!tw-m-2" variant="contained" onClick={() => {
-                    const csvText = csv.current.value;
-                    setCourseData(csv2json(csvText))
-                    handleCSVClose()
-                }}
+                    <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
+                    <Button className="!tw-m-2" variant="contained" onClick={() => {
+                        const csvText = csv.current.value;
+                        setCourseData(csv2json(csvText))
+                        handleCSVClose()
+                    }}
 
-                >Add</Button>
-            </Box>
-        </Modal>
+                    >Add</Button>
+                </Box>
+            </Modal>
         </main >
     );
 }
