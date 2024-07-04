@@ -11,7 +11,7 @@ INSERT INTO
     )
 VALUES
     (
-        'SEI',
+        'SEI_2',
         'Student Experience of Instruction survey'
     );
 
@@ -24,10 +24,10 @@ SELECT
             FROM
                 evaluation_type
             WHERE
-                evaluation_type_name = 'SEI'
+                evaluation_type_name = 'SEI_2'
         ),
         1::bigint,
-        'Created evaluation `SEI`'
+        'Created evaluation `SEI_2`'
     );
 
 -- Update
@@ -36,7 +36,7 @@ UPDATE evaluation_type
 SET
     evaluation_type_name = 'SEI_Survey'
 WHERE
-    evaluation_type_name = 'SEI';
+    evaluation_type_name = 'SEI_2';
 
 -- Verify that the course was updated
 SELECT
@@ -50,7 +50,7 @@ SELECT
                 evaluation_type_name = 'SEI_Survey'
         ),
         1::bigint,
-        'Created evaluation `SEI`'
+        'Created evaluation `SEI_Survey`'
     );
 
 SELECT
