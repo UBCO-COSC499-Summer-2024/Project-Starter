@@ -1,3 +1,4 @@
+// this file uses copilot auto compleet in all around areas
 'use client'
 import { useRouter } from 'next/navigation';
 import Container from 'react-bootstrap/Container';
@@ -19,18 +20,8 @@ import {
     Legend,
 } from 'chart.js';
 import { useState, useEffect, useRef } from "react";
-import { DataGrid, GridSlots, GridToolbarContainer, GridOverlay } from '@mui/x-data-grid';
+import { DataGrid, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
 import React from "react";
-
-function CustomNoRowsOverlay() {
-    return (
-        <GridOverlay>
-            <Box sx={{ mt: 1 }}>
-                <Typography>No courses available</Typography>
-            </Box>
-        </GridOverlay>
-    );
-}
 
 ChartJS.register(
     CategoryScale,
@@ -41,73 +32,24 @@ ChartJS.register(
     Legend
 );
 
-const blue = {
-    100: '#DAECFF',
-    200: '#b6daff',
-    400: '#3399FF',
-    500: '#007FFF',
-    600: '#0072E5',
-    900: '#003A75',
-};
-
-const grey = {
-    50: '#F3F6F9',
-    100: '#E5EAF2',
-    200: '#DAE2ED',
-    300: '#C7D0DD',
-    400: '#B0B8C4',
-    500: '#9DA8B7',
-    600: '#6B7A90',
-    700: '#434D5B',
-    800: '#303740',
-    900: '#1C2025',
-};
-
-const TextareaAutosize = styled(BaseTextareaAutosize)(
-    ({ theme }) => `
-    box-sizing: border-box;
-    width: 100%;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 400;
-    line-height: 1.5;
-    padding: 8px 12px;
-    border-radius: 8px;
-    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-    background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-    border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-    box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
-  
-    &:hover {
-      border-color: ${blue[400]};
-    }
-  
-    &:focus {
-      border-color: ${blue[400]};
-      box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
-    }
-  
-    // firefox
-    &:focus-visible {
-      outline: 0;
-    }
-  `,
-);
-
 export default function Home() {
     useEffect(() => {
         (async () => {
-            try {
-                const supabase = createClient("https://ubiquitous-system-6r67v9q45rpfp65-8000.app.github.dev/", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE");
+            // console.log(process.env.ANON_KEY)
+            try
+            {const supabase = createClient("https://legendary-memory-6q7wp999jvqfxxp4-8000.app.github.dev", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE");
                 const { data, error } = await supabase.from("v_course").select();
                 if (error) throw error;
-                setCourseData(data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                setCourseData([]); // Set to empty array on error
+                console.log(data)
+                setCourseData(data)
             }
-        })();
-    }, []);
+            
+            catch(error)
+            {console.error("Error fetching data:", error)
+
+            }
+        })()
+    }, [])
 
     const tableColumns = [
         { field: 'course_title', headerName: 'Course', width: 100, editable: true },
@@ -118,11 +60,12 @@ export default function Home() {
         { field: 'average_grade', headerName: 'Average Grade', width: 200, editable: true },
         { field: 'year_level', headerName: 'Year Level', width: 200, editable: true },
         { field: 'session', headerName: 'Session', width: 200, editable: true },
-    ];
+    ]
 
-    const [courseData, setCourseData] = useState([]);
+    const [courseData, setCourseData] = useState([
+    ]);
     const { push } = useRouter();
-    const [defaultCSV, setDefaultCSV] = useState("");
+    const [defaultCSV, setDefaultCSV] = useState("")
     const EditToolbar = () => {
         return (
             <GridToolbarContainer>
@@ -131,20 +74,75 @@ export default function Home() {
                 </Button>
 
                 <Button color="primary" onClick={() => {
-                    setDefaultCSV(json2csv(courseData));
-                    setCsvShow(true);
+                    // csv.current.value=(json2csv(courseData))
+                    setDefaultCSV(json2csv(courseData))
+                    setCsvShow(true)
                 }}>
                     ✏️ Edit As CSV
                 </Button>
             </GridToolbarContainer>
-        );
-    };
+        )
+    }
 
-    const [csvShow, setCsvShow] = useState(false);
+    const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
+    const blue = {
+        100: '#DAECFF',
+        200: '#b6daff',
+        400: '#3399FF',
+        500: '#007FFF',
+        600: '#0072E5',
+        900: '#003A75',
+      };
+      
+      const grey = {
+        50: '#F3F6F9',
+        100: '#E5EAF2',
+        200: '#DAE2ED',
+        300: '#C7D0DD',
+        400: '#B0B8C4',
+        500: '#9DA8B7',
+        600: '#6B7A90',
+        700: '#434D5B',
+        800: '#303740',
+        900: '#1C2025',
+      };
+      
+    const TextareaAutosize = styled(BaseTextareaAutosize)(
+        ({ theme }) => `
+        box-sizing: border-box;
+        width: 100%;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+        background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+        border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
+        box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
+      
+        &:hover {
+          border-color: ${blue[400]};
+        }
+      
+        &:focus {
+          border-color: ${blue[400]};
+          box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
+        }
+      
+        // firefox
+        &:focus-visible {
+          outline: 0;
+        }
+      `,
+      );
     const csv = useRef(null);
     return (
         <main>
+
+
             <Navbar />
 
             <Container>
@@ -155,10 +153,7 @@ export default function Home() {
                             rows={courseData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
-                            slots={{
-                                toolbar: EditToolbar as GridSlots['toolbar'],
-                                noRowsOverlay: CustomNoRowsOverlay,
-                            }}
+                            slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
                         />
                     </div>
                 </Row>
@@ -175,23 +170,25 @@ export default function Home() {
                     boxShadow: 24,
                     p: 4,
                 }}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Batch Editing
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
-                    </Typography>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    Batch Editing
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
+                </Typography>
 
-                    <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button className="!tw-m-2" variant="contained" onClick={() => {
-                        const csvText = csv.current.value;
-                        setCourseData(csv2json(csvText));
-                        handleCSVClose();
-                    }}>
-                        Add
-                    </Button>
-                </Box>
-            </Modal>
+
+
+                <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
+                <Button className="!tw-m-2" variant="contained" onClick={() => {
+                    const csvText = csv.current.value;
+                    setCourseData(csv2json(csvText))
+                    handleCSVClose()
+                }}
+
+                >Add</Button>
+            </Box>
+        </Modal>
         </main >
     );
 }
