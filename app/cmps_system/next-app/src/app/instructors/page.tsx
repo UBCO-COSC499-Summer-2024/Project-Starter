@@ -30,46 +30,48 @@ const Instructor = () => {
   }, []);
 
   return (
-    <Container fluid className="banner">
+    <main>
       <Navbar />
-      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <h1 style={{ marginRight: "10px" }}>Instructors</h1>
-        <Link href="/instructors/create_new_instructor" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
-          <Image src="/plus.svg" alt="Add new instructor plus icon" width={20} height={20} style={{ margin: '20px' }} />
-          Create new instructor
-        </Link>
-      </span>
-      <div className="table-container">
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p>Error fetching instructors: {error}</p>
-        ) : instructors.length > 0 ? (
-          <>
-            <div className="table-header">
-              <div>Instructors</div>
-              <div>Employee Number</div>
-              <div>Title</div>
-              <div>Hired Date</div>
-            </div>
-            {instructors.map((instructor) => (
-              <div className="table-row" key={instructor.instructor_id}>
-                <div>
-                  <Link href={`/instructors/instructor_info?id=${instructor.instructor_id}`}>
-                    {instructor.first_name} {instructor.last_name}
-                  </Link>
-                </div>
-                <div>{instructor.ubc_employee_num}</div>
-                <div>{instructor.title}</div>
-                <div>{instructor.hire_date}</div>
+      <Container fluid className="banner">
+        <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h1 style={{ marginRight: "10px" }}>Instructors</h1>
+          <Link href="/instructors/create_new_instructor" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
+            <Image src="/plus.svg" alt="Add new instructor plus icon" width={20} height={20} style={{ margin: '20px' }} />
+            Create new instructor
+          </Link>
+        </span>
+        <div className="table-container">
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p>Error fetching instructors: {error}</p>
+          ) : instructors.length > 0 ? (
+            <>
+              <div className="table-header">
+                <div>Instructors</div>
+                <div>Employee Number</div>
+                <div>Title</div>
+                <div>Hired Date</div>
               </div>
-            ))}
-          </>
-        ) : (
-          <p>No instructors found</p>
-        )}
-      </div>
-    </Container>
+              {instructors.map((instructor) => (
+                <div className="table-row" key={instructor.instructor_id}>
+                  <div>
+                    <Link href={`/instructors/instructor_info?id=${instructor.instructor_id}`}>
+                      {instructor.first_name} {instructor.last_name}
+                    </Link>
+                  </div>
+                  <div>{instructor.ubc_employee_num}</div>
+                  <div>{instructor.title}</div>
+                  <div>{instructor.hire_date}</div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <p>No instructors found</p>
+          )}
+        </div>
+      </Container>
+    </main>
   );
 };
 
