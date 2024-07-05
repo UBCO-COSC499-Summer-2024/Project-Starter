@@ -313,6 +313,7 @@ from
 CREATE VIEW
     v_evaluations_page AS
 SELECT
+    evaluation_entry_id as id,
     evaluation_type_name as evaluation_type,
     CASE
         WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
@@ -341,3 +342,18 @@ FROM
     LEFT JOIN instructor ON instructor.instructor_id = evaluation_entry.instructor_id
     LEFT JOIN course ON course.course_id = evaluation_entry.course_id
     LEFT JOIN service_role ON service_role.service_role_id = evaluation_entry.service_role_id;
+
+CREATE VIEW
+    v_evaluation_type_info AS
+SELECT
+    evaluation_entry.evaluation_type_id as id,
+    evaluation_type_name as name,
+    description,
+    COUNT(evaluation_entry_id) as num_entries
+FROM
+    evaluation_type
+    LEFT JOIN evaluation_entry ON evaluation_entry.evaluation_type_id = evaluation_type.evaluation_type_id
+GROUP BY
+    evaluation_entry.evaluation_type_id,
+    evaluation_type_name,
+    description;
