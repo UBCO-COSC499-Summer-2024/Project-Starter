@@ -141,7 +141,7 @@ CREATE TABLE
 ALTER TABLE "event"
 ADD PRIMARY KEY ("event_id");
 
-ALTER TABLE "evaluation_entry"
+ALTER TABLE "event"
 ADD CONSTRAINT "event_unique" UNIQUE ("event_datetime", "location", "description");
 
 CREATE TABLE
