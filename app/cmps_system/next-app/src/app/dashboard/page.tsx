@@ -30,28 +30,19 @@ ChartJS.register(
     Legend
 );
 
-const parseData = function (x: Array[]) {
-    // half gpt
+
+const parseData = function (x) {
+
     return {
-        labels: x.ind.map(x => ("Jan")),
+        labels: x.map(entry => entry.month),
         datasets: [{
             label: 'Personal Monthly Working Hours',
-            data: x.ind,
+            data: x.map(entry => entry.hours),
             backgroundColor: [
                 'rgba(58, 190, 249, 0.2)',
             ],
             borderColor: [
                 'rgb(58, 190, 249)',
-            ],
-            borderWidth: 1
-        }, {
-            label: 'Average Monthly Working Hours',
-            data: x.avg,
-            backgroundColor: [
-                'rgba(200, 130, 249, 0.2)',
-            ],
-            borderColor: [
-                'rgb(200, 130, 249)',
             ],
             borderWidth: 1
         }]
@@ -60,74 +51,107 @@ const parseData = function (x: Array[]) {
 
 export default function Home() {
 
-    const working_hour = {
-        "2023S": { "ind": Array.from(Array(8).keys()).map(x => (Math.round(Math.random() * 12))), "avg": Array.from(Array(8).keys()).map(x => (Math.round(Math.random() * 12))) },
-        "2024W": { "ind": Array.from(Array(8).keys()).map(x => (Math.round(Math.random() * 12))), "avg": Array.from(Array(8).keys()).map(x => (Math.round(Math.random() * 12))) },
-        "2024S": { "ind": Array.from(Array(8).keys()).map(x => (Math.round(Math.random() * 12))), "avg": Array.from(Array(8).keys()).map(x => (Math.round(Math.random() * 12))) },
-    }
-
-    const serviceRoles = [
-        {
-            name: "Grad Advisor",
-            hour: 30,
-        },
-        {
-            name: "Grad Advisor",
-            hour: 35,
-        }
-    ]
-
-    const rating = {
-        "2023S": [
-            {
-                "name": "COSC101",
-                "term": "1",
-                "student_count": 100,
-                "rating": "88%"
-            },
-            {
-                "name": "COSC121",
-                "term": "2",
-                "student_count": 55,
-                "rating": "50%"
-            },
-        ],
-        "2024W": [
-            {
-                "name": "COSC101",
-                "term": "1",
-                "student_count": 120,
-                "rating": "98%"
-            },
-            {
-                "name": "COSC121",
-                "term": "2",
-                "student_count": 65,
-                "rating": "30%"
-            },
-        ]
-    }
-
-    const [term, setTerm] = useState(Object.keys(working_hour)[Object.keys(working_hour).length - 1]);
-    const [ratingTerm, setRatingTerm] = useState(Object.keys(rating)[Object.keys(rating).length - 1]);
-    const [assignments, setAssignments] = useState([]);
+    const [term, setTerm] = useState("2024");
+    const [workingHours, setWorkingHours] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [assignments, setAssignments] = useState([]);
+    const [assignmentsLoading, setAssignmentsLoading] = useState(true);
+    const [assignmentsError, setAssignmentsError] = useState(null);
+    const [serviceRoles, setServiceRoles] = useState([]);
+    const [serviceLoading, setServiceLoading] = useState(true);
+    const [serviceError, setServiceError] = useState(null);
+    const [ratingTerm, setRatingTerm] = useState("2024");
+    const [rating, setRating] = useState({
+        "2023": [
+
+            {
+                name: "COSC101",
+                term: "1",
+                student_count: 100,
+                rating: "88%"
+            },
+            {
+                name: "COSC121",
+                term: "2",
+                student_count: 55,
+                rating: "50%"
+            },
+        ],
+        "2024": [
+            {
+                name: "COSC101",
+                term: "1",
+                student_count: 120,
+                rating: "98%"
+            },
+            {
+                name: "COSC121",
+                term: "2",
+                student_count: 65,
+                rating: "30%"
+            },
+        ]
+    });
 
     useEffect(() => {
         const fetchAssignments = async () => {
             const { data, error } = await supabase.from('course').select('*');
             if (error) {
                 console.error('Error fetching assignments:', error);
-                setError(error.message);
+                setAssignmentsError(error.message);
             } else {
                 setAssignments(data);
             }
-            setLoading(false);
+            setAssignmentsLoading(false);
         };
 
         fetchAssignments();
     }, []);
+
+    useEffect(() => {
+        const fetchServiceRoles = async () => {
+            const { data: serviceRolesData, error: serviceRolesError } = await supabase.from('service_role').select('*');
+            const { data: serviceHoursData, error: serviceHoursError } = await supabase.from('service_hours_entry').select('*');
+
+            if (serviceRolesError || serviceHoursError) {
+                console.error('Error fetching service roles:', serviceRolesError || serviceHoursError);
+                setServiceError((serviceRolesError || serviceHoursError).message);
+            } else {
+                const joinedData = serviceHoursData.map(entry => {
+                    const role = serviceRolesData.find(role => role.service_role_id === entry.service_role_id);
+                    return {
+                        ...entry,
+                        roleName: role ? role.title : 'Unknown Role'
+                    };
+                });
+                setServiceRoles(joinedData);
+            }
+            setServiceLoading(false);
+        };
+
+        fetchServiceRoles();
+    }, []);
+
+    useEffect(() => {
+        const fetchWorkingHours = async () => {
+            const { data, error } = await supabase
+                .from('service_hours_entry')
+                .select('*')
+                .eq('year', term);
+
+            if (error) {
+                console.error('Error fetching working hours:', error);
+                setError(error.message);
+            } else {
+                setWorkingHours(data);
+            }
+            setLoading(false);
+        };
+
+        fetchWorkingHours();
+    }, [term]);
+
 
     return (
         <main>
@@ -149,10 +173,12 @@ export default function Home() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {loading ? (
+
+                                    {assignmentsLoading ? (
                                         <tr><td colSpan="5">Loading...</td></tr>
-                                    ) : error ? (
-                                        <tr><td colSpan="5">Error fetching assignments: {error}</td></tr>
+                                    ) : assignmentsError ? (
+                                        <tr><td colSpan="5">Error fetching assignments: {assignmentsError}</td></tr>
+
                                     ) : assignments.length > 0 ? (
                                         assignments.map((x, index) => (
                                             <tr key={index}>
@@ -182,14 +208,20 @@ export default function Home() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {
+                                    {serviceLoading ? (
+                                        <tr><td colSpan="2">Loading...</td></tr>
+                                    ) : serviceError ? (
+                                        <tr><td colSpan="2">Error fetching service roles: {serviceError}</td></tr>
+                                    ) : serviceRoles.length > 0 ? (
                                         serviceRoles.map((x, index) => (
                                             <tr key={index}>
-                                                <td>{x.name}</td>
-                                                <td>{x.hour}</td>
+                                                <td>{x.roleName}</td>
+                                                <td>{x.hours}</td>
                                             </tr>
                                         ))
-                                    }
+                                    ) : (
+                                        <tr><td colSpan="2">No service roles found</td></tr>
+                                    )}
                                 </tbody>
                             </Table>
                         </Card>
@@ -199,24 +231,22 @@ export default function Home() {
                     <Col className="pt-3">
                         <Card className="tw-mb-3">
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Historical Working Hours</b>
-
                             <Dropdown className="tw-ml-2">
                                 <DropdownToggle>
                                     {term}
                                 </DropdownToggle>
                                 <DropdownMenu>
-                                    {Object.keys(working_hour).map((x, index) => (
+                                    {[2023, 2024].map((year, index) => (
                                         <DropdownItem key={index} onClick={() => {
-                                            setTerm(x)
+                                            setTerm(year)
                                         }}>
-                                            {x}
+                                            {year}
                                         </DropdownItem>))}
                                 </DropdownMenu>
                             </Dropdown>
-                            {/* gpt code */}
                             <div className="tw-h-62">
                                 <Bar className="tw-p-2 tw-h-max"
-                                    data={parseData(working_hour[term])}
+                                    data={parseData(workingHours)}
                                     options={{
                                         maintainAspectRatio: false,
                                         scales: {
@@ -224,7 +254,6 @@ export default function Home() {
                                                 beginAtZero: true
                                             }
                                         },
-
                                     }}
                                 />
                             </div>
