@@ -26,10 +26,12 @@ SELECT
             FROM
                 evaluation_metric
             WHERE
+                evaluation_type_id = (SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI_Survey')
+                AND
                 metric_num = 1
         ),
         1::bigint,
-        'Created evaluation `SEI`'
+        'Created evaluation metric 1 for `SEI_Survey`'
     );
 
 -- Update
