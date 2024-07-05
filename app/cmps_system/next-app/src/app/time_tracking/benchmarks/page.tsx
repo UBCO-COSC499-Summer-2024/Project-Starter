@@ -19,7 +19,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem } from '@mui/x-data-grid';
 import React from "react";
 
@@ -35,7 +35,7 @@ ChartJS.register(
 
 
 export default function Home() {
-
+    
     const [instructors, setInstructors] = useState([])
     useEffect(() => {
         (async () => {
@@ -58,8 +58,8 @@ export default function Home() {
         })()
     }, [])
     const tableColumns = [
-        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true,  type:'singleSelect', valueOptions: instructors},
-        { field: 'year', headerName: 'Year', width: 200, editable: true },
+        { field: 'instructor', headerName: 'Instructor', width: 200, editable: false,  type:'singleSelect', valueOptions: instructors},
+        { field: 'year', headerName: 'Year', width: 200, editable: false },
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
     ]
 
@@ -70,10 +70,10 @@ export default function Home() {
 
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
-    const [id, setId] = useState(0)
-    const EditToolbar = (props) => {
+    const [id, setId] = useState('0') 
+    const EditToolbar = useCallback((props) => {
         console.log(props)
-        const { setTimeData, setRowModesModel } = props;
+        const { setTimeData, setRowModesModel,id } = props;
 
         const handleClick = () => {
             var id = 1;
@@ -89,11 +89,21 @@ export default function Home() {
                 [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
             }));
         };
-        console.log(id)
+        // console.log(id)
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
+        var buttons = (<>
+            <Button
+                className="textPrimary"
+                onClick={handleEditClick(id)}
+                color="inherit"
+            >✏️Edit</Button>
+            <Button
+                onClick={handleDeleteClick(id)}
+                color="inherit"
+            >🗑️ Delete</Button></>) 
+        
         if (isInEditMode) {
-            const buttons = (<>
+            buttons = (<>
                 <Button
                     onClick={handleSaveClick(id)}>
                     💾 Save
@@ -106,17 +116,7 @@ export default function Home() {
 
         }
 
-        const buttons = (<>
-            <Button
-                className="textPrimary"
-                onClick={handleEditClick(id)}
-                color="inherit"
-            >✏️Edit</Button>
-            <Button
-                onClick={handleDeleteClick(id)}
-                color="inherit"
-            >🗑️ Delete</Button></>)
-        console.log(buttons)
+
         return (
             <GridToolbarContainer>
                 <Button color="primary" onClick={() => { handleClick() }}>
@@ -133,7 +133,7 @@ export default function Home() {
                 {buttons}
             </GridToolbarContainer>
         )
-    }
+    }, [id]);
 
     const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
@@ -222,10 +222,10 @@ export default function Home() {
                             rows={TimeData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
-                            slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
+                            slots={useMemo(()=>({ toolbar: EditToolbar as GridSlots['toolbar'] }), [id])}
                             rowModesModel={rowModesModel}
                             slotProps={{
-                                toolbar: { setTimeData, setRowModesModel },
+                                toolbar: { setTimeData, setRowModesModel, id },
                             }}
                             checkboxSelection={true}
                             disableMultipleRowSelection={true}
