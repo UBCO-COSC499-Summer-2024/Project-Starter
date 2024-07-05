@@ -36,9 +36,9 @@ INSERT INTO "course" ("academic_year", "session", "term", "subject_code", "cours
 (2024, 'Winter', 'Term 2', 'MATH', '200', '001', 'Calculus III', 'Hybrid', FALSE, 'SCI', '112', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 150, 5, 78.2, 3, 2, 'Open', 'Active'),
 (2023, 'Summer', 'Term 1', 'PHYS', '201', '001', 'Physics of Cats', 'Online', TRUE, 'EME', '1150', 'This course is cool', 'Lecture', 'Mon, Wed, Fri', '03:00', '23:00', 500, 1, 40.5, 3, 2, 'Open', 'Active'),
 (2023, 'Summer', 'Term 2', 'STAT', '401', '001', 'Probability and Statistical Inference', 'Hybrid', FALSE, 'ART', '110', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 10, 5, 78.2, 3, 4, 'Open', 'Active'),
-(2024, 'Winter', 'Term 1', 'ENGR', '101', '001', 'Introduction to Engineering', 'In-Person', TRUE, 'ENG', '101', NULL, 'Lecture', 'Mon, Wed', '14:00', '15:30', 100, 3, 88.0, 3, 1, 'Open', 'Active'),
-(2024, 'Winter', 'Term 2', 'CHEM', '101', '002', 'General Chemistry', 'In-Person', TRUE, 'SCI', '200', NULL, 'Lecture', 'Mon, Wed, Fri', '10:00', '11:00', 180, 8, 82.0, 3, 1, 'Open', 'Active'),
-(2023, 'Summer', 'Term 1', 'BIO', '150', '001', 'Introduction to Biology', 'Hybrid', FALSE, 'BIO', '101', 'Introductory course', 'Lecture', 'Tue, Thu', '08:00', '09:30', 120, 4, 75.0, 3, 1, 'Open', 'Active');
+(2024, 'Winter', 'Term 1', 'STAT', '101', '001', 'Introduction to Statistics', 'In-Person', TRUE, 'SCI', '101', NULL, 'Lecture', 'Mon, Wed', '14:00', '15:30', 100, 3, 88.0, 3, 1, 'Open', 'Active'),
+(2024, 'Winter', 'Term 2', 'MATH', '101', '002', 'General Math', 'In-Person', TRUE, 'SCI', '200', NULL, 'Lecture', 'Mon, Wed, Fri', '10:00', '11:00', 180, 8, 82.0, 3, 1, 'Open', 'Active'),
+(2023, 'Summer', 'Term 1', 'PHYS', '150', '001', 'Introduction to Fizzicks', 'Hybrid', FALSE, 'EME', '101', 'Introductory course', 'Lecture', 'Tue, Thu', '08:00', '09:30', 120, 4, 75.0, 3, 1, 'Open', 'Active');
 
 -- Teaching assignments
 INSERT INTO "course_assign" ("instructor_id", "course_id", "position", "start_date", "end_date") VALUES
