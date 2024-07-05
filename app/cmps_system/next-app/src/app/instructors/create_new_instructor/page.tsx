@@ -62,7 +62,7 @@ const InstructorForm = () => {
   const handleModalClose = () => {
     setModalShow(false);
     if (isSuccess) {
-      window.location.href = '/instructor/Instructor';
+      window.location.href = '/instructors';
     }
   };
 
@@ -147,7 +147,7 @@ const InstructorForm = () => {
           </div>
 
           <div className="buttons">
-            <button type="button" className="back-button" onClick={() => window.location.href = '/instructor/Instructor'}>Back</button>
+            <button type="button" className="back-button" onClick={() => window.location.href = '/instructors'}>Back</button>
             <button type="submit">Submit</button>
           </div>
         </form>
