@@ -30,7 +30,9 @@ ChartJS.register(
     Legend
 );
 
+
 const parseData = function (x) {
+
     return {
         labels: x.map(entry => entry.month),
         datasets: [{
@@ -48,6 +50,7 @@ const parseData = function (x) {
 }
 
 export default function Home() {
+
     const [term, setTerm] = useState("2024");
     const [workingHours, setWorkingHours] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -61,6 +64,7 @@ export default function Home() {
     const [ratingTerm, setRatingTerm] = useState("2024");
     const [rating, setRating] = useState({
         "2023": [
+
             {
                 name: "COSC101",
                 term: "1",
@@ -148,6 +152,7 @@ export default function Home() {
         fetchWorkingHours();
     }, [term]);
 
+
     return (
         <main>
             <Navbar />
@@ -168,10 +173,12 @@ export default function Home() {
                                     </tr>
                                 </thead>
                                 <tbody>
+
                                     {assignmentsLoading ? (
                                         <tr><td colSpan="5">Loading...</td></tr>
                                     ) : assignmentsError ? (
                                         <tr><td colSpan="5">Error fetching assignments: {assignmentsError}</td></tr>
+
                                     ) : assignments.length > 0 ? (
                                         assignments.map((x, index) => (
                                             <tr key={index}>
@@ -273,7 +280,7 @@ export default function Home() {
                                     <tr>
                                         <th>Name</th>
                                         <th>Term</th>
-                                        <th>Student Counts</th>
+                                        <th>Students</th>
                                         <th>Rating</th>
                                     </tr>
                                 </thead>
