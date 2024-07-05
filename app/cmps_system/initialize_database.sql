@@ -269,3 +269,5 @@ FROM
     course
     JOIN course_assign on course.course_id = course_assign.course_id
     JOIN instructor ON instructor.instructor_id = course_assign.instructor_id;
+
+CREATE VIEW v_timetracking AS SELECT service_hours_entry_id as id, CONCAT(instructor.last_name, ',', instructor.first_name) as instructor_name, service_role.title as service_role_name, year, month, hours from service_hours_entry JOIN service_role ON service_role.service_role_id=service_hours_entry.service_role_id JOIN instructor ON instructor.instructor_id=service_hours_entry.instructor_id;
