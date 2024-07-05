@@ -20,7 +20,7 @@ import {
     Legend,
 } from 'chart.js';
 import { useState, useEffect, useRef } from "react";
-import { DataGrid, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
+import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem } from '@mui/x-data-grid';
 import React from "react";
 
 ChartJS.register(
@@ -32,15 +32,23 @@ ChartJS.register(
     Legend
 );
 
+
+
 export default function Home() {
+
+    const [instructors, setInstructors] = useState([])
     useEffect(() => {
         (async () => {
+
             try {
                 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-                const { data, error } = await supabase.from("v_course").select();
+                var { data, error } = await supabase.from("list_of_instructors").select();
+                console.log(data)
+                setInstructors(data.map((instructor) => instructor.name))
+                var { data, error } = await supabase.from("v_benchmark").select();
                 if (error) throw error;
                 console.log(data)
-                setCourseData(data)
+                setTimeData(data)
             }
 
             catch (error) {
@@ -49,36 +57,80 @@ export default function Home() {
             }
         })()
     }, [])
-
     const tableColumns = [
-        { field: 'course_title', headerName: 'Course', width: 100, editable: true },
-        { field: 'location', headerName: 'Location', width: 200, editable: true },
-        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true },
-        { field: 'num_students', headerName: 'Number of Students', width: 200, editable: true },
-        { field: 'num_TAs', headerName: 'Number of TAs', width: 200, editable: true },
-        { field: 'average_grade', headerName: 'Average Grade', width: 200, editable: true },
-        { field: 'year_level', headerName: 'Year Level', width: 200, editable: true },
-        { field: 'session', headerName: 'Session', width: 200, editable: true },
+        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
+        { field: 'year', headerName: 'Year', width: 200, editable: true },
+        { field: 'hours', headerName: 'Hours', width: 200, editable: true }
     ]
 
-    const [courseData, setCourseData] = useState([
+    const [TimeData, setTimeData] = useState([
     ]);
+
+
+
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
-    const EditToolbar = () => {
+    const [id, setId] = useState(0)
+    const EditToolbar = (props) => {
+        console.log(props)
+        const { setTimeData, setRowModesModel } = props;
+
+        const handleClick = () => {
+            var id = 1;
+            if (TimeData.length >= 1) {
+                for (var i = 0; i < TimeData.length; i++) {
+                    id = Math.max(id, TimeData[i].id + 1)
+                }
+            }
+            console.log(id)
+            setTimeData((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
+            setRowModesModel((oldModel) => ({
+                ...oldModel,
+                [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
+            }));
+        };
+        console.log(id)
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+        if (isInEditMode) {
+            const buttons = (<>
+                <Button
+                    onClick={handleSaveClick(id)}>
+                    💾 Save
+                </Button>
+                <Button
+                    className="textPrimary"
+                    onClick={handleCancelClick(id)}
+                    color="inherit">❌ Cancel</Button>
+            </>)
+
+        }
+
+        const buttons = (<>
+            <Button
+                className="textPrimary"
+                onClick={handleEditClick(id)}
+                color="inherit"
+            >✏️Edit</Button>
+            <Button
+                onClick={handleDeleteClick(id)}
+                color="inherit"
+            >🗑️ Delete</Button></>)
+        console.log(buttons)
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { push("/courses/create_new_course") }}>
+                <Button color="primary" onClick={() => { handleClick() }}>
                     ➕ Add record
                 </Button>
 
                 <Button color="primary" onClick={() => {
-                    // csv.current.value=(json2csv(courseData))
-                    setDefaultCSV(json2csv(courseData))
+                    // csv.current.value=(json2csv(TimeData))
+                    setDefaultCSV(json2csv(TimeData))
                     setCsvShow(true)
                 }}>
-                    ✏️ Edit As CSV
+                    📝 Edit As CSV
                 </Button>
+                {buttons}
             </GridToolbarContainer>
         )
     }
@@ -138,20 +190,49 @@ export default function Home() {
       `,
     );
     const csv = useRef(null);
+    const [rowModesModel, setRowModesModel] = React.useState({});
+    const handleSaveClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    };
+
+    const handleDeleteClick = (id) => () => {
+        setTimeData(TimeData.filter((row) => row.id !== id));
+    };
+
+    const handleCancelClick = (id) => () => {
+        setRowModesModel({
+            ...rowModesModel,
+            [id]: { mode: GridRowModes.View, ignoreModifications: true },
+        });
+    }
+    const handleEditClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    };
     return (
         <main>
             <Navbar />
-            <h1 style={{ marginRight: "10px" }}>Courses</h1>
+            <h1 style={{ marginRight: "10px" }}>Service Hours Benchmarks</h1>
+            <Button onClick={() => { push("/time_tracking") }}>Return to Time Tracking</Button>
 
             <Container>
                 <Row className="h-32">
                     <div className="tw-p-3">
                         <DataGrid
                             editMode="row"
-                            rows={courseData}
+                            rows={TimeData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
+                            rowModesModel={rowModesModel}
+                            slotProps={{
+                                toolbar: { setTimeData, setRowModesModel },
+                            }}
+                            checkboxSelection={true}
+                            disableMultipleRowSelection={true}
+                            onRowSelectionModelChange={(newSelection) => {
+                                console.log(newSelection[0])
+                                setId(newSelection[0])
+                            }}
                         />
                     </div>
                 </Row>
@@ -180,14 +261,13 @@ export default function Home() {
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
                     <Button className="!tw-m-2" variant="contained" onClick={() => {
                         const csvText = csv.current.value;
-                        setCourseData(csv2json(csvText))
+                        setTimeData(csv2json(csvText))
                         handleCSVClose()
                     }}
 
                     >Add</Button>
                 </Box>
             </Modal>
-            <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button>
         </main >
     );
 }
