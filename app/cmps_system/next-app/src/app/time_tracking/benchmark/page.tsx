@@ -36,12 +36,16 @@ ChartJS.register(
 
 export default function Home() {
 
-
+    const [instructors, setInstructors] = useState([])
     useEffect(() => {
         (async () => {
+
             try {
                 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-                const { data, error } = await supabase.from("v_timetracking").select();
+                var { data, error } = await supabase.from("list_of_instructors").select();
+                console.log(data) 
+                setInstructors(data.map((instructor) => instructor.name))
+                var { data, error } = await supabase.from("v_benchmark").select();
                 if (error) throw error;
                 console.log(data)
                 setTimeData(data)
@@ -54,10 +58,8 @@ export default function Home() {
         })()
     }, [])
     const tableColumns = [
-        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: false, valueOptions: ["United Kingdom", "Spain", "Brazil"] },
-        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: false },
+        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true,  type:'singleSelect', valueOptions: instructors},
         { field: 'year', headerName: 'Year', width: 200, editable: true },
-        { field: 'month', headerName: 'Month', width: 200, editable: true },
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
     ]
 
@@ -266,7 +268,6 @@ export default function Home() {
                     >Add</Button>
                 </Box>
             </Modal>
-            <Button onClick={()=>{push("/time_tracking/benchmark")}}>Edit Benchmark</Button>
         </main >
     );
 }
