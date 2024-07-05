@@ -54,8 +54,8 @@ export default function Home() {
         })()
     }, [])
     const tableColumns = [
-        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true, valueOptions: ["United Kingdom", "Spain", "Brazil"] },
-        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: true },
+        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: false, valueOptions: ["United Kingdom", "Spain", "Brazil"] },
+        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: false },
         { field: 'year', headerName: 'Year', width: 200, editable: true },
         { field: 'month', headerName: 'Month', width: 200, editable: true },
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
