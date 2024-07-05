@@ -18,7 +18,8 @@ import {
     Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from '../supabaseClient';
 
 ChartJS.register(
     CategoryScale,
@@ -28,7 +29,6 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-
 
 const parseData = function (x: Array[]) {
     // half gpt
@@ -76,30 +76,6 @@ export default function Home() {
             hour: 35,
         }
     ]
-    const assignments =
-        [
-            {
-                "name": "COSC-102",
-                "time": "MON, WED, FRI - 12:00pm-1:00pm",
-                "student_count": 102,
-                "term": "1",
-                "location": "Basement"
-            },
-            {
-                "name": "COSC-449",
-                "time": "TUE, THU- 12:00pm-6:00pm",
-                "student_count": 1,
-                "term": "1-2",
-                "location": "Bathroom"
-            },
-            {
-                "name": "COSC-449",
-                "time": "TUE, THU- 8:00am-10:00am",
-                "student_count": 1,
-                "term": "1-2",
-                "location": "SCI102"
-            }
-        ]
 
     const rating = {
         "2023S": [
@@ -134,7 +110,25 @@ export default function Home() {
 
     const [term, setTerm] = useState(Object.keys(working_hour)[Object.keys(working_hour).length - 1]);
     const [ratingTerm, setRatingTerm] = useState(Object.keys(rating)[Object.keys(rating).length - 1]);
-    console.log(working_hour["2023S"])
+    const [assignments, setAssignments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchAssignments = async () => {
+            const { data, error } = await supabase.from('course').select('*');
+            if (error) {
+                console.error('Error fetching assignments:', error);
+                setError(error.message);
+            } else {
+                setAssignments(data);
+            }
+            setLoading(false);
+        };
+
+        fetchAssignments();
+    }, []);
+
     return (
         <main>
             <Navbar />
@@ -155,17 +149,23 @@ export default function Home() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {
+                                    {loading ? (
+                                        <tr><td colSpan="5">Loading...</td></tr>
+                                    ) : error ? (
+                                        <tr><td colSpan="5">Error fetching assignments: {error}</td></tr>
+                                    ) : assignments.length > 0 ? (
                                         assignments.map((x, index) => (
                                             <tr key={index}>
-                                                <td>{x.name}</td>
+                                                <td>{x.course_title}</td>
                                                 <td>{x.term}</td>
-                                                <td>{x.time}</td>
-                                                <td>{x.student_count}</td>
-                                                <td>{x.location}</td>
+                                                <td>{x.days} - {x.start_time} to {x.end_time}</td>
+                                                <td>{x.num_students}</td>
+                                                <td>{x.building} {x.room_num}</td>
                                             </tr>
                                         ))
-                                    }
+                                    ) : (
+                                        <tr><td colSpan="5">No assignments found</td></tr>
+                                    )}
                                 </tbody>
                             </Table>
                         </Card>
@@ -251,7 +251,7 @@ export default function Home() {
                                     <tr>
                                         <th>Name</th>
                                         <th>Term</th>
-                                        <th>Student Counts</th>
+                                        <th>Students</th>
                                         <th>Rating</th>
                                     </tr>
                                 </thead>
