@@ -19,8 +19,10 @@ services:
       - /app/node_modules
       - ./next-build/:/app/build
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
+      NEXT_PUBLIC_SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+      NEXT_PUBLIC_ANON_KEY: ${ANON_KEY}
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
 
   apache:
     build:
@@ -428,7 +430,8 @@ services:
       - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
       # Use named volume to persist pgsodium decryption key between restarts
       - db-config:/etc/postgresql-custom
-      - ./initialize_database.sql:/docker-entrypoint-initdb.d/init-scripts/98_initialize_database.sql:Z
+      - ./initialize_database.sql:/docker-entrypoint-initdb.d/init-scripts/991_initialize_database.sql:Z
+      - ./populate_database.sql:/docker-entrypoint-initdb.d/init-scripts/992_populate_database.sql:Z
 
   vector:
     container_name: supabase-vector
