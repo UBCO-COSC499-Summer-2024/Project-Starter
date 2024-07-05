@@ -12,7 +12,7 @@ INSERT INTO
     )
 VALUES
     (
-        (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789),
+        (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591),
         2020,
         100
     );
@@ -26,7 +26,7 @@ SELECT
             FROM
                 service_hours_benchmark
             WHERE
-                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
                 AND year = 2020
         ),
         100,
@@ -39,7 +39,7 @@ UPDATE service_hours_benchmark
 SET
     hours = 70
 WHERE
-    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
     AND year = 2020;
 
 -- Verify that the service_hours_benchmark was updated
@@ -51,11 +51,11 @@ SELECT
             FROM
                 service_hours_benchmark
             WHERE
-                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
                 AND year = 2020
         ),
         70,
-        'Updated hours to 70 for service_hours_benchmark with instructor_id 123456789 and year 2020'
+        'Updated hours to 70 for service_hours_benchmark with instructor_id 749174591 and year 2020'
     );
 
 -- End tests

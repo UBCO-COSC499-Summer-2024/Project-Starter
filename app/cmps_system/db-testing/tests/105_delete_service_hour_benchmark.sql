@@ -6,7 +6,7 @@ SELECT
 -- Delete the service_hours_benchmark and verify that the deletion was successful
 DELETE FROM service_hours_benchmark
 WHERE
-    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
     AND year = 2020;
 
 -- Verify that the service_hours_benchmark was deleted
@@ -18,11 +18,11 @@ SELECT
             FROM
                 service_hours_benchmark
             WHERE
-                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
                 AND year = 2020
         ),
         0::bigint,
-        'Deleted service_hours_benchmark with instructor_id 123456789 and year 2020'
+        'Deleted service_hours_benchmark with instructor_id 749174591 and year 2020'
     );
 
 -- End tests

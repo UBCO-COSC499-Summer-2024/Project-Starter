@@ -16,6 +16,9 @@ CREATE TABLE
 ALTER TABLE "instructor"
 ADD PRIMARY KEY ("instructor_id");
 
+ALTER TABLE "instructor"
+ADD CONSTRAINT "instructor_ubc_employee_num_unique" UNIQUE ("ubc_employee_num");
+
 CREATE TABLE
     "evaluation_entry" (
         "evaluation_entry_id" SERIAL NOT NULL,

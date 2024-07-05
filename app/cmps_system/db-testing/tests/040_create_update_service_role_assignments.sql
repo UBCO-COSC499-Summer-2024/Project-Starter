@@ -14,7 +14,7 @@ INSERT INTO
     )
 VALUES
     (
-        (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789),
+        (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591),
         (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator'),
         '2020-01-01',
         '2020-12-31',
@@ -30,14 +30,14 @@ SELECT
             FROM
                 service_role_assign
             WHERE
-                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
                 AND service_role_id = (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator')
                 AND start_date = '2020-01-01'
                 AND end_date = '2020-12-31'
                 AND expected_hours = 300
         ),
         1::bigint,
-        'Created service_role_assign with instructor_id 123456789, service_role_id Pizza Party Coordinator, start_date 2020-01-01, end_date 2020-12-31, expected_hours 300'
+        'Created service_role_assign with instructor_id 749174591, service_role_id Pizza Party Coordinator, start_date 2020-01-01, end_date 2020-12-31, expected_hours 300'
     );
 
 -- Update
@@ -46,7 +46,7 @@ UPDATE service_role_assign
 SET
     expected_hours = 200
 WHERE
-    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
     AND service_role_id = (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator')
     AND start_date = '2020-01-01'
     AND end_date = '2020-12-31';
@@ -60,7 +60,7 @@ SELECT
             FROM
                 service_role_assign
             WHERE
-                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
                 AND service_role_id = (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator')
                 AND start_date = '2020-01-01'
                 AND end_date = '2020-12-31'

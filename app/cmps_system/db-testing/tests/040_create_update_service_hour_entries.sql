@@ -14,7 +14,7 @@ INSERT INTO
     )
 VALUES
     (
-        (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789),
+        (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591),
         (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator'),
         2020,
         1,
@@ -30,13 +30,13 @@ SELECT
             FROM
                 service_hours_entry
             WHERE
-                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
                 AND service_role_id = (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator')
                 AND year = 2020
                 AND month = 1
         ),
         300,
-        'Created service_hours_entry with instructor_id 123456789, service_role_id Pizza Party Coordinator, year 2020, month 1, hours 300'
+        'Created service_hours_entry with instructor_id 749174591, service_role_id Pizza Party Coordinator, year 2020, month 1, hours 300'
     );
 
 -- Update
@@ -45,7 +45,7 @@ UPDATE service_hours_entry
 SET
     hours = 200
 WHERE
-    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+    instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
     AND service_role_id = (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator')
     AND year = 2020
     AND month = 1;
@@ -59,7 +59,7 @@ SELECT
             FROM
                 service_hours_entry
             WHERE
-                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789)
+                instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
                 AND service_role_id = (SELECT service_role_id FROM service_role WHERE title = 'Pizza Party Coordinator')
                 AND year = 2020
                 AND month = 1

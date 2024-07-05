@@ -14,7 +14,7 @@ INSERT INTO
     )
 VALUES
     (
-        123456789,
+        749174591,
         'Dr.',
         'John',
         'Doe',
@@ -31,7 +31,7 @@ SELECT
             FROM
                 instructor
             WHERE
-                ubc_employee_num = 123456789
+                ubc_employee_num = 749174591
         ),
         'John',
         'First name should be John'
@@ -43,7 +43,7 @@ UPDATE instructor
 SET
     first_name = 'Jane'
 WHERE
-    ubc_employee_num = 123456789;
+    ubc_employee_num = 749174591;
 
 SELECT
     is (
@@ -53,7 +53,7 @@ SELECT
             FROM
                 instructor
             WHERE
-                ubc_employee_num = 123456789
+                ubc_employee_num = 749174591
         ),
         'Jane',
         'First name should be updated to Jane'
