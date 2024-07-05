@@ -140,9 +140,8 @@ export default function Home() {
     const csv = useRef(null);
     return (
         <main>
-
-
             <Navbar />
+            <h1 style={{ marginRight: "10px" }}>Courses</h1>
 
             <Container>
                 <Row className="h-32">
@@ -188,6 +187,7 @@ export default function Home() {
                     >Add</Button>
                 </Box>
             </Modal>
+            <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button>
         </main >
     );
 }

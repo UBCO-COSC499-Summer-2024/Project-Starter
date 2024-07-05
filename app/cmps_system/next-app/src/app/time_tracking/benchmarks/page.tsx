@@ -43,7 +43,7 @@ export default function Home() {
             try {
                 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 var { data, error } = await supabase.from("list_of_instructors").select();
-                console.log(data) 
+                console.log(data)
                 setInstructors(data.map((instructor) => instructor.name))
                 var { data, error } = await supabase.from("v_benchmark").select();
                 if (error) throw error;
@@ -58,8 +58,10 @@ export default function Home() {
         })()
     }, [])
     const tableColumns = [
+
         { field: 'instructor', headerName: 'Instructor', width: 200, editable: false,  type:'singleSelect', valueOptions: instructors},
         { field: 'year', headerName: 'Year', width: 200, editable: false },
+
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
     ]
 
@@ -107,12 +109,12 @@ export default function Home() {
                 <Button
                     onClick={handleSaveClick(id)}>
                     💾 Save
-                    </Button>
+                </Button>
                 <Button
                     className="textPrimary"
                     onClick={handleCancelClick(id)}
                     color="inherit">❌ Cancel</Button>
-                    </>)
+            </>)
 
         }
 
@@ -210,9 +212,9 @@ export default function Home() {
     };
     return (
         <main>
-
-
             <Navbar />
+            <h1 style={{ marginRight: "10px" }}>Service Hours Benchmarks</h1>
+            <Button onClick={() => { push("/time_tracking") }}>Return to Time Tracking</Button>
 
             <Container>
                 <Row className="h-32">
