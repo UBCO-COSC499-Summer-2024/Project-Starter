@@ -251,7 +251,7 @@ export default function Home() {
                                     <tr>
                                         <th>Name</th>
                                         <th>Term</th>
-                                        <th>Student Counts</th>
+                                        <th>Students</th>
                                         <th>Rating</th>
                                     </tr>
                                 </thead>
