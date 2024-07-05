@@ -165,6 +165,7 @@ ADD CONSTRAINT "service_hours_entry_unique" UNIQUE (
     "month"
 );
 
+
 -- Grant all privileges on all tables to anon
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon;
 
