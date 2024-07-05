@@ -266,7 +266,7 @@ export default function Home() {
                     >Add</Button>
                 </Box>
             </Modal>
-            <Button onClick={()=>{push("/time_tracking/benchmark")}}>Edit Benchmark</Button>
+            <Button onClick={()=>{push("/time_tracking/benchmarks")}}>Edit Benchmark</Button>
         </main >
     );
 }
