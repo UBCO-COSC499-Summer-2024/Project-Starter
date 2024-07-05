@@ -35,7 +35,7 @@ export default function Home() {
             width: 200,
             editable: false,
             renderCell: (params) => (
-                <Link href={`/service_roles/service_role_detail?title=${params.row.title}&description=${params.row.description}&default_expected_hours=${params.row.default_expected_hours}&building=${params.row.building}&room_num=${params.row.room_num}`} legacyBehavior>
+                <Link href={`/service_roles/service_role_info?title=${params.row.title}&description=${params.row.description}&default_expected_hours=${params.row.default_expected_hours}&building=${params.row.building}&room_num=${params.row.room_num}`} legacyBehavior>
                     {params.value}
                 </Link>
             )

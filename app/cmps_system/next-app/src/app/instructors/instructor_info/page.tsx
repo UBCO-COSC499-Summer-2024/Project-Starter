@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import NavBar from '@/app/components/NavBar';
-import { supabase } from '../../../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -73,7 +73,7 @@ const InstructorDetail = () => {
       setError(error.message);
     } else {
       alert('Instructor removed successfully');
-      router.push('/instructor/Instructor');
+      router.push('/instructors');
     }
   };
 
@@ -118,7 +118,7 @@ const InstructorDetail = () => {
             </table>
             <div className="instructor-info-footer">
               <button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</button>
-              <button className="btn btn-secondary" onClick={() => router.push('/instructor/Instructor')}>Back</button>
+              <button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</button>
             </div>
           </>
         ) : (
