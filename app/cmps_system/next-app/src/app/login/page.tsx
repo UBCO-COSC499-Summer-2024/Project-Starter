@@ -7,8 +7,11 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { createClient } from '@supabase/supabase-js'
 import { useRef } from "react"; 
+import { useRouter } from 'next/navigation'
+
 
 export default function Home() {
+    const router = useRouter()
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
     const phone_input = useRef(null)
     const password_input = useRef(null)
@@ -24,10 +27,16 @@ export default function Home() {
     async function login(){
         const phone = phone_input.current.value;
         const password = password_input.current.value;
-        let { data, error } = await supabase.auth.signInWithPassword({
+        let response = await supabase.auth.signInWithPassword({
             phone: phone,
             password: password,
           })
+          console.log(response.error)
+          if(response.error){
+                alert("Invalid phone or password")
+                return
+            }
+          router.push("/dashboard")
     }
     return (
         <div className="tw-grid tw-place-content-center tw-mt-40 tw-bg-white  ">

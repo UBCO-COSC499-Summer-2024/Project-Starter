@@ -54,8 +54,8 @@ export default function Home() {
         })()
     }, [])
     const tableColumns = [
-        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true, valueOptions: ["United Kingdom", "Spain", "Brazil"] },
-        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: true },
+        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: false, valueOptions: ["United Kingdom", "Spain", "Brazil"] },
+        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: false },
         { field: 'year', headerName: 'Year', width: 200, editable: true },
         { field: 'month', headerName: 'Month', width: 200, editable: true },
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
@@ -95,12 +95,12 @@ export default function Home() {
                 <Button
                     onClick={handleSaveClick(id)}>
                     💾 Save
-                    </Button>
+                </Button>
                 <Button
                     className="textPrimary"
                     onClick={handleCancelClick(id)}
                     color="inherit">❌ Cancel</Button>
-                    </>)
+            </>)
 
         }
 
@@ -208,9 +208,8 @@ export default function Home() {
     };
     return (
         <main>
-
-
             <Navbar />
+            <h1 style={{ marginRight: "10px" }}>Time Tracking</h1>
 
             <Container>
                 <Row className="h-32">
@@ -266,6 +265,7 @@ export default function Home() {
                     >Add</Button>
                 </Box>
             </Modal>
+            <Button onClick={() => { push("/time_tracking/benchmarks") }}>Edit Benchmarks</Button>
         </main >
     );
 }
