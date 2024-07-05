@@ -215,6 +215,8 @@ export default function Home() {
             <Container>
                 <Row className="h-32">
                     <div className="tw-p-3">
+                    <Typography variant="h4" gutterBottom>Benchmark</Typography>
+
                         <DataGrid
                             editMode="row"
                             rows={TimeData}

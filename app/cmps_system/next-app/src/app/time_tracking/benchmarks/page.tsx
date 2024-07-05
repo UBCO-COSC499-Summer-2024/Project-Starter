@@ -67,7 +67,7 @@ export default function Home() {
     ]);
 
 
-
+    
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
     const [id, setId] = useState(0)
@@ -217,6 +217,8 @@ export default function Home() {
             <Container>
                 <Row className="h-32">
                     <div className="tw-p-3">
+                        <Button onClick={()=>{push("/time_tracking")}}>Return to Time Tracking</Button>
+                        <Typography variant="h4" gutterBottom>Benchmark</Typography>
                         <DataGrid
                             editMode="row"
                             rows={TimeData}
