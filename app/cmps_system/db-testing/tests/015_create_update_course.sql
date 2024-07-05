@@ -37,7 +37,7 @@ VALUES
         'Term 1',
         'MATH',
         101,
-        1,
+        001,
         'Calculus I',
         'In-Person',
         TRUE,
@@ -71,6 +71,7 @@ SELECT
                 AND term = 'Term 1'
                 AND subject_code = 'MATH'
                 AND course_num = 101
+                AND section_num = 001
         ),
         1::bigint,
         'Created course with academic_year 2023, session Winter, term Term 1, subject_code MATH, course_num 101'
@@ -131,21 +132,21 @@ SELECT
 -- Expected to fail due to CHECK constraint
 SELECT
     throws_ok (
-        'INSERT INTO course (academic_year, session, term, subject_code, course_num, section_num) VALUES (2023, ''Fall'', ''Term 1'', ''MATH'', 101, 1);'
+        'INSERT INTO course (academic_year, session, term, subject_code, course_num, section_num) VALUES (2023, ''Fall'', ''Term 1'', ''MATH'', 101, 001);'
     );
 
 -- Inserting with invalid term
 -- Expected to fail due to CHECK constraint
 SELECT
     throws_ok (
-        'INSERT INTO course (academic_year, session, term, subject_code, course_num, section_num) VALUES (2023, ''Winter'', ''Term 3'', ''MATH'', 101, 1);'
+        'INSERT INTO course (academic_year, session, term, subject_code, course_num, section_num) VALUES (2023, ''Winter'', ''Term 3'', ''MATH'', 101, 001);'
     );
 
 -- Inserting with invalid mode_of_delivery
 -- Expected to fail due to CHECK constraint
 SELECT
     throws_ok (
-        'INSERT INTO course (academic_year, session, term, subject_code, course_num, section_num, mode_of_delivery) VALUES (2023, ''Winter'', ''Term 1'', ''MATH'', 101, 1, ''Remote'');'
+        'INSERT INTO course (academic_year, session, term, subject_code, course_num, section_num, mode_of_delivery) VALUES (2023, ''Winter'', ''Term 1'', ''MATH'', 101, 001, ''Remote'');'
     );
 
 -- End tests

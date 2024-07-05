@@ -101,9 +101,9 @@ CREATE TABLE
         "assignment_id" SERIAL NOT NULL,
         "instructor_id" INTEGER NOT NULL,
         "course_id" INTEGER NOT NULL,
-        "position" VARCHAR(255) CHECK ("position" IN ('Instructor', 'TA', 'Other')) NOT NULL,
-        "start_date" DATE NOT NULL,
-        "end_date" DATE NOT NULL
+        "position" VARCHAR(255) NOT NULL,
+        "start_date" DATE NULL,
+        "end_date" DATE NULL
     );
 
 ALTER TABLE "course_assign"
