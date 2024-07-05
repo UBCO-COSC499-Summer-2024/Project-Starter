@@ -95,12 +95,12 @@ export default function Home() {
                 <Button
                     onClick={handleSaveClick(id)}>
                     💾 Save
-                    </Button>
+                </Button>
                 <Button
                     className="textPrimary"
                     onClick={handleCancelClick(id)}
                     color="inherit">❌ Cancel</Button>
-                    </>)
+            </>)
 
         }
 
@@ -208,15 +208,12 @@ export default function Home() {
     };
     return (
         <main>
-
-
             <Navbar />
+            <h1 style={{ marginRight: "10px" }}>Time Tracking</h1>
 
             <Container>
                 <Row className="h-32">
                     <div className="tw-p-3">
-                    <Typography variant="h4" gutterBottom>Benchmark</Typography>
-
                         <DataGrid
                             editMode="row"
                             rows={TimeData}
@@ -268,7 +265,7 @@ export default function Home() {
                     >Add</Button>
                 </Box>
             </Modal>
-            <Button onClick={()=>{push("/time_tracking/benchmarks")}}>Edit Benchmark</Button>
+            <Button onClick={() => { push("/time_tracking/benchmarks") }}>Edit Benchmarks</Button>
         </main >
     );
 }
