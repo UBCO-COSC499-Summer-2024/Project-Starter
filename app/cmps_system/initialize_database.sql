@@ -63,8 +63,8 @@ CREATE TABLE
         "session" VARCHAR(255) CHECK ("session" IN ('Winter', 'Summer')) NOT NULL,
         "term" VARCHAR(255) CHECK ("term" IN ('Term 1', 'Term 2', 'Term 1-2')) NOT NULL,
         "subject_code" CHAR(4) NOT NULL,
-        "course_num" INTEGER NOT NULL,
-        "section_num" INTEGER NOT NULL,
+        "course_num" VARCHAR(3) NOT NULL,
+        "section_num" VARCHAR(3) NOT NULL,
         "course_title" VARCHAR(255) NULL,
         "mode_of_delivery" VARCHAR(255) CHECK (
             "mode_of_delivery" IN ('Online', 'In-Person', 'Hybrid', 'Multi-access')
@@ -308,3 +308,29 @@ SELECT
 from
     service_hours_benchmark
     JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
+
+CREATE VIEW
+    v_evaluations_page AS
+SELECT
+    evaluation_type_name as evaluation_type,
+    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
+    CONCAT(
+        course.subject_code,
+        ' ',
+        course.course_num,
+        ' ',
+        course.section_num
+    ) as course,
+    service_role.title as service_role,
+    evaluation_entry.metric_num as question_num,
+    metric_description as question,
+    answer,
+    evaluation_date
+FROM
+    evaluation_entry
+    JOIN evaluation_metric ON evaluation_entry.metric_num = evaluation_metric.metric_num
+    AND evaluation_entry.evaluation_type_id = evaluation_metric.evaluation_type_id
+    JOIN evaluation_type ON evaluation_type.evaluation_type_id = evaluation_entry.evaluation_type_id
+    JOIN instructor ON instructor.instructor_id = evaluation_entry.instructor_id
+    LEFT JOIN course ON course.course_id = evaluation_entry.course_id
+    LEFT JOIN service_role ON service_role.service_role_id = evaluation_entry.service_role_id;
