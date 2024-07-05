@@ -47,7 +47,7 @@ CREATE TABLE
         "description" TEXT NOT NULL,
         "default_expected_hours" INTEGER NOT NULL,
         "building" VARCHAR(255) NULL,
-        "room_num" VARCHAR(255) NOT NULL
+        "room_num" VARCHAR(255) NULL
     );
 
 ALTER TABLE "service_role"
