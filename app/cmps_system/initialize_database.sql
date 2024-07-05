@@ -37,6 +37,7 @@ ADD CONSTRAINT "evaluation_entry_unique" UNIQUE (
     "metric_num",
     "course_id",
     "instructor_id",
+    "service_role_id",
     "evaluation_date"
 );
 
@@ -313,14 +314,20 @@ CREATE VIEW
     v_evaluations_page AS
 SELECT
     evaluation_type_name as evaluation_type,
-    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
-    CONCAT(
-        course.subject_code,
-        ' ',
-        course.course_num,
-        ' ',
-        course.section_num
-    ) as course,
+    CASE
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
+        ELSE ''
+    END AS instructor,
+    CASE
+        WHEN course.course_id IS NOT NULL THEN CONCAT(
+            course.subject_code,
+            ' ',
+            course.course_num,
+            ' ',
+            course.section_num
+        )
+        ELSE ''
+    END AS course,
     service_role.title as service_role,
     evaluation_entry.metric_num as question_num,
     metric_description as question,
@@ -331,6 +338,6 @@ FROM
     JOIN evaluation_metric ON evaluation_entry.metric_num = evaluation_metric.metric_num
     AND evaluation_entry.evaluation_type_id = evaluation_metric.evaluation_type_id
     JOIN evaluation_type ON evaluation_type.evaluation_type_id = evaluation_entry.evaluation_type_id
-    JOIN instructor ON instructor.instructor_id = evaluation_entry.instructor_id
+    LEFT JOIN instructor ON instructor.instructor_id = evaluation_entry.instructor_id
     LEFT JOIN course ON course.course_id = evaluation_entry.course_id
     LEFT JOIN service_role ON service_role.service_role_id = evaluation_entry.service_role_id;

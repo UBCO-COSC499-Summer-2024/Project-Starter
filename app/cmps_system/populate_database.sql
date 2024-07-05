@@ -73,16 +73,16 @@ INSERT INTO "service_role_assign" ("instructor_id", "service_role_id", "start_da
 
 -- Evaluation entries
 INSERT INTO "evaluation_entry" ("evaluation_type_id", "metric_num", "course_id", "instructor_id", "service_role_id", "evaluation_date", "answer") VALUES
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 1, 1, 1, NULL, '2023-12-15', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 2, 1, 1, NULL, '2023-12-15', 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 1, 2, 2, NULL, '2023-12-16', 3),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 2, 2, 2, NULL, '2023-12-16', 4),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 1, NULL, 1, NULL, '2023-12-15', 4),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 2, NULL, 1, NULL, '2023-12-15', 5),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 1, 2, NULL, NULL, '2023-12-16', 3),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 2, 2, NULL, NULL, '2023-12-16', 4),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 1, 3, 1, NULL, '2023-12-17', 4),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 2, 3, 1, NULL, '2023-12-17', 5),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 1, 4, 2, NULL, '2023-12-18', 3),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 2, 4, 2, NULL, '2023-12-18', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 1, 5, 3, NULL, '2023-12-19', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 2, 5, 3, NULL, '2023-12-19', 5);
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 1, NULL, 3, (SELECT service_role_id FROM service_role_assign WHERE instructor_id = 3 LIMIT 1), '2023-12-19', 4),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 2, NULL, 3, (SELECT service_role_id FROM service_role_assign WHERE instructor_id = 3 LIMIT 1), '2023-12-19', 5);
 
 -- Events
 INSERT INTO "event" ("event_datetime", "is_meeting", "duration", "description", "location") VALUES
