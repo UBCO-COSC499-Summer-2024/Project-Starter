@@ -1,8 +1,19 @@
+'use client'
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './NavBar.module.css';
+import { createClient } from '@supabase/supabase-js/dist/module';
+import { useEffect } from 'react';
 
 const NavBar = () => {
+    useEffect(()=>{
+            (async function(){
+                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY); //copilot
+    
+                // get user info, semi-copilot
+                console.log(await supabase.auth.getUser())
+            })()
+    },[])
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -22,7 +33,7 @@ const NavBar = () => {
                     </Link>
                 </li>
                 <li className={styles.navbarButton}>
-                    <Link href="/instructor/Instructor" className={styles.navbarButtonText}>
+                    <Link href="/instructor" className={styles.navbarButtonText}>
                         INSTRUCTORS
                     </Link>
                 </li>

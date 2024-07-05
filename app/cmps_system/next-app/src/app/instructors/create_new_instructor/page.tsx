@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import NavBar from '@/app/components/NavBar';
-import { supabase } from '../../../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
