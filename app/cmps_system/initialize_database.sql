@@ -304,6 +304,7 @@ CREATE VIEW
 SELECT
     benchmark_id as id,
     CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
+    instructor.instructor_id,
     year,
     hours
 from

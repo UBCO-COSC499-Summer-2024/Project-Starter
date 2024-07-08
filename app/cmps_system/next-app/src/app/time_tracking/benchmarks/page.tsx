@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link';
 import Image from 'next/image';
 import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormGroup, FormLabel, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
-import { Button, Modal, Typography, Box, styled } from '@mui/material';
+import { Button, Modal, Typography, Box, styled, Select, MenuItem } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import {
     Chart as ChartJS,
@@ -19,7 +19,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem } from '@mui/x-data-grid';
 import React from "react";
 
@@ -37,14 +37,28 @@ ChartJS.register(
 export default function Home() {
 
     const [instructors, setInstructors] = useState([])
+    const [tableColumns, setTableColumns] = useState([]);
     useEffect(() => {
         (async () => {
 
             try {
                 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 var { data, error } = await supabase.from("list_of_instructors").select();
+                setInstructors(data)
+                console.log("profs")
                 console.log(data)
-                setInstructors(data.map((instructor) => instructor.name))
+                [{
+                    field: 'instructor_id', headerName: 'Instructor', width: 200, renderCell: useCallback((params) => {
+                        return instructors.map((instructor) => {
+                            JSON.stringify(instructor)
+                            // <p key={instructor.instructor} value={instructor.id}>{instructor.instructor}</p>
+                        })
+                    }, [instructors])},
+                    { field: 'year', headerName: 'Year', width: 200, editable: true },
+                { field: 'hours', headerName: 'Hours', width: 200, editable: true }
+                ]
+                
+                console.log(data)
                 var { data, error } = await supabase.from("v_benchmark").select();
                 if (error) throw error;
                 console.log(data)
@@ -57,11 +71,7 @@ export default function Home() {
             }
         })()
     }, [])
-    const tableColumns = [
-        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
-        { field: 'year', headerName: 'Year', width: 200, editable: true },
-        { field: 'hours', headerName: 'Hours', width: 200, editable: true }
-    ]
+    console.log(instructors)
 
     const [TimeData, setTimeData] = useState([
     ]);
@@ -75,7 +85,7 @@ export default function Home() {
         console.log(props)
         const { setTimeData, setRowModesModel } = props;
 
-        const handleClick = () => {
+        const handleAdd = () => {
             var id = 1;
             if (TimeData.length >= 1) {
                 for (var i = 0; i < TimeData.length; i++) {
@@ -119,7 +129,7 @@ export default function Home() {
         console.log(buttons)
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { handleClick() }}>
+                <Button color="primary" onClick={() => { handleAdd() }}>
                     ➕ Add record
                 </Button>
 
