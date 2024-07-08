@@ -33,6 +33,7 @@ ChartJS.register(
 );
 
 
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
 
@@ -41,7 +42,6 @@ export default function Home() {
         (async () => {
 
             try {
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 var { data, error } = await supabase.from("list_of_instructors").select();
                 console.log(data)
                 setInstructors(data.map((instructor) => instructor.name))
@@ -57,6 +57,7 @@ export default function Home() {
             }
         })()
     }, [])
+
     const tableColumns = [
         { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
         { field: 'year', headerName: 'Year', width: 200, editable: true },
@@ -195,7 +196,11 @@ export default function Home() {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
-    const handleDeleteClick = (id) => () => {
+    const handleDeleteClick = (id) => async () => {
+        const response = await supabase
+            .from('service_hours_benchmark')
+            .delete()
+            .eq('benchmark_id', id)
         setTimeData(TimeData.filter((row) => row.id !== id));
     };
 
