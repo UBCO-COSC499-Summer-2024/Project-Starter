@@ -10,13 +10,23 @@ import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 
-const InstructorDetail = () => {
+const InstructorInfo = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get('id');
-  const [instructor, setInstructor] = useState(null);
-  const [serviceRoles, setServiceRoles] = useState([]);
-  const [teachingAssignments, setTeachingAssignments] = useState([]);
+  const firstName = searchParams.get('firstName');
+  const lastName = searchParams.get('lastName');
+  const ubcEmployeeNum = searchParams.get('ubcEmployeeNum');
+  const title = searchParams.get('title');
+  const hireDate = searchParams.get('hireDate');
+
+  const [instructor, setInstructor] = useState({
+    first_name: firstName,
+    last_name: lastName,
+    ubc_employee_num: ubcEmployeeNum,
+    title,
+    hire_date: hireDate,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
@@ -30,25 +40,9 @@ const InstructorDetail = () => {
             .select('*')
             .eq('instructor_id', id)
             .single();
-          
+
           if (instructorError) throw instructorError;
           setInstructor(instructorData);
-
-          const { data: serviceRoleData, error: serviceRoleError } = await supabase
-            .from('service_role_assign')
-            .select('*, service_role(title)')
-            .eq('instructor_id', id);
-
-          if (serviceRoleError) throw serviceRoleError;
-          setServiceRoles(serviceRoleData);
-
-          const { data: teachingAssignmentData, error: teachingAssignmentError } = await supabase
-            .from('course_assign')
-            .select('*, course(course_title)')
-            .eq('instructor_id', id);
-
-          if (teachingAssignmentError) throw teachingAssignmentError;
-          setTeachingAssignments(teachingAssignmentData);
         } catch (error) {
           setError(error.message);
         } finally {
@@ -65,15 +59,16 @@ const InstructorDetail = () => {
   };
 
   const confirmDelete = async () => {
-    const { error } = await supabase
-      .from('instructor')
-      .delete()
-      .eq('instructor_id', id);
-    if (error) {
-      setError(error.message);
-    } else {
+    try {
+      const { error } = await supabase
+        .from('instructor')
+        .delete()
+        .eq('instructor_id', id);
+      if (error) throw error;
       alert('Instructor removed successfully');
       router.push('/instructors');
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -91,27 +86,23 @@ const InstructorDetail = () => {
             <table className="table table-bordered">
               <tbody>
                 <tr>
-                  <td>Name</td>
-                  <td>{instructor.prefix} {instructor.first_name} {instructor.last_name}</td>
+                  <td>First Name</td>
+                  <td>{instructor.first_name}</td>
+                </tr>
+                <tr>
+                  <td>Last Name</td>
+                  <td>{instructor.last_name}</td>
                 </tr>
                 <tr>
                   <td>Employee Number</td>
                   <td>{instructor.ubc_employee_num}</td>
                 </tr>
                 <tr>
-                  <td>Position/Title</td>
+                  <td>Title</td>
                   <td>{instructor.title}</td>
                 </tr>
                 <tr>
-                  <td>Service Roles</td>
-                  <td>{serviceRoles.length > 0 ? serviceRoles.map(role => role.service_role.title).join(', ') : 'None'}</td>
-                </tr>
-                <tr>
-                  <td>Teaching Assignments</td>
-                  <td>{teachingAssignments.length > 0 ? teachingAssignments.map(assign => assign.course.course_title).join(', ') : 'None'}</td>
-                </tr>
-                <tr>
-                  <td>Hired Date</td>
+                  <td>Hire Date</td>
                   <td>{instructor.hire_date}</td>
                 </tr>
               </tbody>
@@ -144,4 +135,4 @@ const InstructorDetail = () => {
   );
 };
 
-export default InstructorDetail;
+export default InstructorInfo;
