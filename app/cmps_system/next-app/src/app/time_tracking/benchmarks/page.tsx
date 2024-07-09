@@ -1,5 +1,7 @@
 // this file uses copilot auto compleet in all around areas
 'use client'
+// This page provided CURD (C and U is still working on) function to the benchmark table 
+
 import { useRouter } from 'next/navigation';
 import Container from 'react-bootstrap/Container';
 import { csv2json, json2csv } from 'json-2-csv';
