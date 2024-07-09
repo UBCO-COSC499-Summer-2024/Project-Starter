@@ -32,13 +32,13 @@ INSERT INTO "evaluation_metric" ("evaluation_type_id", "metric_num", "metric_des
 
 -- Courses
 INSERT INTO "course" ("academic_year", "session", "term", "subject_code", "course_num", "section_num", "course_title", "mode_of_delivery", "req_in_person_attendance", "building", "room_num", "section_comments", "activity", "days", "start_time", "end_time", "num_students", "num_tas", "average_grade", "credits", "year_level", "registration_status", "status") VALUES
-(2024, 'Winter', 'Term 1', 'COSC', 110, 001, 'Computation, Programs, and Programming', 'In-Person', TRUE, 'EME', '1150', NULL, 'Lecture', 'Mon, Wed, Fri', '09:00', '10:00', 200, 10, 85.5, 3, 1, 'Open', 'Active'),
-(2024, 'Winter', 'Term 2', 'MATH', 200, 001, 'Calculus III', 'Hybrid', FALSE, 'SCI', '112', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 150, 5, 78.2, 3, 2, 'Open', 'Active'),
-(2023, 'Summer', 'Term 1', 'PHYS', 201, 001, 'Physics of Cats', 'Online', TRUE, 'EME', '1150', 'This course is cool', 'Lecture', 'Mon, Wed, Fri', '03:00', '23:00', 500, 1, 40.5, 3, 2, 'Open', 'Active'),
-(2023, 'Summer', 'Term 2', 'STAT', 401, 001, 'Probability and Statistical Inference', 'Hybrid', FALSE, 'ART', '110', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 10, 5, 78.2, 3, 4, 'Open', 'Active'),
-(2024, 'Winter', 'Term 1', 'ENGR', 101, 001, 'Introduction to Engineering', 'In-Person', TRUE, 'ENG', '101', NULL, 'Lecture', 'Mon, Wed', '14:00', '15:30', 100, 3, 88.0, 3, 1, 'Open', 'Active'),
-(2024, 'Winter', 'Term 2', 'CHEM', 101, 002, 'General Chemistry', 'In-Person', TRUE, 'SCI', '200', NULL, 'Lecture', 'Mon, Wed, Fri', '10:00', '11:00', 180, 8, 82.0, 3, 1, 'Open', 'Active'),
-(2023, 'Summer', 'Term 1', 'BIO', 150, 001, 'Introduction to Biology', 'Hybrid', FALSE, 'BIO', '101', 'Introductory course', 'Lecture', 'Tue, Thu', '08:00', '09:30', 120, 4, 75.0, 3, 1, 'Open', 'Active');
+(2024, 'Winter', 'Term 1', 'COSC', '110', '001', 'Computation, Programs, and Programming', 'In-Person', TRUE, 'EME', '1150', NULL, 'Lecture', 'Mon, Wed, Fri', '09:00', '10:00', 200, 10, 85.5, 3, 1, 'Open', 'Active'),
+(2024, 'Winter', 'Term 2', 'MATH', '200', '001', 'Calculus III', 'Hybrid', FALSE, 'SCI', '112', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 150, 5, 78.2, 3, 2, 'Open', 'Active'),
+(2023, 'Summer', 'Term 1', 'PHYS', '201', '001', 'Physics of Cats', 'Online', TRUE, 'EME', '1150', 'This course is cool', 'Lecture', 'Mon, Wed, Fri', '03:00', '23:00', 500, 1, 40.5, 3, 2, 'Open', 'Active'),
+(2023, 'Summer', 'Term 2', 'STAT', '401', '001', 'Probability and Statistical Inference', 'Hybrid', FALSE, 'ART', '110', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 10, 5, 78.2, 3, 4, 'Open', 'Active'),
+(2024, 'Winter', 'Term 1', 'STAT', '101', '001', 'Introduction to Statistics', 'In-Person', TRUE, 'SCI', '101', NULL, 'Lecture', 'Mon, Wed', '14:00', '15:30', 100, 3, 88.0, 3, 1, 'Open', 'Active'),
+(2024, 'Winter', 'Term 2', 'MATH', '101', '002', 'General Math', 'In-Person', TRUE, 'SCI', '200', NULL, 'Lecture', 'Mon, Wed, Fri', '10:00', '11:00', 180, 8, 82.0, 3, 1, 'Open', 'Active'),
+(2023, 'Summer', 'Term 1', 'PHYS', '150', '001', 'Introduction to Fizzicks', 'Hybrid', FALSE, 'EME', '101', 'Introductory course', 'Lecture', 'Tue, Thu', '08:00', '09:30', 120, 4, 75.0, 3, 1, 'Open', 'Active');
 
 -- Teaching assignments
 INSERT INTO "course_assign" ("instructor_id", "course_id", "position", "start_date", "end_date") VALUES
@@ -73,16 +73,16 @@ INSERT INTO "service_role_assign" ("instructor_id", "service_role_id", "start_da
 
 -- Evaluation entries
 INSERT INTO "evaluation_entry" ("evaluation_type_id", "metric_num", "course_id", "instructor_id", "service_role_id", "evaluation_date", "answer") VALUES
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 1, 1, 1, NULL, '2023-12-15', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 2, 1, 1, NULL, '2023-12-15', 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 1, 2, 2, NULL, '2023-12-16', 3),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 2, 2, 2, NULL, '2023-12-16', 4),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 1, NULL, 1, NULL, '2023-12-15', 4),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Teaching Evaluation'), 2, NULL, 1, NULL, '2023-12-15', 5),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 1, 2, NULL, NULL, '2023-12-16', 3),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 2, 2, NULL, NULL, '2023-12-16', 4),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 1, 3, 1, NULL, '2023-12-17', 4),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 2, 3, 1, NULL, '2023-12-17', 5),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 1, 4, 2, NULL, '2023-12-18', 3),
 ((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 2, 4, 2, NULL, '2023-12-18', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 1, 5, 3, NULL, '2023-12-19', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 2, 5, 3, NULL, '2023-12-19', 5);
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 1, NULL, 3, (SELECT service_role_id FROM service_role_assign WHERE instructor_id = 3 LIMIT 1), '2023-12-19', 4),
+((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 2, NULL, 3, (SELECT service_role_id FROM service_role_assign WHERE instructor_id = 3 LIMIT 1), '2023-12-19', 5);
 
 -- Events
 INSERT INTO "event" ("event_datetime", "is_meeting", "duration", "description", "location") VALUES

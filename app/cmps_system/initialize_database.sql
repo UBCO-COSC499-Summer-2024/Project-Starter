@@ -37,6 +37,7 @@ ADD CONSTRAINT "evaluation_entry_unique" UNIQUE (
     "metric_num",
     "course_id",
     "instructor_id",
+    "service_role_id",
     "evaluation_date"
 );
 
@@ -63,8 +64,8 @@ CREATE TABLE
         "session" VARCHAR(255) CHECK ("session" IN ('Winter', 'Summer')) NOT NULL,
         "term" VARCHAR(255) CHECK ("term" IN ('Term 1', 'Term 2', 'Term 1-2')) NOT NULL,
         "subject_code" CHAR(4) NOT NULL,
-        "course_num" INTEGER NOT NULL,
-        "section_num" INTEGER NOT NULL,
+        "course_num" VARCHAR(3) NOT NULL,
+        "section_num" VARCHAR(3) NOT NULL,
         "course_title" VARCHAR(255) NULL,
         "mode_of_delivery" VARCHAR(255) CHECK (
             "mode_of_delivery" IN ('Online', 'In-Person', 'Hybrid', 'Multi-access')
@@ -164,6 +165,12 @@ ADD CONSTRAINT "service_hours_entry_unique" UNIQUE (
     "year",
     "month"
 );
+
+-- Grant all privileges on all tables to anon
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon;
+
+-- Grant all privileges on all sequences to anon
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO anon;
 
 CREATE TABLE
     "event_attendance" (
@@ -270,8 +277,85 @@ FROM
     JOIN course_assign on course.course_id = course_assign.course_id
     JOIN instructor ON instructor.instructor_id = course_assign.instructor_id;
 
-CREATE VIEW v_timetracking AS SELECT service_hours_entry_id as id, CONCAT(instructor.last_name, ',', instructor.first_name) as instructor_name, service_role.title as service_role_name, year, month, hours from service_hours_entry JOIN service_role ON service_role.service_role_id=service_hours_entry.service_role_id JOIN instructor ON instructor.instructor_id=service_hours_entry.instructor_id;
+CREATE VIEW
+    v_timetracking AS
+SELECT
+    service_hours_entry_id as id,
+    CONCAT(instructor.last_name, ',', instructor.first_name) as instructor_name,
+    service_role.title as service_role_name,
+    year,
+    month,
+    hours
+from
+    service_hours_entry
+    JOIN service_role ON service_role.service_role_id = service_hours_entry.service_role_id
+    JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
 
-CREATE VIEW v_benchmark AS SELECT benchmark_id as id, CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor, year, hours from service_hours_benchmark JOIN instructor ON instructor.instructor_id=service_hours_benchmark.instructor_id;
+DROP VIEW list_of_instructors;
+CREATE VIEW
+    list_of_instructors AS
+SELECT
+    instructor_id,
+    CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name) AS name
+FROM
+    instructor;
 
-CREATE VIEW list_of_instructors AS SELECT instructor_id, CONCAT(instructor.last_name, ', ', instructor.first_name) AS name FROM instructor
+CREATE VIEW
+    v_benchmark AS
+SELECT
+    benchmark_id as id,
+    CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name) as instructor,
+    instructor.instructor_id,
+    year,
+    hours
+from
+    service_hours_benchmark
+    JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
+
+CREATE VIEW
+    v_evaluations_page AS
+SELECT
+    evaluation_entry_id as id,
+    evaluation_type_name as evaluation_type,
+    CASE
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
+        ELSE ''
+    END AS instructor,
+    CASE
+        WHEN course.course_id IS NOT NULL THEN CONCAT(
+            course.subject_code,
+            ' ',
+            course.course_num,
+            ' ',
+            course.section_num
+        )
+        ELSE ''
+    END AS course,
+    service_role.title as service_role,
+    evaluation_entry.metric_num as question_num,
+    metric_description as question,
+    answer,
+    evaluation_date
+FROM
+    evaluation_entry
+    JOIN evaluation_metric ON evaluation_entry.metric_num = evaluation_metric.metric_num
+    AND evaluation_entry.evaluation_type_id = evaluation_metric.evaluation_type_id
+    JOIN evaluation_type ON evaluation_type.evaluation_type_id = evaluation_entry.evaluation_type_id
+    LEFT JOIN instructor ON instructor.instructor_id = evaluation_entry.instructor_id
+    LEFT JOIN course ON course.course_id = evaluation_entry.course_id
+    LEFT JOIN service_role ON service_role.service_role_id = evaluation_entry.service_role_id;
+
+CREATE VIEW
+    v_evaluation_type_info AS
+SELECT
+    evaluation_entry.evaluation_type_id as id,
+    evaluation_type_name as name,
+    description,
+    COUNT(evaluation_entry_id) as num_entries
+FROM
+    evaluation_type
+    LEFT JOIN evaluation_entry ON evaluation_entry.evaluation_type_id = evaluation_type.evaluation_type_id
+GROUP BY
+    evaluation_entry.evaluation_type_id,
+    evaluation_type_name,
+    description;
