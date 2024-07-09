@@ -1,5 +1,7 @@
 // this file uses copilot auto compleet in all around areas
 'use client'
+// This page provided CURD (C and U is still working on) function to the benchmark table 
+
 import { useRouter } from 'next/navigation';
 import Container from 'react-bootstrap/Container';
 import { csv2json, json2csv } from 'json-2-csv';
@@ -33,6 +35,7 @@ ChartJS.register(
 );
 
 
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
@@ -57,6 +60,7 @@ export default function Home() {
             }
         })()
     }, [])
+
     const tableColumns = [
         { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
         { field: 'year', headerName: 'Year', width: 200, editable: true },
@@ -200,6 +204,12 @@ export default function Home() {
     };
 
     const handleDeleteClick = (id) => async () => {
+
+        const response = await supabase
+            .from('service_hours_benchmark')
+            .delete()
+            .eq('benchmark_id', id)
+
         setTimeData(TimeData.filter((row) => row.id !== id));
         const result  = await supabase.from('service_hours_benchmark').delete().eq('benchmark_id', id).select()
         console.log(result)
