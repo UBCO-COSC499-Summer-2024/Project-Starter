@@ -32,7 +32,6 @@ ChartJS.register(
     Legend
 );
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 
 export default function Home() {
@@ -41,6 +40,7 @@ export default function Home() {
     useEffect(() => {
         (async () => {
             try {
+                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 const { data, error } = await supabase.from("v_timetracking").select();
                 if (error) throw error;
                 console.log(data)
@@ -215,7 +215,6 @@ export default function Home() {
                 <Row className="h-32">
                     <div className="tw-p-3">
                         <DataGrid
-                            id="data-grid"
                             editMode="row"
                             rows={TimeData}
                             columns={tableColumns}
