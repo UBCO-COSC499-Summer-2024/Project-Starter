@@ -76,6 +76,8 @@ export default function Home() {
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
     const [id, setId] = useState('0') 
+    const [rowModesModel, setRowModesModel] = React.useState({});
+
     const EditToolbar = useCallback((props) => {
         console.log(props)
         const { setTimeData, setRowModesModel,id } = props;
@@ -94,11 +96,8 @@ export default function Home() {
                 [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
 
             }));
-            //     const {data, error } = await supabase
-            //         .from('service_hours_benchmark')
-            //         .insert({ id: id, name:name, year: year, hours, hours  }).select()
         };
-        // console.log(id)
+
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         var buttons = (<>
             <Button
@@ -142,7 +141,7 @@ export default function Home() {
                 {buttons}
             </GridToolbarContainer>
         )
-    }, [id]);
+    }, [rowModesModel]);
 
     const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
@@ -199,7 +198,6 @@ export default function Home() {
       `,
     );
     const csv = useRef(null);
-    const [rowModesModel, setRowModesModel] = React.useState({});
     const handleSaveClick = (id) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
@@ -239,8 +237,8 @@ export default function Home() {
                             rows={TimeData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
-                            slots={useMemo(()=>({ toolbar: EditToolbar as GridSlots['toolbar'] }), [id])}
-                            rowModesModel={rowModesModel}
+                            slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
+                            rowModesModel={rowModesModel} 
                             slotProps={{
                                 toolbar: { setTimeData, setRowModesModel, id },
                             }}
