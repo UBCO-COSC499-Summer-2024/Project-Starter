@@ -38,6 +38,7 @@ ChartJS.register(
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
     const [instructors, setInstructors] = useState([])
     useEffect(() => {
@@ -86,11 +87,15 @@ export default function Home() {
                 }
             }
             console.log(id)
-            setTimeData((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
+            setTimeData((oldRows) => [...oldRows, { id, name: '', year: '', hours: '' }]);
             setRowModesModel((oldModel) => ({
                 ...oldModel,
                 [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
+
             }));
+            //     const {data, error } = await supabase
+            //         .from('service_hours_benchmark')
+            //         .insert({ id: id, name:name, year: year, hours, hours  }).select()
         };
         console.log(id)
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -199,11 +204,15 @@ export default function Home() {
     };
 
     const handleDeleteClick = (id) => async () => {
+
         const response = await supabase
             .from('service_hours_benchmark')
             .delete()
             .eq('benchmark_id', id)
+
         setTimeData(TimeData.filter((row) => row.id !== id));
+        const result  = await supabase.from('service_hours_benchmark').delete().eq('benchmark_id', id).select()
+        console.log(result)
     };
 
     const handleCancelClick = (id) => () => {
