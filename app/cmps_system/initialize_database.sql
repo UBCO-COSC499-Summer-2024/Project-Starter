@@ -291,12 +291,11 @@ from
     JOIN service_role ON service_role.service_role_id = service_hours_entry.service_role_id
     JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
 
-DROP VIEW list_of_instructors;
 CREATE VIEW
     list_of_instructors AS
 SELECT
     instructor_id,
-    CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name) AS name
+    CONCAT(instructor.last_name, ', ', instructor.first_name) AS name
 FROM
     instructor;
 
@@ -304,8 +303,7 @@ CREATE VIEW
     v_benchmark AS
 SELECT
     benchmark_id as id,
-    CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name) as instructor,
-    instructor.instructor_id,
+    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
     year,
     hours
 from
