@@ -33,6 +33,7 @@ ChartJS.register(
 );
 
 
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
@@ -57,6 +58,7 @@ export default function Home() {
             }
         })()
     }, [])
+
     const tableColumns = [
         { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
         { field: 'year', headerName: 'Year', width: 200, editable: true },
@@ -200,9 +202,13 @@ export default function Home() {
     };
 
     const handleDeleteClick = (id) => async () => {
-        setTimeData(TimeData.filter((row) => row.id !== id));
-        const result  = await supabase.from('service_hours_benchmark').delete().eq('benchmark_id', id).select()
-        console.log(result)
+
+        const response = await supabase
+            .from('service_hours_benchmark')
+            .delete()
+            .eq('benchmark_id', id)
+
+
     };
 
     const handleCancelClick = (id) => () => {
