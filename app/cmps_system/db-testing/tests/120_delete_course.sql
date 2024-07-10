@@ -10,7 +10,7 @@ WHERE
     AND session = 'Winter'
     AND term = 'Term 1'
     AND subject_code = 'MATH'
-    AND course_num = 101;
+    AND course_num = '101';
 
 -- Verify that the course was deleted
 SELECT
@@ -25,7 +25,7 @@ SELECT
                 AND session = 'Winter'
                 AND term = 'Term 1'
                 AND subject_code = 'MATH'
-                AND course_num = 101
+                AND course_num = '101'
         ),
         0::bigint,
         'Deleted course with academic_year 2023, session Winter, term Term 1, subject_code MATH, course_num 101'

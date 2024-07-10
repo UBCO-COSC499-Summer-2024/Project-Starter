@@ -62,96 +62,96 @@ const InstructorForm = () => {
   const handleModalClose = () => {
     setModalShow(false);
     if (isSuccess) {
-      window.location.href = '/instructor/Instructor';
+      window.location.href = '/instructors';
     }
   };
 
   return (
     <>
-    <main>
-      <NavBar />
-      <div className="container">
-        <form className="instructor-form" onSubmit={handleSubmit}>
-          <h1>Add New Instructor</h1>
+      <main>
+        <NavBar />
+        <div className="container">
+          <form className="instructor-form" onSubmit={handleSubmit}>
+            <h1>Add New Instructor</h1>
 
-          <div className="form-group">
-            <label htmlFor="prefix">Prefix:</label>
-            <select id="prefix" name="prefix" value={formData.prefix} onChange={handleChange}>
-              <option value="">Select Prefix</option>
-              <option value="Mr">Mr.</option>
-              <option value="Ms">Ms.</option>
-              <option value="Mrs">Mrs.</option>
-              <option value="Dr">Dr.</option>
-              <option value="Count">Count</option>
-            </select>
-          </div>
+            <div className="form-group">
+              <label htmlFor="prefix">Prefix:</label>
+              <select id="prefix" name="prefix" value={formData.prefix} onChange={handleChange}>
+                <option value="">Select Prefix</option>
+                <option value="Mr">Mr.</option>
+                <option value="Ms">Ms.</option>
+                <option value="Mrs">Mrs.</option>
+                <option value="Dr">Dr.</option>
+                <option value="Count">Count</option>
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="firstName">First Name *</label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="firstName">First Name *</label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="lastName">Last Name *</label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="lastName">Last Name *</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="employeeNumber">Employee Number *</label>
-            <input
-              type="number"
-              id="employeeNumber"
-              name="employeeNumber"
-              value={formData.employeeNumber}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="employeeNumber">Employee Number *</label>
+              <input
+                type="number"
+                id="employeeNumber"
+                name="employeeNumber"
+                value={formData.employeeNumber}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="suffix">Suffix:</label>
-            <select id="suffix" name="suffix" value={formData.suffix} onChange={handleChange}>
-              <option value="">Select Suffix</option>
-              <option value="Jr">Jr.</option>
-              <option value="Sr">Sr.</option>
-              <option value="I">I</option>
-              <option value="II">II</option>
-              <option value="III">III.</option>
-              <option value="thegrey">The grey</option>
-            </select>
-          </div>
+            <div className="form-group">
+              <label htmlFor="suffix">Suffix:</label>
+              <select id="suffix" name="suffix" value={formData.suffix} onChange={handleChange}>
+                <option value="">Select Suffix</option>
+                <option value="Jr">Jr.</option>
+                <option value="Sr">Sr.</option>
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III">III.</option>
+                <option value="thegrey">The grey</option>
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="hireDate">Hire Date:</label>
-            <input
-              type="date"
-              id="hireDate"
-              name="hireDate"
-              value={formData.hireDate}
-              onChange={handleChange}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="hireDate">Hire Date:</label>
+              <input
+                type="date"
+                id="hireDate"
+                name="hireDate"
+                value={formData.hireDate}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div className="buttons">
-            <button type="button" className="back-button" onClick={() => window.location.href = '/instructor/Instructor'}>Back</button>
-            <button type="submit">Submit</button>
-          </div>
-        </form>
-        <style jsx>{`
+            <div className="buttons">
+              <button type="button" className="back-button" onClick={() => window.location.href = '/instructors'}>Back</button>
+              <button type="submit">Submit</button>
+            </div>
+          </form>
+          <style jsx>{`
           .container {
             max-width: 600px;
             margin: 0 auto;
@@ -208,20 +208,20 @@ const InstructorForm = () => {
             margin-right: 5px;
           }
         `}</style>
-      </div>
+        </div>
 
-      <Modal show={modalShow} onHide={handleModalClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>{modalTitle}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{modalMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleModalClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </main>
+        <Modal show={modalShow} onHide={handleModalClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>{modalTitle}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>{modalMessage}</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleModalClose}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </main>
     </>
   );
 };

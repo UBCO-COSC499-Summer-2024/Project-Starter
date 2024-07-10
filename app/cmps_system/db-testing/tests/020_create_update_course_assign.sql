@@ -15,7 +15,7 @@ INSERT INTO
 VALUES
     (
         (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591),
-        (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = 101 AND section_num = 001),
+        (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = '101' AND section_num = '001'),
         'Instructor',
         '2020-09-01',
         '2020-12-31'
@@ -31,7 +31,7 @@ SELECT
                 course_assign
             WHERE
                 instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
-                AND course_id = (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = 101 AND section_num = 001)
+                AND course_id = (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = '101' AND section_num = '001')
         ),
         1::bigint,
         'Created course_assign with instructor_id 749174591, course_id 2023 Winter Term 1 MATH 101 001, position Instructor, start_date 2020-09-01, end_date 2020-12-31'
@@ -44,7 +44,7 @@ SET
     position = 'Teaching Assistant'
 WHERE
     instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
-    AND course_id = (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = 101 AND section_num = 001);
+    AND course_id = (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = '101' AND section_num = '001');
 
 -- Verify that the service_role was updated
 SELECT
@@ -56,7 +56,7 @@ SELECT
                 course_assign
             WHERE
                 instructor_id = (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591)
-                AND course_id = (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = 101 AND section_num = 001)
+                AND course_id = (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = '101' AND section_num = '001')
         ),
         'Teaching Assistant',
         'Updated course_assign position to Teaching Assistant'
