@@ -302,6 +302,7 @@ SELECT
         ', ',
         instructor.first_name
     ) AS name
+
 FROM
     instructor;
 
@@ -309,6 +310,7 @@ CREATE OR REPLACE VIEW
     v_benchmark AS
 SELECT
     benchmark_id as id,
+
     CONCAT(
         instructor.instructor_id,
         ' - ',
