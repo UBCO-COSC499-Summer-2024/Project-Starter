@@ -209,9 +209,11 @@ export default function Home() {
             .delete()
             .eq('benchmark_id', id)
 
+
         setTimeData(TimeData.filter((row) => row.id !== id));
         const result  = await supabase.from('service_hours_benchmark').delete().eq('benchmark_id', id).select()
         console.log(result)
+
     };
 
     const handleCancelClick = (id) => () => {
