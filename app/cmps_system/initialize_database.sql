@@ -1,7 +1,7 @@
 --TODO: rename long constraint names
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "instructor" (
         "instructor_id" SERIAL NOT NULL,
         "ubc_employee_num" BIGINT NOT NULL,
@@ -19,7 +19,7 @@ ADD PRIMARY KEY ("instructor_id");
 ALTER TABLE "instructor"
 ADD CONSTRAINT "instructor_ubc_employee_num_unique" UNIQUE ("ubc_employee_num");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "evaluation_entry" (
         "evaluation_entry_id" SERIAL NOT NULL,
         "evaluation_type_id" INTEGER NOT NULL,
@@ -44,7 +44,7 @@ ADD CONSTRAINT "evaluation_entry_unique" UNIQUE (
 ALTER TABLE "evaluation_entry"
 ADD PRIMARY KEY ("evaluation_entry_id");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "service_role" (
         "service_role_id" SERIAL NOT NULL,
         "title" VARCHAR(255) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE
 ALTER TABLE "service_role"
 ADD PRIMARY KEY ("service_role_id");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "course" (
         "course_id" SERIAL NOT NULL,
         "academic_year" INTEGER NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE
 ALTER TABLE "course"
 ADD PRIMARY KEY ("course_id");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
         "evaluation_type_id" INTEGER NOT NULL,
         "metric_num" INTEGER NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE
 ALTER TABLE "evaluation_metric"
 ADD PRIMARY KEY ("evaluation_type_id", "metric_num");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "course_assign" (
         "assignment_id" SERIAL NOT NULL,
         "instructor_id" INTEGER NOT NULL,
@@ -116,7 +116,7 @@ ADD CONSTRAINT "course_assign_unique" UNIQUE ("instructor_id", "course_id");
 ALTER TABLE "course_assign"
 ADD PRIMARY KEY ("assignment_id");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "service_role_assign" (
         "service_role_assign_id" SERIAL NOT NULL,
         "instructor_id" INTEGER NOT NULL,
@@ -132,7 +132,7 @@ ADD CONSTRAINT "service_role_assign_unique" UNIQUE ("instructor_id", "service_ro
 ALTER TABLE "service_role_assign"
 ADD PRIMARY KEY ("service_role_assign_id");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "event" (
         "event_id" SERIAL NOT NULL,
         "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
@@ -148,7 +148,7 @@ ADD PRIMARY KEY ("event_id");
 ALTER TABLE "event"
 ADD CONSTRAINT "event_unique" UNIQUE ("event_datetime", "location", "description");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "service_hours_entry" (
         "service_hours_entry_id" SERIAL NOT NULL,
         "instructor_id" INTEGER NOT NULL,
@@ -172,7 +172,7 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon;
 -- Grant all privileges on all sequences to anon
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO anon;
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "event_attendance" (
         "event_id" INTEGER NOT NULL,
         "instructor_id" INTEGER NOT NULL,
@@ -182,7 +182,7 @@ CREATE TABLE
 ALTER TABLE "event_attendance"
 ADD PRIMARY KEY ("event_id", "instructor_id");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "evaluation_type" (
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
@@ -195,7 +195,7 @@ ADD PRIMARY KEY ("evaluation_type_id");
 ALTER TABLE "evaluation_type"
 ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     "service_hours_benchmark" (
         "benchmark_id" SERIAL NOT NULL,
         "instructor_id" INTEGER NOT NULL,
@@ -248,7 +248,7 @@ ADD CONSTRAINT "event_attendance_instructor_id_foreign" FOREIGN KEY ("instructor
 ALTER TABLE "course_assign"
 ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY ("instructor_id") REFERENCES "instructor" ("instructor_id") ON DELETE CASCADE;
 
-CREATE VIEW
+CREATE OR REPLACE VIEW
     v_instructor_instructor AS
 SELECT
     instructor_id,
@@ -260,7 +260,7 @@ SELECT
 from
     instructor;
 
-CREATE VIEW
+CREATE OR REPLACE VIEW
     v_course AS
 SELECT
     course_assign.assignment_id as id,
@@ -277,7 +277,7 @@ FROM
     JOIN course_assign on course.course_id = course_assign.course_id
     JOIN instructor ON instructor.instructor_id = course_assign.instructor_id;
 
-CREATE VIEW
+CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
     service_hours_entry_id as id,
@@ -291,21 +291,84 @@ from
     JOIN service_role ON service_role.service_role_id = service_hours_entry.service_role_id
     JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
 
-CREATE VIEW
+CREATE OR REPLACE VIEW
     list_of_instructors AS
 SELECT
     instructor_id,
-    CONCAT(instructor.last_name, ', ', instructor.first_name) AS name
+    CONCAT(
+        instructor.instructor_id,
+        ' - ',
+        instructor.last_name,
+        ', ',
+        instructor.first_name
+    ) AS name
+
 FROM
     instructor;
 
-CREATE VIEW
+CREATE OR REPLACE VIEW
     v_benchmark AS
 SELECT
     benchmark_id as id,
-    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
+
+    CONCAT(
+        instructor.instructor_id,
+        ' - ',
+        instructor.last_name,
+        ', ',
+        instructor.first_name
+    ) as instructor,
+    instructor.instructor_id,
     year,
     hours
 from
     service_hours_benchmark
     JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
+
+CREATE OR REPLACE VIEW
+    v_evaluations_page AS
+SELECT
+    evaluation_entry_id as id,
+    evaluation_type_name as evaluation_type,
+    CASE
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
+        ELSE ''
+    END AS instructor,
+    CASE
+        WHEN course.course_id IS NOT NULL THEN CONCAT(
+            course.subject_code,
+            ' ',
+            course.course_num,
+            ' ',
+            course.section_num
+        )
+        ELSE ''
+    END AS course,
+    service_role.title as service_role,
+    evaluation_entry.metric_num as question_num,
+    metric_description as question,
+    answer,
+    evaluation_date
+FROM
+    evaluation_entry
+    JOIN evaluation_metric ON evaluation_entry.metric_num = evaluation_metric.metric_num
+    AND evaluation_entry.evaluation_type_id = evaluation_metric.evaluation_type_id
+    JOIN evaluation_type ON evaluation_type.evaluation_type_id = evaluation_entry.evaluation_type_id
+    LEFT JOIN instructor ON instructor.instructor_id = evaluation_entry.instructor_id
+    LEFT JOIN course ON course.course_id = evaluation_entry.course_id
+    LEFT JOIN service_role ON service_role.service_role_id = evaluation_entry.service_role_id;
+
+CREATE OR REPLACE VIEW
+    v_evaluation_type_info AS
+SELECT
+    evaluation_entry.evaluation_type_id as id,
+    evaluation_type_name as name,
+    description,
+    COUNT(evaluation_entry_id) as num_entries
+FROM
+    evaluation_type
+    LEFT JOIN evaluation_entry ON evaluation_entry.evaluation_type_id = evaluation_type.evaluation_type_id
+GROUP BY
+    evaluation_entry.evaluation_type_id,
+    evaluation_type_name,
+    description;
