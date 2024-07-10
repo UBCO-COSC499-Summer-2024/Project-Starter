@@ -1,5 +1,7 @@
 // this file uses copilot auto compleet in all around areas
 'use client'
+// This page provided CURD (C and U is still working on) function to the benchmark table 
+
 import { useRouter } from 'next/navigation';
 import Container from 'react-bootstrap/Container';
 import { csv2json, json2csv } from 'json-2-csv';
@@ -19,7 +21,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem } from '@mui/x-data-grid';
 import React from "react";
 
@@ -33,9 +35,9 @@ ChartJS.register(
 );
 
 
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
     const [instructors, setInstructors] = useState([])
     useEffect(() => {
@@ -57,9 +59,12 @@ export default function Home() {
             }
         })()
     }, [])
+
     const tableColumns = [
-        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
-        { field: 'year', headerName: 'Year', width: 200, editable: true },
+
+        { field: 'instructor', headerName: 'Instructor', width: 200, editable: false,  type:'singleSelect', valueOptions: instructors},
+        { field: 'year', headerName: 'Year', width: 200, editable: false },
+
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
     ]
 
@@ -70,10 +75,12 @@ export default function Home() {
 
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
-    const [id, setId] = useState(0)
-    const EditToolbar = (props) => {
+    const [id, setId] = useState('0') 
+    const [rowModesModel, setRowModesModel] = React.useState({});
+
+    const EditToolbar = useCallback((props) => {
         console.log(props)
-        const { setTimeData, setRowModesModel } = props;
+        const { setTimeData, setRowModesModel,id } = props;
 
         const handleClick = () => {
             var id = 1;
@@ -89,15 +96,22 @@ export default function Home() {
                 [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
 
             }));
-            //     const {data, error } = await supabase
-            //         .from('service_hours_benchmark')
-            //         .insert({ id: id, name:name, year: year, hours, hours  }).select()
         };
-        console.log(id)
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        var buttons = (<>
+            <Button
+                className="textPrimary"
+                onClick={handleEditClick(id)}
+                color="inherit"
+            >✏️Edit</Button>
+            <Button
+                onClick={handleDeleteClick(id)}
+                color="inherit"
+            >🗑️ Delete</Button></>) 
+        
         if (isInEditMode) {
-            const buttons = (<>
+            buttons = (<>
                 <Button
                     onClick={handleSaveClick(id)}>
                     💾 Save
@@ -110,17 +124,7 @@ export default function Home() {
 
         }
 
-        const buttons = (<>
-            <Button
-                className="textPrimary"
-                onClick={handleEditClick(id)}
-                color="inherit"
-            >✏️Edit</Button>
-            <Button
-                onClick={handleDeleteClick(id)}
-                color="inherit"
-            >🗑️ Delete</Button></>)
-        console.log(buttons)
+
         return (
             <GridToolbarContainer>
                 <Button color="primary" onClick={() => { handleClick() }}>
@@ -137,7 +141,7 @@ export default function Home() {
                 {buttons}
             </GridToolbarContainer>
         )
-    }
+    }, [rowModesModel]);
 
     const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
@@ -194,15 +198,22 @@ export default function Home() {
       `,
     );
     const csv = useRef(null);
-    const [rowModesModel, setRowModesModel] = React.useState({});
     const handleSaveClick = (id) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
     const handleDeleteClick = (id) => async () => {
+
+        const response = await supabase
+            .from('service_hours_benchmark')
+            .delete()
+            .eq('benchmark_id', id)
+
+
         setTimeData(TimeData.filter((row) => row.id !== id));
         const result  = await supabase.from('service_hours_benchmark').delete().eq('benchmark_id', id).select()
         console.log(result)
+
     };
 
     const handleCancelClick = (id) => () => {
@@ -229,9 +240,9 @@ export default function Home() {
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
-                            rowModesModel={rowModesModel}
+                            rowModesModel={rowModesModel} 
                             slotProps={{
-                                toolbar: { setTimeData, setRowModesModel },
+                                toolbar: { setTimeData, setRowModesModel, id },
                             }}
                             checkboxSelection={true}
                             disableMultipleRowSelection={true}
