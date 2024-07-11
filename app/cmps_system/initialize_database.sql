@@ -318,7 +318,6 @@ SELECT
         ', ',
         instructor.first_name
     ) as instructor,
-    instructor.instructor_id,
     year,
     hours
 from
