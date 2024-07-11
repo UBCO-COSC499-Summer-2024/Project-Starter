@@ -32,6 +32,7 @@ ChartJS.register(
     Legend
 );
 
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 
 export default function Home() {
@@ -40,7 +41,6 @@ export default function Home() {
     useEffect(() => {
         (async () => {
             try {
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 const { data, error } = await supabase.from("v_timetracking").select();
                 if (error) throw error;
                 console.log(data)
@@ -256,10 +256,11 @@ export default function Home() {
 
 
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button className="!tw-m-2" variant="contained" onClick={() => {
+                    <Button className="!tw-m-2" variant="contained" onClick={async () => {
+
                         const csvText = csv.current.value;
                         setTimeData(csv2json(csvText))
-                        handleCSVClose()
+
                     }}
 
                     >Add</Button>

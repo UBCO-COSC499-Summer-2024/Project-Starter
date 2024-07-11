@@ -62,7 +62,7 @@ export default function Home() {
 
     const tableColumns = [
 
-        { field: 'instructor', headerName: 'Instructor', width: 200, editable: false,  type:'singleSelect', valueOptions: instructors},
+        { field: 'instructor', headerName: 'Instructor', width: 200, editable: false, type: 'singleSelect', valueOptions: instructors },
         { field: 'year', headerName: 'Year', width: 200, editable: false },
 
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
@@ -75,12 +75,12 @@ export default function Home() {
 
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
-    const [id, setId] = useState('0') 
+    const [id, setId] = useState('0')
     const [rowModesModel, setRowModesModel] = React.useState({});
 
     const EditToolbar = useCallback((props) => {
         console.log(props)
-        const { setTimeData, setRowModesModel,id } = props;
+        const { setTimeData, setRowModesModel, id } = props;
 
         const handleClick = () => {
             var id = 1;
@@ -108,8 +108,8 @@ export default function Home() {
             <Button
                 onClick={handleDeleteClick(id)}
                 color="inherit"
-            >🗑️ Delete</Button></>) 
-        
+            >🗑️ Delete</Button></>)
+
         if (isInEditMode) {
             buttons = (<>
                 <Button
@@ -127,21 +127,22 @@ export default function Home() {
 
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { handleClick() }}>
+                <Button onClick={() => { handleClick() }}>
                     ➕ Add record
                 </Button>
 
-                <Button color="primary" onClick={() => {
+                <Button onClick={useCallback(() => {
                     // csv.current.value=(json2csv(TimeData))
+                    console.log(TimeData)
                     setDefaultCSV(json2csv(TimeData))
                     setCsvShow(true)
-                }}>
+                }, [TimeData])}>
                     📝 Edit As CSV
                 </Button>
                 {buttons}
             </GridToolbarContainer>
         )
-    }, [rowModesModel]);
+    }, [rowModesModel, TimeData]);
 
     const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
@@ -211,7 +212,7 @@ export default function Home() {
 
 
         setTimeData(TimeData.filter((row) => row.id !== id));
-        const result  = await supabase.from('service_hours_benchmark').delete().eq('benchmark_id', id).select()
+        const result = await supabase.from('service_hours_benchmark').delete().eq('benchmark_id', id).select()
         console.log(result)
 
     };
@@ -240,7 +241,7 @@ export default function Home() {
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
-                            rowModesModel={rowModesModel} 
+                            rowModesModel={rowModesModel}
                             slotProps={{
                                 toolbar: { setTimeData, setRowModesModel, id },
                             }}
@@ -276,9 +277,24 @@ export default function Home() {
 
 
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button className="!tw-m-2" variant="contained" onClick={() => {
+                    <Button className="!tw-m-2" variant="contained" onClick={async () => {
+                        if (!confirm("Are you sure to submit? This will rewrite all records in the database with the imported CSV and this cannot be undo!"))
+                            return
                         const csvText = csv.current.value;
-                        setTimeData(csv2json(csvText))
+                        const json_time_data = csv2json(csvText)
+                        setTimeData(json_time_data)
+                        const response = await supabase
+                            .from('service_hours_benchmark')
+                            .delete()
+                            .neq("benchmark_id", -1)
+
+                        console.log(response)
+                        json_time_data.map(async row => {
+                            const { error } = await supabase
+                                .from('service_hours_benchmark')
+                                .insert({ benchmark_id: row.id, instructor_id: row.instructor.split(" - ")[0], year: row.year, hours: row.hours})
+                            console.log(error)
+                        })
                         handleCSVClose()
                     }}
 
