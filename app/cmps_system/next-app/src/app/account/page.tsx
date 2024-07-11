@@ -1,5 +1,3 @@
-// src/app/account.tsx
-
 'use client';
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,6 +6,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Navbar from '@/app/components/NavBar';
+import Link from 'next/link';
 
 const Account = () => {
   const [username, setUsername] = useState('john_doe');
@@ -60,6 +59,11 @@ const Account = () => {
           <Card.Body>
             <Card.Title>Current User Information</Card.Title>
             <p><strong>Username:</strong> {username}</p>
+            <Link href="/account/change-password" passHref>
+              <Button variant="secondary" className="mt-3">
+                Change Password
+              </Button>
+            </Link>
           </Card.Body>
         </Card>
       </Container>
