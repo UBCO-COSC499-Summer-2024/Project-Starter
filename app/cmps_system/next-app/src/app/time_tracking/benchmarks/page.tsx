@@ -223,7 +223,18 @@ export default function Home() {
         });
     }
     const handleEditClick = (id) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+        try
+        {
+            if(!TimeData.map(row=>row.id).includes(id))
+            {
+                alert("Please select a valid row.")
+                return
+            }
+            setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+        }
+        catch{
+
+        }
     };
     return (
         <main>
