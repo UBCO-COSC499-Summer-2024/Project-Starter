@@ -166,6 +166,7 @@ ADD CONSTRAINT "service_hours_entry_unique" UNIQUE (
     "month"
 );
 
+
 -- Grant all privileges on all tables to anon
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon;
 
@@ -276,6 +277,7 @@ FROM
     course
     JOIN course_assign on course.course_id = course_assign.course_id
     JOIN instructor ON instructor.instructor_id = course_assign.instructor_id;
+
 
 CREATE OR REPLACE VIEW
     v_timetracking AS
