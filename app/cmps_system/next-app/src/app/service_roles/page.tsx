@@ -16,6 +16,7 @@ import {
 } from 'chart.js';
 import { useState, useEffect } from "react";
 import { DataGrid } from '@mui/x-data-grid';
+import React from "react";
 import { supabase } from '../supabaseClient';
 
 ChartJS.register(
