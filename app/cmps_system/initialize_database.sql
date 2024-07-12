@@ -374,4 +374,3 @@ GROUP BY
     evaluation_entry.evaluation_type_id,
     evaluation_type_name,
     description;
-

@@ -10,39 +10,38 @@ import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 
-const InstructorInfo = () => {
+const ServiceRoleDetail = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const id = searchParams.get('id');
-  const firstName = searchParams.get('firstName');
-  const lastName = searchParams.get('lastName');
-  const ubcEmployeeNum = searchParams.get('ubcEmployeeNum');
   const title = searchParams.get('title');
-  const hireDate = searchParams.get('hireDate');
+  const description = searchParams.get('description');
+  const defaultExpectedHours = searchParams.get('default_expected_hours');
+  const building = searchParams.get('building');
+  const roomNum = searchParams.get('room_num');
 
-  const [instructor, setInstructor] = useState({
-    first_name: firstName,
-    last_name: lastName,
-    ubc_employee_num: ubcEmployeeNum,
+  const [serviceRole, setServiceRole] = useState({
     title,
-    hire_date: hireDate,
+    description,
+    default_expected_hours: defaultExpectedHours,
+    building,
+    room_num: roomNum,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      const fetchInstructorData = async () => {
+    if (title) {
+      const fetchServiceRoleData = async () => {
         try {
-          const { data: instructorData, error: instructorError } = await supabase
-            .from('instructor')
+          const { data: serviceRoleData, error: serviceRoleError } = await supabase
+            .from('service_role')
             .select('*')
-            .eq('instructor_id', id)
+            .eq('title', title)
             .single();
-
-          if (instructorError) throw instructorError;
-          setInstructor(instructorData);
+          
+          if (serviceRoleError) throw serviceRoleError;
+          setServiceRole(serviceRoleData);
         } catch (error) {
           setError(error.message);
         } finally {
@@ -50,9 +49,9 @@ const InstructorInfo = () => {
         }
       };
 
-      fetchInstructorData();
+      fetchServiceRoleData();
     }
-  }, [id]);
+  }, [title]);
 
   const handleDelete = async () => {
     setModalShow(true);
@@ -61,12 +60,12 @@ const InstructorInfo = () => {
   const confirmDelete = async () => {
     try {
       const { error } = await supabase
-        .from('instructor')
+        .from('service_role')
         .delete()
-        .eq('instructor_id', id);
+        .eq('title', title);
       if (error) throw error;
-      alert('Instructor removed successfully');
-      router.push('/instructors');
+      alert('Service role removed successfully');
+      router.push('/service_roles');
     } catch (error) {
       setError(error.message);
     }
@@ -76,44 +75,44 @@ const InstructorInfo = () => {
     <div>
       <NavBar />
       <Container fluid className="banner">
-        <h2>Instructor Info</h2>
+        <h2>Service Role Info</h2>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
-          <p>Error fetching instructor: {error}</p>
-        ) : instructor ? (
+          <p>Error fetching service role: {error}</p>
+        ) : serviceRole ? (
           <>
             <table className="table table-bordered">
               <tbody>
                 <tr>
-                  <td>First Name</td>
-                  <td>{instructor.first_name}</td>
+                  <td>Service Role Name</td>
+                  <td>{serviceRole.title}</td>
                 </tr>
                 <tr>
-                  <td>Last Name</td>
-                  <td>{instructor.last_name}</td>
+                  <td>Description</td>
+                  <td>{serviceRole.description}</td>
                 </tr>
                 <tr>
-                  <td>Employee Number</td>
-                  <td>{instructor.ubc_employee_num}</td>
+                  <td>Building</td>
+                  <td>{serviceRole.building}</td>
                 </tr>
                 <tr>
-                  <td>Title</td>
-                  <td>{instructor.title}</td>
+                  <td>Room Number</td>
+                  <td>{serviceRole.room_num}</td>
                 </tr>
                 <tr>
-                  <td>Hire Date</td>
-                  <td>{instructor.hire_date}</td>
+                  <td>Default Expected Hours</td>
+                  <td>{serviceRole.default_expected_hours}</td>
                 </tr>
               </tbody>
             </table>
             <div className="instructor-info-footer">
-              <button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</button>
-              <button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</button>
+              <button className="btn btn-danger" onClick={handleDelete}>Remove this service role</button>
+              <button className="btn btn-secondary" onClick={() => router.push('/service_roles')}>Back</button>
             </div>
           </>
         ) : (
-          <p>Instructor not found</p>
+          <p>Service role not found</p>
         )}
       </Container>
 
@@ -121,7 +120,7 @@ const InstructorInfo = () => {
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Do you really want to remove this instructor?</Modal.Body>
+        <Modal.Body>Do you really want to remove this service role?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setModalShow(false)}>
             Cancel
@@ -135,4 +134,4 @@ const InstructorInfo = () => {
   );
 };
 
-export default InstructorInfo;
+export default ServiceRoleDetail;
