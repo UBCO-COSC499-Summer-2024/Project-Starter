@@ -25,7 +25,7 @@ Closes #
 # How Has This Been Tested?
 
 *Please describe how you tested this PR (both manually and with tests)
-Provide instructions so we can reproduce.*
+Provide instructions so we can reproduce, including any webpages to visit*
 
 - [ ] *Test A*
 - [ ] *Test B*
