@@ -152,9 +152,9 @@ CREATE TABLE IF NOT EXISTS
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
-        "requires_course" BOOLEAN NOT NULL DEFAULT FALSE,
-        "requires_instructor" BOOLEAN NOT NULL DEFAULT FALSE,
-        "requires_service_role" BOOLEAN NOT NULL DEFAULT FALSE
+        "requires_course" BOOLEAN NULL DEFAULT NULL,
+        "requires_instructor" BOOLEAN NULL DEFAULT NULL,
+        "requires_service_role" BOOLEAN NULL DEFAULT NULL
     );
 
 ALTER TABLE "evaluation_type"
@@ -225,14 +225,26 @@ BEGIN
         RAISE EXCEPTION 'Course ID is required for this evaluation type';
     END IF;
 
+    IF f_requires_course IS FALSE AND NEW.course_id IS NOT NULL THEN
+        RAISE EXCEPTION 'Course ID is not allowed for this evaluation type';
+    END IF;
+
     -- Check if the instructor_id is required and not provided
     IF f_requires_instructor AND NEW.instructor_id IS NULL THEN
         RAISE EXCEPTION 'Instructor ID is required for this evaluation type';
     END IF;
 
+    IF f_requires_instructor IS FALSE AND NEW.instructor_id IS NOT NULL THEN
+        RAISE EXCEPTION 'Instructor ID is not allowed for this evaluation type';
+    END IF;
+
     -- Check if the service_role_id is required and not provided
     IF f_requires_service_role AND NEW.service_role_id IS NULL THEN
         RAISE EXCEPTION 'Service Role ID is required for this evaluation type';
+    END IF;
+
+    IF f_requires_service_role IS FALSE AND NEW.service_role_id IS NOT NULL THEN
+        RAISE EXCEPTION 'Service Role ID is not allowed for this evaluation type';
     END IF;
 
     RETURN NEW;
