@@ -7,15 +7,14 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Evaluation form component
 const EvaluationForm = () => {
   const [formData, setFormData] = useState({
     evaluation_type_id: '',
-    metricNum: '',
     courseId: '',
     instructorId: '',
     serviceRoleId: '',
     evaluationDate: '',
-    answer: ''
   });
 
   const [modalShow, setModalShow] = useState(false);
@@ -23,6 +22,7 @@ const EvaluationForm = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -31,6 +31,7 @@ const EvaluationForm = () => {
     });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,13 +39,13 @@ const EvaluationForm = () => {
       .from('evaluation_entry')
       .insert([
         {
-          evaluation_type_id: 1, // TODO: make this dynamic based on the evaluation type selected
-          metric_num: formData.metricNum,
+          evaluation_type_id: formData.evaluation_type_id,
           course_id: formData.courseId,
           instructor_id: formData.instructorId,
           service_role_id: formData.serviceRoleId,
           evaluation_date: formData.evaluationDate,
-          answer: formData.answer
+          metric_num: 1, //TODO: Put this in a for-loop, submitting each question/answer pair
+          answer: 1
         }
       ]);
 
@@ -70,6 +71,7 @@ const EvaluationForm = () => {
 
   const [evaluationTypes, setEvaluationTypes] = useState([]);
   const [evaluationTypeInfo, setEvaluationTypeInfo] = useState([]);
+  const [evaluationMetrics, setEvaluationMetrics] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [courses, setCourses] = useState([]);
   const [serviceRoles, setServiceRoles] = useState([]);
@@ -79,6 +81,8 @@ const EvaluationForm = () => {
     fetchInstructors();
     fetchCourses();
     fetchServiceRoles();
+    fetchEvaluationTypeInfo();
+    fetchEvaluationMetrics();
   }, []);
 
   const fetchEvaluationTypes = async () => {
@@ -102,9 +106,9 @@ const EvaluationForm = () => {
   const fetchCourses = async () => {
     const { data, error } = await supabase.from('course').select('course_id, subject_code, course_num, section_num, course_title');
     const formattedCourses = data.map((course) => ({
-      id: course.course_id,
+      course_id: course.course_id,
       title: `${course.subject_code} ${course.course_num} ${course.section_num}`,
-      fullTitle: course.course_title
+      full_title: course.course_title
     }));
     if (error) {
       console.error('Error fetching courses:', error.message);
@@ -122,10 +126,6 @@ const EvaluationForm = () => {
     }
   };
 
-  useEffect(() => {
-    fetchEvaluationTypeInfo();
-  }, []);
-
   const fetchEvaluationTypeInfo = async () => {
     const { data, error } = await supabase.from('v_evaluation_type_info').select('id, name, description, num_entries');
     if (error) {
@@ -135,26 +135,27 @@ const EvaluationForm = () => {
     }
   };
 
+  const fetchEvaluationMetrics = async () => {
+    const { data, error } = await supabase.from('evaluation_metric').select('evaluation_type_id, metric_num, metric_description');
+    if (error) {
+      console.error('Error fetching evaluation metrics:', error.message);
+    } else {
+      setEvaluationMetrics(data);
+    }
+  };
+
   const renderQuestionFields = () => {
-    const evaluationType = evaluationTypeInfo.find((type) => type.evaluation_type_id === formData.evaluation_type_id);
+    const evaluationType = evaluationTypeInfo.find((type) => type.id == formData.evaluation_type_id);
+    const questions = evaluationMetrics.filter((metric) => metric.evaluation_type_id == formData.evaluation_type_id);
     if (evaluationType) {
       const numEntries = evaluationType.num_entries;
+
       const questionFields = [];
       for (let i = 0; i < numEntries; i++) {
         questionFields.push(
           <div className="form-group" key={i}>
             <div className="question-answer">
-              <label htmlFor={`question${i + 1}`}>Question {i + 1}</label>
-              <input
-                type="text"
-                id={`question${i + 1}`}
-                name={`question${i + 1}`}
-                value={formData[`question${i + 1}`]}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="question-answer">
-              <label htmlFor={`answer${i + 1}`}>Answer {i + 1}</label>
+              <label htmlFor={`answer${i + 1}`}>Question {i + 1}: {questions[i].metric_description}</label>
               <input
                 type="text"
                 id={`answer${i + 1}`}
@@ -210,7 +211,7 @@ const EvaluationForm = () => {
               >
                 <option value="">Select Course</option>
                 {courses.map((course) => (
-                  <option key={course.id} value={course.id} title={course.fullTitle}>
+                  <option key={course.course_id} value={course.course_id} title={course.full_title}>
                     {course.title}
                   </option>
                 ))}
@@ -227,7 +228,7 @@ const EvaluationForm = () => {
               >
                 <option value="">Select Instructor</option>
                 {instructors.map((instructor) => (
-                  <option key={instructor.id} value={instructor.id}>
+                  <option key={instructor.instructor_id} value={instructor.instructor_id}>
                     {`${instructor.first_name} ${instructor.last_name}`}
                   </option>
                 ))}
@@ -244,7 +245,7 @@ const EvaluationForm = () => {
               >
                 <option value="">Select Service Role</option>
                 {serviceRoles.map((role) => (
-                  <option key={role.id} value={role.id} title={role.description}>
+                  <option key={role.service_role_id} value={role.service_role_id} title={role.description}>
                     {role.title}
                   </option>
                 ))}
@@ -262,26 +263,7 @@ const EvaluationForm = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="question">Question</label>
-              <input
-                type="text"
-                id="question"
-                name="question"
-                value={formData.metricNum}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="answer">Answer</label>
-              <input
-                type="text"
-                id="answer"
-                name="answer"
-                value={formData.answer}
-                onChange={handleChange}
-              />
-            </div>
+            {renderQuestionFields()}
 
             <div className="buttons">
               <button type="submit">Submit</button>
