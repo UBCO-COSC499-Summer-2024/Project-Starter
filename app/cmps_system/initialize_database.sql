@@ -362,14 +362,14 @@ FROM
 CREATE OR REPLACE VIEW
     v_evaluation_type_info AS
 SELECT
-    evaluation_entry.evaluation_type_id as id,
+    evaluation_metric.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
-    COUNT(evaluation_entry_id) as num_entries
+    COUNT(*) as num_entries
 FROM
     evaluation_type
-    LEFT JOIN evaluation_entry ON evaluation_entry.evaluation_type_id = evaluation_type.evaluation_type_id
+    LEFT JOIN evaluation_metric ON evaluation_metric.evaluation_type_id = evaluation_type.evaluation_type_id
 GROUP BY
-    evaluation_entry.evaluation_type_id,
+    evaluation_metric.evaluation_type_id,
     evaluation_type_name,
     description;
