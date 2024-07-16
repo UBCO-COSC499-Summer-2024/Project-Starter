@@ -20,31 +20,6 @@ ALTER TABLE "instructor"
 ADD CONSTRAINT "instructor_ubc_employee_num_unique" UNIQUE ("ubc_employee_num");
 
 CREATE TABLE IF NOT EXISTS
-    "evaluation_entry" (
-        "evaluation_entry_id" SERIAL NOT NULL,
-        "evaluation_type_id" INTEGER NOT NULL,
-        "metric_num" INTEGER NOT NULL,
-        "course_id" INTEGER NULL,
-        "instructor_id" INTEGER NULL,
-        "service_role_id" INTEGER NULL,
-        "evaluation_date" DATE NULL,
-        "answer" INTEGER NULL
-    );
-
-ALTER TABLE "evaluation_entry"
-ADD CONSTRAINT "evaluation_entry_unique" UNIQUE (
-    "evaluation_type_id",
-    "metric_num",
-    "course_id",
-    "instructor_id",
-    "service_role_id",
-    "evaluation_date"
-);
-
-ALTER TABLE "evaluation_entry"
-ADD PRIMARY KEY ("evaluation_entry_id");
-
-CREATE TABLE IF NOT EXISTS
     "service_role" (
         "service_role_id" SERIAL NOT NULL,
         "title" VARCHAR(255) NOT NULL,
@@ -89,16 +64,6 @@ CREATE TABLE IF NOT EXISTS
 
 ALTER TABLE "course"
 ADD PRIMARY KEY ("course_id");
-
-CREATE TABLE IF NOT EXISTS
-    "evaluation_metric" (
-        "evaluation_type_id" INTEGER NOT NULL,
-        "metric_num" INTEGER NOT NULL,
-        "metric_description" TEXT NOT NULL
-    );
-
-ALTER TABLE "evaluation_metric"
-ADD PRIMARY KEY ("evaluation_type_id", "metric_num");
 
 CREATE TABLE IF NOT EXISTS
     "course_assign" (
@@ -166,7 +131,6 @@ ADD CONSTRAINT "service_hours_entry_unique" UNIQUE (
     "month"
 );
 
-
 -- Grant all privileges on all tables to anon
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO anon;
 
@@ -187,14 +151,52 @@ CREATE TABLE IF NOT EXISTS
     "evaluation_type" (
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
-        "description" TEXT NOT NULL
+        "description" TEXT NOT NULL,
+        "requires_course" BOOLEAN NOT NULL DEFAULT FALSE,
+        "requires_instructor" BOOLEAN NOT NULL DEFAULT FALSE,
+        "requires_service_role" BOOLEAN NOT NULL DEFAULT FALSE
     );
 
 ALTER TABLE "evaluation_type"
 ADD PRIMARY KEY ("evaluation_type_id");
 
+CREATE TABLE IF NOT EXISTS
+    "evaluation_metric" (
+        "evaluation_type_id" INTEGER NOT NULL,
+        "metric_num" INTEGER NOT NULL,
+        "metric_description" TEXT NOT NULL
+    );
+
+ALTER TABLE "evaluation_metric"
+ADD PRIMARY KEY ("evaluation_type_id", "metric_num");
+
 ALTER TABLE "evaluation_type"
 ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
+
+CREATE TABLE IF NOT EXISTS
+    "evaluation_entry" (
+        "evaluation_entry_id" SERIAL NOT NULL,
+        "evaluation_type_id" INTEGER NOT NULL,
+        "metric_num" INTEGER NOT NULL,
+        "course_id" INTEGER NULL,
+        "instructor_id" INTEGER NULL,
+        "service_role_id" INTEGER NULL,
+        "evaluation_date" DATE NULL,
+        "answer" INTEGER NULL
+    );
+
+ALTER TABLE "evaluation_entry"
+ADD CONSTRAINT "evaluation_entry_unique" UNIQUE (
+    "evaluation_type_id",
+    "metric_num",
+    "course_id",
+    "instructor_id",
+    "service_role_id",
+    "evaluation_date"
+);
+
+ALTER TABLE "evaluation_entry"
+ADD PRIMARY KEY ("evaluation_entry_id");
 
 CREATE TABLE IF NOT EXISTS
     "service_hours_benchmark" (
@@ -203,6 +205,45 @@ CREATE TABLE IF NOT EXISTS
         "year" INTEGER NOT NULL,
         "hours" INTEGER NOT NULL
     );
+
+-- Trigger function to enforce evaluation requirements
+CREATE
+OR REPLACE FUNCTION enforce_evaluation_requirements () RETURNS TRIGGER AS $$
+DECLARE
+    f_requires_course BOOLEAN;
+    f_requires_instructor BOOLEAN;
+    f_requires_service_role BOOLEAN;
+BEGIN
+    -- Retrieve the requirement flags for the evaluation type of the new entry
+    SELECT et.requires_course, et.requires_instructor, et.requires_service_role
+    INTO f_requires_course, f_requires_instructor, f_requires_service_role
+    FROM evaluation_type et
+    WHERE et.evaluation_type_id = NEW.evaluation_type_id;
+
+    -- Check if the course_id is required and not provided
+    IF f_requires_course AND NEW.course_id IS NULL THEN
+        RAISE EXCEPTION 'Course ID is required for this evaluation type';
+    END IF;
+
+    -- Check if the instructor_id is required and not provided
+    IF f_requires_instructor AND NEW.instructor_id IS NULL THEN
+        RAISE EXCEPTION 'Instructor ID is required for this evaluation type';
+    END IF;
+
+    -- Check if the service_role_id is required and not provided
+    IF f_requires_service_role AND NEW.service_role_id IS NULL THEN
+        RAISE EXCEPTION 'Service Role ID is required for this evaluation type';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger to call the function before insert or update on evaluation_entry
+CREATE TRIGGER trg_enforce_evaluation_requirements BEFORE INSERT
+OR
+UPDATE ON evaluation_entry FOR EACH ROW
+EXECUTE FUNCTION enforce_evaluation_requirements ();
 
 ALTER TABLE "service_hours_benchmark"
 ADD PRIMARY KEY ("benchmark_id");
@@ -278,7 +319,6 @@ FROM
     JOIN course_assign on course.course_id = course_assign.course_id
     JOIN instructor ON instructor.instructor_id = course_assign.instructor_id;
 
-
 CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
@@ -304,7 +344,6 @@ SELECT
         ', ',
         instructor.first_name
     ) AS name
-
 FROM
     instructor;
 
@@ -312,7 +351,6 @@ CREATE OR REPLACE VIEW
     v_benchmark AS
 SELECT
     benchmark_id as id,
-
     CONCAT(
         instructor.instructor_id,
         ' - ',

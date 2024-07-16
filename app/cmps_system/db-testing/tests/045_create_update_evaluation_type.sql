@@ -7,12 +7,18 @@ SELECT
 INSERT INTO
     evaluation_type (
         evaluation_type_name,
-        description
+        description,
+        requires_course,
+        requires_instructor,
+        requires_service_role
     )
 VALUES
     (
         'SEI_2',
-        'Student Experience of Instruction survey'
+        'Student Experience of Instruction survey',
+        TRUE,
+        TRUE,
+        FALSE
     );
 
 -- Verify that the course was created

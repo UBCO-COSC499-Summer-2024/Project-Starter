@@ -10,12 +10,12 @@ INSERT INTO instructor (ubc_employee_num, prefix, first_name, last_name, suffix,
 (667788990, 'Dr.', 'Daniel', 'Moore', NULL, 'Assistant Professor', '2021-04-10');
 
 -- Evaluation types
-INSERT INTO "evaluation_type" ("evaluation_type_name", "description") VALUES
-('Teaching Evaluation', 'Evaluation of teaching performance'),
-('Course Evaluation', 'Evaluation of course content and delivery'),
-('SEI', 'Student Evaluation of Instruction'),
-('Peer Review', 'Evaluation by peers'),
-('Administrative Review', 'Review of administrative duties');
+INSERT INTO "evaluation_type" ("evaluation_type_name", "description", "requires_course", "requires_instructor", "requires_service_role") VALUES
+('Teaching Evaluation', 'Evaluation of teaching performance', FALSE, TRUE, FALSE),
+('Course Evaluation', 'Evaluation of course content and delivery', TRUE, FALSE, FALSE),
+('SEI', 'Student Evaluation of Instruction', TRUE, TRUE, FALSE),
+('Peer Review', 'Evaluation by peers', FALSE, TRUE, FALSE),
+('Administrative Review', 'Review of administrative duties', FALSE, TRUE, FALSE);
 
 -- Evaluation metrics
 INSERT INTO "evaluation_metric" ("evaluation_type_id", "metric_num", "metric_description") VALUES
