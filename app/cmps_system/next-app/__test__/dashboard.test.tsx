@@ -41,3 +41,4 @@ describe('Supabase Data Fetching', () => {
     expect(finalData.length).toBe(initialData.length);
   });
 });
+
