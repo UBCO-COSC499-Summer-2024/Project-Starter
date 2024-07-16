@@ -154,17 +154,15 @@ const EvaluationForm = () => {
       for (let i = 0; i < numEntries; i++) {
         questionFields.push(
           <div className="form-group" key={i}>
-            <div className="question-answer">
-              <label htmlFor={`answer${i + 1}`}>Question {i + 1}: {questions[i].metric_description}</label>
-              <input
-                type="text"
-                id={`answer${i + 1}`}
-                name={`answer${i + 1}`}
-                value={formData[`answer${i + 1}`]}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
+            <label htmlFor={`answer${i + 1}`}>Question {i + 1}: {questions[i].metric_description}</label>
+            <input
+              type="text"
+              id={`answer${i + 1}`}
+              name={`answer${i + 1}`}
+              value={formData[`answer${i + 1}`]}
+              onChange={handleChange}
+            />
+          </div >
         );
       }
       return questionFields;
@@ -276,64 +274,6 @@ const EvaluationForm = () => {
               </button>
             </div>
           </form>
-          <style jsx>{`
-            .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-            }
-            .instructor-form {
-              display: flex;
-              flex-direction: column;
-              gap: 20px;
-            }
-            .form-group {
-              display: flex;
-              flex-direction: column;
-            }
-            .form-group label {
-              margin-bottom: 8px;
-              font-weight: bold;
-            }
-            .form-group input,
-            .form-group textarea,
-            .form-group select {
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              font-size: 16px;
-            }
-            .form-group textarea {
-              resize: vertical;
-              height: 100px;
-            }
-            .buttons {
-              display: flex;
-              justify-content: space-between;
-              gap: 10px;
-            }
-            button {
-              padding: 10px 20px;
-              border: none;
-              border-radius: 4px;
-              font-size: 16px;
-              cursor: pointer;
-            }
-            button[type='submit'] {
-              background-color: #0070f3;
-              color: white;
-            }
-            .back-button {
-              background-color: #ccc;
-            }
-            .radio-group {
-              display: flex;
-              gap: 5px;
-            }
-            .radio-group input[type='radio'] {
-              margin-right: 5px;
-            }
-          `}</style>
         </div>
 
         <Modal show={modalShow} onHide={handleModalClose}>
