@@ -8,13 +8,17 @@ INSERT INTO
     evaluation_metric (
         evaluation_type_id,
         metric_num,
-        metric_description
+        metric_description,
+        min_value,
+        max_value
     )
 VALUES
     (
         (SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI_Survey'),
         1,
-        'How would you rate this course from 1 to 5?'
+        'How would you rate this course from 1 to 5?',
+        1,
+        5
     );
 
 -- Verify that the evaluation metric was created
@@ -37,7 +41,8 @@ SELECT
 -- Update
 UPDATE evaluation_metric
 SET
-    metric_description = 'How would you rate this course from 1 to 9 gorillion?'
+    metric_description = 'How would you rate this course from 1 to 9 gorillion?',
+    max_value = 9000000
 WHERE
     evaluation_type_id = (SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI_Survey')
     AND
@@ -48,7 +53,7 @@ SELECT
     is (
         (
             SELECT
-                COUNT(*)
+                max_value
             FROM
                 evaluation_metric
             WHERE
@@ -56,7 +61,7 @@ SELECT
                 AND
                 metric_num = 1
         ),
-        1::bigint,
+        9000000,
         'Updated evaluation metric 1 for `SEI_Survey`'
     );
 
