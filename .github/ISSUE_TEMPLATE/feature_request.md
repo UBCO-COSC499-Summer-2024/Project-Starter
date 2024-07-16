@@ -15,18 +15,18 @@ assignees: ''
 
 ### Functional/User Requirements
 
-- [] Requirement 1
-- [] Requirement 2
+- Requirement 1 (replace this)
+- Requirement 2 (replace this)
 
 ### Issues which must be completed before this one ⚠
 
-**List any issues here which must be completed before this one**
+**List any issues here which must be completed before this one. If none, put "none"**
 
 ### Acceptance Criteria
 
-- [ ] Criteria 1
-- [ ] Criteria 2
-- [ ] Criteria 3
+- Criteria 1 (replace this)
+- Criteria 2 (replace this)
+- Criteria 3 (replace this)
 
 ### Additional Information
 
