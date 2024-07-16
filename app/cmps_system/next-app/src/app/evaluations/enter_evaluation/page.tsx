@@ -156,7 +156,7 @@ const EvaluationForm = () => {
           <div className="form-group" key={i}>
             <label htmlFor={`answer${i + 1}`}>Question {i + 1}: {questions[i].metric_description}</label>
             <input
-              type="text"
+              type="number"
               id={`answer${i + 1}`}
               name={`answer${i + 1}`}
               value={formData[`answer${i + 1}`]}
