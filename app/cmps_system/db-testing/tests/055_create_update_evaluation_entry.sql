@@ -8,13 +8,43 @@ INSERT INTO
     evaluation_entry (
         evaluation_entry_id,
         evaluation_type_id,
+        course_id,
+        instructor_id,
         metric_num,
         answer
     )
 VALUES
     (
         -122,
-        (SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI_Survey'),
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'SEI_Survey'
+        ),
+        (
+            SELECT
+                course_id
+            FROM
+                course
+            WHERE
+                academic_year = 2023
+                AND session = 'Winter'
+                AND term = 'Term 1'
+                AND subject_code = 'MATH'
+                AND course_num = '101'
+                AND section_num = '001'
+        ),
+        (
+            SELECT
+                instructor_id
+            FROM
+                instructor
+            WHERE
+                ubc_employee_num = 749174591
+        ),
         1,
         4
     );
