@@ -65,7 +65,13 @@ const EvaluationForm = () => {
       setModalTitle('Error');
       setModalMessage(`Failed to create evaluation: ${error.message}`);
       setIsSuccess(false);
-    } else {
+    }
+    else if (formData.evaluation_type_id === '' || formData.evaluationDate === '') {
+      setModalTitle('Error');
+      setModalMessage('Please fill out the form before submitting.');
+      setIsSuccess(false);
+    }
+    else {
       setModalTitle('Success');
       setModalMessage('Evaluation created successfully.');
       setIsSuccess(true);
