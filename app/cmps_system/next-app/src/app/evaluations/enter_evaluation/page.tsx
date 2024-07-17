@@ -47,16 +47,6 @@ const EvaluationForm = () => {
       }
     }
 
-    console.log(answerData.map(answer => ({
-      evaluation_type_id: parseInt(formData.evaluation_type_id),
-      course_id: parseInt(formData.courseId),
-      instructor_id: parseInt(formData.instructorId),
-      service_role_id: parseInt(formData.serviceRoleId),
-      evaluation_date: formData.evaluationDate,
-      metric_num: answer.questionNum,
-      answer: answer.answer
-    })));
-
     // Insert evaluation entry into database
     const { data, error } = await supabase
       .from('evaluation_entry')
@@ -158,7 +148,7 @@ const EvaluationForm = () => {
   };
 
   const fetchEvaluationMetrics = async () => {
-    const { data, error } = await supabase.from('evaluation_metric').select('evaluation_type_id, metric_num, metric_description');
+    const { data, error } = await supabase.from('evaluation_metric').select('evaluation_type_id, metric_num, metric_description, min_value, max_value');
     if (error) {
       console.error('Error fetching evaluation metrics:', error.message);
     } else {
@@ -244,6 +234,7 @@ const EvaluationForm = () => {
 
       // Add question/answer fields
       for (let i = 0; i < numEntries; i++) {
+        console.log(questions[i]);
         formFields.push(
           <div className="form-group" key={`question${i + 1}`}>
             <label htmlFor={`answer${i + 1}`}>Question {i + 1}: {questions[i].metric_description}</label>
@@ -251,7 +242,9 @@ const EvaluationForm = () => {
               type="number"
               id={`answer${i + 1}`}
               name={`answer${i + 1}`}
-              value={formData[`answer${i + 1}`]}
+              min={questions[i].min_value}
+              max={questions[i].max_value}
+              value={formData[`answer${i + 1}`] || ''} // Ensure the value is never undefined
               onChange={handleChange}
             />
           </div >
