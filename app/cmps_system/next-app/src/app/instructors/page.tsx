@@ -7,9 +7,10 @@ import Navbar from '@/app/components/NavBar';
 import { DataGrid } from '@mui/x-data-grid';
 import Link from 'next/link';
 import Image from 'next/image';
-import { supabase } from '../supabaseClient';
+// import { supabase } from '../supabaseClient';
 import './style.css';
-
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 const Instructor = () => {
   const tableColumns = [
     {

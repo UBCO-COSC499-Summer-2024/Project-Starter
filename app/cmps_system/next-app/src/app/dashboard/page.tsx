@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from '@/app/components/NavBar';
+import { createClient } from '@supabase/supabase-js'
 import NavbarBrand from 'react-bootstrap/NavbarBrand';
 import Button from 'react-bootstrap/Button';
 import Card from "react-bootstrap/esm/Card";
@@ -19,7 +20,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { useState, useEffect } from "react";
-import { supabase } from '../supabaseClient';
+
 
 ChartJS.register(
     CategoryScale,
@@ -30,7 +31,7 @@ ChartJS.register(
     Legend
 );
 
-
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 const parseData = function (x) {
 
     return {
