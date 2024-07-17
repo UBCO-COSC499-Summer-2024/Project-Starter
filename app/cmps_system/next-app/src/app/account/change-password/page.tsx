@@ -6,8 +6,10 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Navbar from '@/app/components/NavBar';
-import { supabase } from '../../supabaseClient'; // Ensure this path is correct
+//import { supabase } from '../../supabaseClient'; // Ensure this path is correct
 import { useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState('');
