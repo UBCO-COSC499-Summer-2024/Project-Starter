@@ -240,7 +240,6 @@ const EvaluationForm = () => {
 
       // Add question/answer fields
       for (let i = 0; i < numEntries; i++) {
-        console.log(questions[i]);
         formFields.push(
           <div className="form-group" key={`question${i + 1}`}>
             <label htmlFor={`answer${i + 1}`}>Question {i + 1}: {questions[i].metric_description}</label>
