@@ -164,7 +164,9 @@ CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
         "evaluation_type_id" INTEGER NOT NULL,
         "metric_num" INTEGER NOT NULL,
-        "metric_description" TEXT NOT NULL
+        "metric_description" TEXT NOT NULL,
+        "min_value" INTEGER NULL,
+        "max_value" INTEGER NULL
     );
 
 ALTER TABLE "evaluation_metric"
@@ -209,47 +211,75 @@ CREATE TABLE IF NOT EXISTS
 -- Trigger function to enforce evaluation requirements
 CREATE
 OR REPLACE FUNCTION enforce_evaluation_requirements () RETURNS TRIGGER AS $$
-DECLARE
-    f_requires_course BOOLEAN;
-    f_requires_instructor BOOLEAN;
-    f_requires_service_role BOOLEAN;
-BEGIN
-    -- Retrieve the requirement flags for the evaluation type of the new entry
-    SELECT et.requires_course, et.requires_instructor, et.requires_service_role
-    INTO f_requires_course, f_requires_instructor, f_requires_service_role
-    FROM evaluation_type et
-    WHERE et.evaluation_type_id = NEW.evaluation_type_id;
+    DECLARE
+        f_requires_course BOOLEAN;
+        f_requires_instructor BOOLEAN;
+        f_requires_service_role BOOLEAN;
+        f_min_value INTEGER;
+        f_max_value INTEGER;
+    BEGIN
+        -- Retrieve the requirement flags for the evaluation type of the new entry
+        SELECT 
+            et.requires_course, 
+            et.requires_instructor, 
+            et.requires_service_role,
+            em.min_value,
+            em.max_value
+        INTO 
+            f_requires_course, 
+            f_requires_instructor, 
+            f_requires_service_role,
+            f_min_value,
+            f_max_value
+        FROM 
+            evaluation_type et
+        JOIN 
+            evaluation_metric em ON et.evaluation_type_id = em.evaluation_type_id
+        WHERE 
+            et.evaluation_type_id = NEW.evaluation_type_id
+        AND 
+            em.metric_num = NEW.metric_num;
 
-    -- Check if the course_id is required and not provided
-    IF f_requires_course AND NEW.course_id IS NULL THEN
-        RAISE EXCEPTION 'Course ID is required for this evaluation type';
-    END IF;
+        -- Check if the course_id is required and not provided
+        IF f_requires_course AND NEW.course_id IS NULL THEN
+            RAISE EXCEPTION 'Course ID is required for this evaluation type';
+        END IF;
 
-    IF f_requires_course IS FALSE AND NEW.course_id IS NOT NULL THEN
-        RAISE EXCEPTION 'Course ID is not allowed for this evaluation type';
-    END IF;
+        IF f_requires_course IS FALSE AND NEW.course_id IS NOT NULL THEN
+            RAISE EXCEPTION 'Course ID is not allowed for this evaluation type';
+        END IF;
 
-    -- Check if the instructor_id is required and not provided
-    IF f_requires_instructor AND NEW.instructor_id IS NULL THEN
-        RAISE EXCEPTION 'Instructor ID is required for this evaluation type';
-    END IF;
+        -- Check if the instructor_id is required and not provided
+        IF f_requires_instructor AND NEW.instructor_id IS NULL THEN
+            RAISE EXCEPTION 'Instructor ID is required for this evaluation type';
+        END IF;
 
-    IF f_requires_instructor IS FALSE AND NEW.instructor_id IS NOT NULL THEN
-        RAISE EXCEPTION 'Instructor ID is not allowed for this evaluation type';
-    END IF;
+        IF f_requires_instructor IS FALSE AND NEW.instructor_id IS NOT NULL THEN
+            RAISE EXCEPTION 'Instructor ID is not allowed for this evaluation type';
+        END IF;
 
-    -- Check if the service_role_id is required and not provided
-    IF f_requires_service_role AND NEW.service_role_id IS NULL THEN
-        RAISE EXCEPTION 'Service Role ID is required for this evaluation type';
-    END IF;
+        -- Check if the service_role_id is required and not provided
+        IF f_requires_service_role AND NEW.service_role_id IS NULL THEN
+            RAISE EXCEPTION 'Service Role ID is required for this evaluation type';
+        END IF;
 
-    IF f_requires_service_role IS FALSE AND NEW.service_role_id IS NOT NULL THEN
-        RAISE EXCEPTION 'Service Role ID is not allowed for this evaluation type';
-    END IF;
+        IF f_requires_service_role IS FALSE AND NEW.service_role_id IS NOT NULL THEN
+            RAISE EXCEPTION 'Service Role ID is not allowed for this evaluation type';
+        END IF;
 
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+        -- Check if the answer is within the allowed range
+        IF NEW.answer IS NOT NULL THEN
+            IF f_min_value IS NOT NULL AND NEW.answer < f_min_value THEN
+                RAISE EXCEPTION 'Answer % is below the minimum value % for this evaluation metric', NEW.answer, f_min_value;
+            END IF;
+            IF f_max_value IS NOT NULL AND NEW.answer > f_max_value THEN
+                RAISE EXCEPTION 'Answer % is above the maximum value % for this evaluation metric', NEW.answer, f_max_value;
+            END IF;
+        END IF;
+
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
 
 -- Create the trigger to call the function before insert or update on evaluation_entry
 CREATE TRIGGER trg_enforce_evaluation_requirements BEFORE INSERT
