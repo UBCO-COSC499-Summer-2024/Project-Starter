@@ -7,15 +7,14 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Evaluation form component
 const EvaluationForm = () => {
   const [formData, setFormData] = useState({
     evaluation_type_id: '',
-    metricNum: '',
     courseId: '',
     instructorId: '',
     serviceRoleId: '',
     evaluationDate: '',
-    answer: ''
   });
 
   const [modalShow, setModalShow] = useState(false);
@@ -23,6 +22,7 @@ const EvaluationForm = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -31,28 +31,47 @@ const EvaluationForm = () => {
     });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const answerData = [];
 
+    // Collect variable number of answers from form data
+    for (const [key, value] of Object.entries(formData)) {
+      if (key.startsWith("answer")) {
+        const questionNum = key.substring(6);
+        answerData.push({
+          questionNum,
+          answer: value
+        });
+      }
+    }
+
+    // Insert evaluation entry into database
     const { data, error } = await supabase
       .from('evaluation_entry')
-      .insert([
-        {
-          evaluation_type_id: 1, // TODO: make this dynamic based on the evaluation type selected
-          metric_num: formData.metricNum,
-          course_id: formData.courseId,
-          instructor_id: formData.instructorId,
-          service_role_id: formData.serviceRoleId,
-          evaluation_date: formData.evaluationDate,
-          answer: formData.answer
-        }
-      ]);
+      .insert(answerData.map(answer => ({
+        evaluation_type_id: parseInt(formData.evaluation_type_id),
+        course_id: parseInt(formData.courseId),
+        instructor_id: parseInt(formData.instructorId),
+        service_role_id: parseInt(formData.serviceRoleId),
+        evaluation_date: formData.evaluationDate,
+        metric_num: answer.questionNum,
+        answer: answer.answer
+      })));
 
+    // Display modal message based on success or failure
     if (error) {
       setModalTitle('Error');
       setModalMessage(`Failed to create evaluation: ${error.message}`);
       setIsSuccess(false);
-    } else {
+    }
+    else if (formData.evaluation_type_id === '' || formData.evaluationDate === '') {
+      setModalTitle('Error');
+      setModalMessage('Please fill out the form before submitting.');
+      setIsSuccess(false);
+    }
+    else {
       setModalTitle('Success');
       setModalMessage('Evaluation created successfully.');
       setIsSuccess(true);
@@ -70,6 +89,7 @@ const EvaluationForm = () => {
 
   const [evaluationTypes, setEvaluationTypes] = useState([]);
   const [evaluationTypeInfo, setEvaluationTypeInfo] = useState([]);
+  const [evaluationMetrics, setEvaluationMetrics] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [courses, setCourses] = useState([]);
   const [serviceRoles, setServiceRoles] = useState([]);
@@ -79,6 +99,8 @@ const EvaluationForm = () => {
     fetchInstructors();
     fetchCourses();
     fetchServiceRoles();
+    fetchEvaluationTypeInfo();
+    fetchEvaluationMetrics();
   }, []);
 
   const fetchEvaluationTypes = async () => {
@@ -102,9 +124,9 @@ const EvaluationForm = () => {
   const fetchCourses = async () => {
     const { data, error } = await supabase.from('course').select('course_id, subject_code, course_num, section_num, course_title');
     const formattedCourses = data.map((course) => ({
-      id: course.course_id,
+      course_id: course.course_id,
       title: `${course.subject_code} ${course.course_num} ${course.section_num}`,
-      fullTitle: course.course_title
+      full_title: course.course_title
     }));
     if (error) {
       console.error('Error fetching courses:', error.message);
@@ -122,12 +144,8 @@ const EvaluationForm = () => {
     }
   };
 
-  useEffect(() => {
-    fetchEvaluationTypeInfo();
-  }, []);
-
   const fetchEvaluationTypeInfo = async () => {
-    const { data, error } = await supabase.from('v_evaluation_type_info').select('id, name, description, num_entries');
+    const { data, error } = await supabase.from('v_evaluation_type_info').select('id, name, description, num_entries, requires_course, requires_instructor, requires_service_role');
     if (error) {
       console.error('Error fetching evaluation type info:', error.message);
     } else {
@@ -135,38 +153,110 @@ const EvaluationForm = () => {
     }
   };
 
+  const fetchEvaluationMetrics = async () => {
+    const { data, error } = await supabase.from('evaluation_metric').select('evaluation_type_id, metric_num, metric_description, min_value, max_value');
+    if (error) {
+      console.error('Error fetching evaluation metrics:', error.message);
+    } else {
+      setEvaluationMetrics(data);
+    }
+  };
+
   const renderQuestionFields = () => {
-    const evaluationType = evaluationTypeInfo.find((type) => type.evaluation_type_id === formData.evaluation_type_id);
+    const evaluationType = evaluationTypeInfo.find((type) => type.id == formData.evaluation_type_id);
+    const questions = evaluationMetrics.filter((metric) => metric.evaluation_type_id == formData.evaluation_type_id);
     if (evaluationType) {
       const numEntries = evaluationType.num_entries;
-      const questionFields = [];
-      for (let i = 0; i < numEntries; i++) {
-        questionFields.push(
-          <div className="form-group" key={i}>
-            <div className="question-answer">
-              <label htmlFor={`question${i + 1}`}>Question {i + 1}</label>
-              <input
-                type="text"
-                id={`question${i + 1}`}
-                name={`question${i + 1}`}
-                value={formData[`question${i + 1}`]}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="question-answer">
-              <label htmlFor={`answer${i + 1}`}>Answer {i + 1}</label>
-              <input
-                type="text"
-                id={`answer${i + 1}`}
-                name={`answer${i + 1}`}
-                value={formData[`answer${i + 1}`]}
-                onChange={handleChange}
-              />
-            </div>
+      const requiresCourse = evaluationType.requires_course;
+      const requiresInstructor = evaluationType.requires_instructor;
+      const requiresServiceRole = evaluationType.requires_service_role;
+
+      const formFields = [];
+      // Add instructor field if required
+      if (requiresInstructor) {
+        formFields.push(
+          <div className="form-group" key="instructor">
+            <label htmlFor="instructorId">Instructor</label>
+            <select
+              id="instructorId"
+              name="instructorId"
+              value={formData.instructorId}
+              onChange={handleChange}
+            >
+              <option value="">Select Instructor</option>
+              {instructors.map((instructor) => (
+                <option key={instructor.instructor_id} value={instructor.instructor_id}>
+                  {`${instructor.first_name} ${instructor.last_name}`}
+                </option>
+              ))}
+            </select>
           </div>
         );
       }
-      return questionFields;
+
+      // Add course field if required
+      if (requiresCourse) {
+        formFields.push(
+          <div className="form-group" key="course">
+            <label htmlFor="courseId">Course</label>
+            <select
+              id="courseId"
+              name="courseId"
+              value={formData.courseId}
+              onChange={handleChange}
+            >
+              <option value="">Select Course</option>
+              {courses.map((course) => (
+                <option key={course.course_id} value={course.course_id} title={course.full_title}>
+                  {course.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+      }
+
+      // Add service role field if required
+      if (requiresServiceRole) {
+        formFields.push(
+          <div className="form-group" key="serviceRole">
+            <label htmlFor="serviceRoleId">Service Role</label>
+            <select
+              id="serviceRoleId"
+              name="serviceRoleId"
+              value={formData.serviceRoleId}
+              onChange={handleChange}
+            >
+              <option value="">Select Service Role</option>
+              {serviceRoles.map((role) => (
+                <option key={role.service_role_id} value={role.service_role_id} title={role.description}>
+                  {role.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+      }
+
+      // Add question/answer fields
+      for (let i = 0; i < numEntries; i++) {
+        formFields.push(
+          <div className="form-group" key={`question${i + 1}`}>
+            <label htmlFor={`answer${i + 1}`}>Question {i + 1}: {questions[i].metric_description}</label>
+            <input
+              type="number"
+              id={`answer${i + 1}`}
+              name={`answer${i + 1}`}
+              min={questions[i].min_value}
+              max={questions[i].max_value}
+              value={formData[`answer${i + 1}`] || ''} // Ensure the value is never undefined
+              onChange={handleChange}
+            />
+          </div >
+        );
+      }
+
+      return formFields;
     }
     return null;
   };
@@ -201,57 +291,6 @@ const EvaluationForm = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="courseId">Course ID</label>
-              <select
-                id="courseId"
-                name="courseId"
-                value={formData.courseId}
-                onChange={handleChange}
-              >
-                <option value="">Select Course</option>
-                {courses.map((course) => (
-                  <option key={course.id} value={course.id} title={course.fullTitle}>
-                    {course.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="instructorId">Instructor ID</label>
-              <select
-                id="instructorId"
-                name="instructorId"
-                value={formData.instructorId}
-                onChange={handleChange}
-              >
-                <option value="">Select Instructor</option>
-                {instructors.map((instructor) => (
-                  <option key={instructor.id} value={instructor.id}>
-                    {`${instructor.first_name} ${instructor.last_name}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="serviceRoleId">Service Role ID</label>
-              <select
-                id="serviceRoleId"
-                name="serviceRoleId"
-                value={formData.serviceRoleId}
-                onChange={handleChange}
-              >
-                <option value="">Select Service Role</option>
-                {serviceRoles.map((role) => (
-                  <option key={role.id} value={role.id} title={role.description}>
-                    {role.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
               <label htmlFor="evaluationDate">Evaluation Date</label>
               <input
                 type="date"
@@ -262,26 +301,7 @@ const EvaluationForm = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="question">Question</label>
-              <input
-                type="text"
-                id="question"
-                name="question"
-                value={formData.metricNum}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="answer">Answer</label>
-              <input
-                type="text"
-                id="answer"
-                name="answer"
-                value={formData.answer}
-                onChange={handleChange}
-              />
-            </div>
+            {renderQuestionFields()}
 
             <div className="buttons">
               <button type="submit">Submit</button>
@@ -294,64 +314,6 @@ const EvaluationForm = () => {
               </button>
             </div>
           </form>
-          <style jsx>{`
-            .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-            }
-            .instructor-form {
-              display: flex;
-              flex-direction: column;
-              gap: 20px;
-            }
-            .form-group {
-              display: flex;
-              flex-direction: column;
-            }
-            .form-group label {
-              margin-bottom: 8px;
-              font-weight: bold;
-            }
-            .form-group input,
-            .form-group textarea,
-            .form-group select {
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              font-size: 16px;
-            }
-            .form-group textarea {
-              resize: vertical;
-              height: 100px;
-            }
-            .buttons {
-              display: flex;
-              justify-content: space-between;
-              gap: 10px;
-            }
-            button {
-              padding: 10px 20px;
-              border: none;
-              border-radius: 4px;
-              font-size: 16px;
-              cursor: pointer;
-            }
-            button[type='submit'] {
-              background-color: #0070f3;
-              color: white;
-            }
-            .back-button {
-              background-color: #ccc;
-            }
-            .radio-group {
-              display: flex;
-              gap: 5px;
-            }
-            .radio-group input[type='radio'] {
-              margin-right: 5px;
-            }
-          `}</style>
         </div>
 
         <Modal show={modalShow} onHide={handleModalClose}>

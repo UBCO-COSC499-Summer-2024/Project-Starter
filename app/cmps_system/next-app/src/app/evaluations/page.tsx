@@ -30,11 +30,7 @@ ChartJS.register(
     Legend
 );
 
-
-
 export default function Home() {
-
-
     useEffect(() => {
         (async () => {
             try {
@@ -44,81 +40,55 @@ export default function Home() {
                 console.log(data)
                 setTimeData(data)
             }
-
             catch (error) {
                 console.error("Error fetching data:", error)
             }
         })()
     }, [])
+
     const tableColumns = [
         { field: 'evaluation_type', headerName: 'Evaluation Type', width: 200, editable: false },
-        { field: 'instructor', headerName: 'Instructor', width: 300, editable: false },
-        { field: 'course', headerName: 'Course', width: 200, editable: false },
+        { field: 'instructor', headerName: 'Instructor', width: 150, editable: false },
+        { field: 'course', headerName: 'Course', width: 150, editable: false },
         { field: 'service_role', headerName: 'Service Role', width: 200, editable: false },
-        { field: 'question_num', headerName: 'Question Number', width: 200, editable: false },
-        { field: 'question', headerName: 'Question', width: 300, editable: false },
+        { field: 'question_num', headerName: 'Question', width: 100, editable: false },
+        { field: 'question', headerName: 'Question Text', width: 300, editable: false },
         { field: 'answer', headerName: 'Answer', width: 150, editable: true },
         { field: 'evaluation_date', headerName: 'Date', width: 200, editable: false }
     ]
 
-    const [TimeData, setTimeData] = useState([
-    ]);
-
-
-
+    const [TimeData, setTimeData] = useState([]);
     const { push } = useRouter();
-    const [defaultCSV, setDefaultCSV] = useState("")
-    const [id, setId] = useState(0)
+    const [defaultCSV, setDefaultCSV] = useState("");
+    const [id, setId] = useState(0);
     const EditToolbar = (props) => {
-        console.log(props)
-
-        console.log(id)
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
         if (isInEditMode) {
-            const buttons = (<>
-                <Button
-                    onClick={handleSaveClick(id)}>
-                    💾 Save
-                </Button>
-                <Button
-                    className="textPrimary"
-                    onClick={handleCancelClick(id)}
-                    color="inherit">❌ Cancel</Button>
-            </>)
-
+            return (
+                <GridToolbarContainer>
+                    <Button onClick={handleSaveClick(id)}>💾 Save</Button>
+                    <Button className="textPrimary" onClick={handleCancelClick(id)} color="inherit">❌ Cancel</Button>
+                </GridToolbarContainer>
+            );
         }
 
-        const buttons = (<>
-            <Button
-                className="textPrimary"
-                onClick={handleEditClick(id)}
-                color="inherit"
-            >✏️Edit</Button>
-            <Button
-                onClick={handleDeleteClick(id)}
-                color="inherit"
-            >🗑️ Delete</Button></>)
-        console.log(buttons)
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { push("/evaluations/enter_evaluation"); }}>
-                    ➕ Add record
-                </Button>
-
+                <Button color="primary" onClick={() => push("/evaluations/enter_evaluation")}>➕ Add record</Button>
                 <Button color="primary" onClick={() => {
-                    setDefaultCSV(json2csv(TimeData))
-                    setCsvShow(true)
-                }}>
-                    📝 Edit As CSV
-                </Button>
-                {buttons}
+                    setDefaultCSV(json2csv(TimeData));
+                    setCsvShow(true);
+                }}>📝 Edit As CSV</Button>
+                <Button className="textPrimary" onClick={handleEditClick(id)} color="inherit">✏️Edit</Button>
+                <Button onClick={handleDeleteClick(id)} color="inherit">🗑️ Delete</Button>
             </GridToolbarContainer>
-        )
+        );
     }
 
-    const [csvShow, setCsvShow] = useState(false)
+    const [csvShow, setCsvShow] = useState(false);
     const handleCSVClose = () => setCsvShow(false);
+
     const blue = {
         100: '#DAECFF',
         200: '#b6daff',
@@ -155,24 +125,21 @@ export default function Home() {
         background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
         border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
         box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
-      
         &:hover {
           border-color: ${blue[400]};
         }
-      
         &:focus {
           border-color: ${blue[400]};
           box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
         }
-      
-        // firefox
         &:focus-visible {
           outline: 0;
         }
       `,
     );
+
     const csv = useRef(null);
-    const [rowModesModel, setRowModesModel] = React.useState({});
+    const [rowModesModel, setRowModesModel] = useState({});
     const handleSaveClick = (id) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
@@ -190,15 +157,16 @@ export default function Home() {
     const handleEditClick = (id) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
     };
+
     return (
-        <main>
+        <main style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
             <h1 style={{ marginRight: "10px" }}>Evaluations</h1>
-            <Button onClick={() => { push("/evaluations/enter_evaluation") }}>Enter Evaluation</Button>
+            <Button onClick={() => push("/evaluations/enter_evaluation")}>Enter Evaluation</Button>
 
-            <Container>
-                <Row className="h-32">
-                    <div className="tw-p-3">
+            <Container fluid style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <Row style={{ flex: 1 }}>
+                    <div style={{ flex: 1, padding: '1rem' }}>
                         <DataGrid
                             editMode="row"
                             rows={TimeData}
@@ -209,12 +177,12 @@ export default function Home() {
                             slotProps={{
                                 toolbar: { setTimeData, setRowModesModel },
                             }}
-                            checkboxSelection={true}
-                            disableMultipleRowSelection={true}
+                            checkboxSelection
+                            disableMultipleRowSelection
                             onRowSelectionModelChange={(newSelection) => {
-                                console.log(newSelection[0])
-                                setId(newSelection[0])
+                                setId(newSelection[0]);
                             }}
+                            autoHeight
                         />
                     </div>
                 </Row>
@@ -237,19 +205,14 @@ export default function Home() {
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
                     </Typography>
-
-
-
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
                     <Button className="!tw-m-2" variant="contained" onClick={() => {
                         const csvText = csv.current.value;
                         setTimeData(csv2json(csvText))
                         handleCSVClose()
-                    }}
-
-                    >Add</Button>
+                    }}>Add</Button>
                 </Box>
             </Modal>
-        </main >
+        </main>
     );
 }

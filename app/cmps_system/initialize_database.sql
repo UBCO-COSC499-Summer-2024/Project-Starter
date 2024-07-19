@@ -445,6 +445,9 @@ SELECT
     evaluation_metric.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
+    requires_course,
+    requires_instructor,
+    requires_service_role,
     COUNT(*) as num_entries
 FROM
     evaluation_type
@@ -452,4 +455,7 @@ FROM
 GROUP BY
     evaluation_metric.evaluation_type_id,
     evaluation_type_name,
-    description;
+    description,
+    requires_course,
+    requires_instructor,
+    requires_service_role;
