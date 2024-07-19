@@ -352,7 +352,7 @@ export default function Home() {
                         handleCSVClose()
                     }}
 
-                    >Add</Button>
+                    >Apply</Button>
                 </Box>
             </Modal>
         </main >
