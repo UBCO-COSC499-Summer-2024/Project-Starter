@@ -22,7 +22,7 @@ import {
     Legend,
 } from 'chart.js';
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem } from '@mui/x-data-grid';
+import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '@mui/x-data-grid';
 import React from "react";
 
 ChartJS.register(
@@ -62,8 +62,8 @@ export default function Home() {
 
     const tableColumns = [
 
-        { field: 'instructor', headerName: 'Instructor', width: 200, editable: false, type: 'singleSelect', valueOptions: instructors },
-        { field: 'year', headerName: 'Year', width: 200, editable: false },
+        { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
+        { field: 'year', headerName: 'Year', width: 200, editable: true },
 
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
     ]
@@ -75,7 +75,7 @@ export default function Home() {
 
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
-    const [id, setId] = useState('0')
+    const [id, setId] = useState('0') 
     const [rowModesModel, setRowModesModel] = React.useState({});
 
     const EditToolbar = useCallback((props) => {
@@ -96,6 +96,7 @@ export default function Home() {
                 [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
 
             }));
+
         };
 
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -199,7 +200,7 @@ export default function Home() {
       `,
     );
     const csv = useRef(null);
-    const handleSaveClick = (id) => () => {
+    const handleSaveClick = (id) => async () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
@@ -224,16 +225,14 @@ export default function Home() {
         });
     }
     const handleEditClick = (id) => () => {
-        try
-        {
-            if(!TimeData.map(row=>row.id).includes(id))
-            {
+        try {
+            if (!TimeData.map(row => row.id).includes(id)) {
                 alert("Please select a valid row.")
                 return
             }
             setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
         }
-        catch{
+        catch {
 
         }
     };
@@ -247,6 +246,45 @@ export default function Home() {
                 <Row className="h-32">
                     <div className="tw-p-3">
                         <DataGrid
+                            processRowUpdate={async (newRow) => {
+                                const updatedRow = { ...newRow, isNew: false };
+                                console.log(updatedRow)
+                                for (var i = 0; i < TimeData.length; i++) {
+                                    if (TimeData[i].id == newRow.id) {
+                                        TimeData[i].instructor = newRow.instructor
+                                        TimeData[i].year = newRow.year
+                                        TimeData[i].hours = newRow.hours
+                                    }
+                                }
+
+                                // check if this id exsits in supabase
+                                const res = await supabase.from('service_hours_benchmark').select().eq('benchmark_id', id)
+                                console.log(res)
+                                if (res.data.length == 0) {
+                                    //insert
+                                    console.log("insert")
+                                    const row = updatedRow
+                                    const res2 = await supabase.from('service_hours_benchmark').insert({instructor_id: row.instructor.split(" - ")[0], year: row.year, hours: row.hours })
+                                    console.log(res2)
+                                    if (res.error) {
+                                        alert(res.error.message)
+                                    }
+                                }
+                                else {
+                                    // update
+                                    console.log("update")
+                                    const row = updatedRow
+                                    console.log(row)
+                                    const res2 = await supabase.from('service_hours_benchmark').update({instructor_id: row.instructor.split(" - ")[0], year: row.year, hours: row.hours }).eq('benchmark_id', row.id).select()
+                                    console.log(res2)
+                                    if (res.error) {
+                                        alert(res.error.message)
+                                    }
+                                }
+                            }}
+                            onProcessRowUpdateError={(event) => {
+                                console.error(event)    
+                            }}
                             editMode="row"
                             rows={TimeData}
                             columns={tableColumns}
@@ -261,6 +299,11 @@ export default function Home() {
                             onRowSelectionModelChange={(newSelection) => {
                                 console.log(newSelection[0])
                                 setId(newSelection[0])
+                            }}
+                            onRowEditStop={(params, event) => {
+                                if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+                                    event.defaultMuiPrevented = true;
+                                }
                             }}
                         />
                     </div>
@@ -303,7 +346,7 @@ export default function Home() {
                         json_time_data.map(async row => {
                             const { error } = await supabase
                                 .from('service_hours_benchmark')
-                                .insert({ benchmark_id: row.id, instructor_id: row.instructor.split(" - ")[0], year: row.year, hours: row.hours})
+                                .insert({ benchmark_id: row.id, instructor_id: row.instructor.split(" - ")[0], year: row.year, hours: row.hours })
                             console.log(error)
                         })
                         handleCSVClose()
