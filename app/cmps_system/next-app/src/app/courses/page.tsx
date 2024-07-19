@@ -121,17 +121,13 @@ export default function Home() {
         background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
         border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
         box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
-      
         &:hover {
           border-color: ${blue[400]};
         }
-      
         &:focus {
           border-color: ${blue[400]};
           box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
         }
-      
-        // firefox
         &:focus-visible {
           outline: 0;
         }
@@ -142,6 +138,7 @@ export default function Home() {
         <main>
             <Navbar />
             <h1 style={{ marginRight: "10px" }}>Courses</h1>
+            {/* <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button> */}
 
             <Container>
                 <Row className="h-32">
@@ -187,7 +184,6 @@ export default function Home() {
                     >Add</Button>
                 </Box>
             </Modal>
-            <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button>
         </main >
     );
 }
