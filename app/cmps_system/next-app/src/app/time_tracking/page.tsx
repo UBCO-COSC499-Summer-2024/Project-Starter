@@ -36,11 +36,18 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, proce
 
 
 export default function Home() {
-
+    const [instructors, setInstructors] = useState([])
+    const [serviceRoles, setServiceRoles] = useState([])
+    
 
     useEffect(() => {
         (async () => {
             try {
+                var ins = await supabase.from("list_of_instructors").select();
+                console.log(ins.data)
+                var ser_roles = await supabase.from("list_all_service_roles").select();
+                setServiceRoles(ser_roles.data.map((service_role) => service_role.service_role_name))
+                setInstructors(ins.data.map((instructor) => instructor.name))
                 const { data, error } = await supabase.from("v_timetracking").select();
                 if (error) throw error;
                 console.log(data)
@@ -54,8 +61,8 @@ export default function Home() {
         })()
     }, [])
     const tableColumns = [
-        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: false, valueOptions: ["United Kingdom", "Spain", "Brazil"] },
-        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: false },
+        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors  },
+        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: true,  type: 'singleSelect', valueOptions: serviceRoles  },
         { field: 'year', headerName: 'Year', width: 200, editable: true },
         { field: 'month', headerName: 'Month', width: 200, editable: true },
         { field: 'hours', headerName: 'Hours', width: 200, editable: true }
@@ -85,7 +92,7 @@ export default function Home() {
             setRowModesModel((oldModel) => ({
                 ...oldModel,
                 [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
-            }));
+            })); 
         };
         console.log(id)
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -257,13 +264,27 @@ export default function Home() {
 
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
                     <Button className="!tw-m-2" variant="contained" onClick={async () => {
-
+                        if (!confirm("Are you sure to submit? This will rewrite all records in the database with the imported CSV and this cannot be undo!"))
+                            return
                         const csvText = csv.current.value;
-                        setTimeData(csv2json(csvText))
+                        const json_time_data = csv2json(csvText)
+                        setTimeData(json_time_data)
+                        const response = await supabase
+                            .from('service_hours_entry')
+                            .delete()
+                            .neq("service_hours_entry_id", -1)
 
+                        console.log(response)
+                        json_time_data.map(async row => {
+                            const { error } = await supabase
+                                .from('service_hours_entry')
+                                .insert({ service_hours_entry_id: row.id, instructor_id: row.instructor_name.split(" - ")[0], year: row.year, hours: row.hours, month: row.month, service_role_id: row.service_role_name.split(" - ")[0] })
+                            console.log(error)
+                        })
+                        handleCSVClose()
                     }}
 
-                    >Add</Button>
+                    >Apply</Button>
                 </Box>
             </Modal>
             <Button onClick={() => { push("/time_tracking/benchmarks") }}>Edit Benchmarks</Button>
