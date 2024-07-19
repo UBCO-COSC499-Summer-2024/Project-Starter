@@ -19,8 +19,8 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState, useEffect, useRef } from "react";
-import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem } from '@mui/x-data-grid';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '@mui/x-data-grid';
 import React from "react";
 
 ChartJS.register(
@@ -76,9 +76,11 @@ export default function Home() {
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("")
     const [id, setId] = useState(0)
-    const EditToolbar = (props) => {
+    const [rowModesModel, setRowModesModel] = React.useState({});
+
+    const EditToolbar = useCallback((props) => {
         console.log(props)
-        const { setTimeData, setRowModesModel } = props;
+        const { setTimeData, setRowModesModel, id } = props;
 
         const handleClick = () => {
             var id = 1;
@@ -88,17 +90,29 @@ export default function Home() {
                 }
             }
             console.log(id)
-            setTimeData((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
+            setTimeData((oldRows) => [...oldRows, { id, name: '', year: '', hours: '' }]);
             setRowModesModel((oldModel) => ({
                 ...oldModel,
                 [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
-            })); 
+
+            }));
+
         };
-        console.log(id)
+
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        var buttons = (<>
+            <Button
+                className="textPrimary"
+                onClick={handleEditClick(id)}
+                color="inherit"
+            >✏️Edit</Button>
+            <Button
+                onClick={handleDeleteClick(id)}
+                color="inherit"
+            >🗑️ Delete</Button></>)
 
         if (isInEditMode) {
-            const buttons = (<>
+            buttons = (<>
                 <Button
                     onClick={handleSaveClick(id)}>
                     💾 Save
@@ -111,34 +125,25 @@ export default function Home() {
 
         }
 
-        const buttons = (<>
-            <Button
-                className="textPrimary"
-                onClick={handleEditClick(id)}
-                color="inherit"
-            >✏️Edit</Button>
-            <Button
-                onClick={handleDeleteClick(id)}
-                color="inherit"
-            >🗑️ Delete</Button></>)
-        console.log(buttons)
+
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { handleClick() }}>
+                <Button onClick={() => { handleClick() }}>
                     ➕ Add record
                 </Button>
 
-                <Button color="primary" onClick={() => {
+                <Button onClick={useCallback(() => {
                     // csv.current.value=(json2csv(TimeData))
+                    console.log(TimeData)
                     setDefaultCSV(json2csv(TimeData))
                     setCsvShow(true)
-                }}>
+                }, [TimeData])}>
                     📝 Edit As CSV
                 </Button>
                 {buttons}
             </GridToolbarContainer>
         )
-    }
+    }, [rowModesModel, TimeData]); 
 
     const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
@@ -195,7 +200,6 @@ export default function Home() {
       `,
     );
     const csv = useRef(null);
-    const [rowModesModel, setRowModesModel] = React.useState({});
     const handleSaveClick = (id) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
@@ -218,7 +222,16 @@ export default function Home() {
         });
     }
     const handleEditClick = (id) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+        try {
+            if (!TimeData.map(row => row.id).includes(id)) {
+                alert("Please select a valid row.")
+                return
+            }
+            setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+        }
+        catch {
+
+        }
     };
     return (
         <main>
@@ -229,6 +242,54 @@ export default function Home() {
                 <Row className="h-32">
                     <div className="tw-p-3">
                         <DataGrid
+                             processRowUpdate={async (newRow) => {
+                                const updatedRow = { ...newRow, isNew: false };
+                                console.log(updatedRow)
+                                for (var i = 0; i < TimeData.length; i++) {
+                                    if (TimeData[i].id == newRow.id) {
+                                        TimeData[i].instructor_name = updatedRow.instructor_name;
+                                        TimeData[i].service_role_name = updatedRow.service_role_name;
+                                        TimeData[i].year = updatedRow.year;
+                                        TimeData[i].month = updatedRow.month;
+                                        TimeData[i].hours = updatedRow.hours;
+                                    }
+                                }
+
+                                // check if this id exsits in supabase
+                                const res = await supabase.from('service_hours_entry').select().eq('service_hours_entry_id', newRow.id)
+                                console.log(res) 
+                                if (res.data.length == 0) {
+                                    //insert
+                                    console.log("insert")
+                                    const row = updatedRow
+                                    const res2 = await supabase.from('service_hours_entry').insert({ service_hours_entry_id: row.id, instructor_id: row.instructor_name.split(" - ")[0], year: row.year, hours: row.hours, month: row.month, service_role_id: row.service_role_name.split(" - ")[0] })
+                                    console.log(res2)
+                                    if (res.error) {
+                                        alert(res.error.message)
+                                    }
+                                }
+                                else {
+                                    // update
+                                    console.log("update")
+                                    const row = updatedRow
+                                    console.log(row)
+                                    const res2 = await supabase.from('service_hours_entry').update({ service_hours_entry_id: row.id, instructor_id: row.instructor_name.split(" - ")[0], year: row.year, hours: row.hours, month: row.month, service_role_id: row.service_role_name.split(" - ")[0] }).eq('service_hours_entry_id', row.id)
+                                    console.log(res2)
+                                    if (res.error) {
+                                        alert(res.error.message)
+                                    }
+                                }
+                            }}
+
+                            onRowEditStop={(params, event) => {
+
+                                if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+
+                                    event.defaultMuiPrevented = true;
+
+                                }
+
+                            }}
                             editMode="row"
                             rows={TimeData}
                             columns={tableColumns}
@@ -236,7 +297,7 @@ export default function Home() {
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
                             rowModesModel={rowModesModel}
                             slotProps={{
-                                toolbar: { setTimeData, setRowModesModel },
+                                toolbar: { setTimeData, setRowModesModel, id },
                             }}
                             checkboxSelection={true}
                             disableMultipleRowSelection={true}

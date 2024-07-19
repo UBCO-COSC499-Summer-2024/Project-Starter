@@ -21,7 +21,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '@mui/x-data-grid';
 import React from "react";
 
