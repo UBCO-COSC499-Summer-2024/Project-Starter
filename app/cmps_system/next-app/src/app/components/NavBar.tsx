@@ -2,18 +2,28 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './NavBar.module.css';
-import { createClient } from '@supabase/supabase-js/dist/module';
-import { useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react';
 
 const NavBar = () => {
-    useEffect(()=>{
-            (async function(){
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY); //copilot
-    
-                // get user info, semi-copilot
-                console.log(await supabase.auth.getUser())
-            })()
-    },[])
+    const [userName, setUserName] = useState('Username');
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
+
+    useEffect(() => {
+        (async function () {
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) {
+                console.error('Error fetching user session:', sessionError);
+                return;
+            }
+            const user = sessionData?.session?.user;
+            if (user) {
+                const displayName = user.user_metadata.display_name || user.email;
+                setUserName(displayName);
+            }
+        })();
+    }, [supabase]);
+
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -23,7 +33,7 @@ const NavBar = () => {
                 </Link>
                 <Link href="/account" className={styles.profile}>
                     <Image src="/profile_pic_placeholder.jpg" alt="User Profile" width={30} height={30} className={styles.profilePic} />
-                    <span>Username</span>
+                    <span>{userName}</span>
                 </Link>
             </div>
             <ul className={styles.navbarButtonsList}>
