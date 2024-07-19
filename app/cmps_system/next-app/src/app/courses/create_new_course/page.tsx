@@ -1,6 +1,9 @@
 'use client'
 import React from 'react';
 import NavBar from '@/app/components/NavBar';
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 const CourseForm = () => {
     return (

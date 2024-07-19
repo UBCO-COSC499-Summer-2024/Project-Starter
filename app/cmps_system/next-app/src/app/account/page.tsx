@@ -7,7 +7,9 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Navbar from '@/app/components/NavBar';
 import Link from 'next/link';
-import { supabase } from '../supabaseClient'; // Ensure this path is correct
+//import { supabase } from '../supabaseClient'; // Ensure this path is correct
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 const Account = () => {
   const [username, setUsername] = useState('');
@@ -18,7 +20,7 @@ const Account = () => {
   const [phone, setPhone] = useState('');
   const phoneInputRef = useRef(null);
   const passwordInputRef = useRef(null);
-
+  
   useEffect(() => {
     const checkUser = async () => {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();

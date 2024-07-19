@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import NavBar from '@/app/components/NavBar';
-import { supabase } from '../../supabaseClient';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 const InstructorInfo = () => {
   const searchParams = useSearchParams();
