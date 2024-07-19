@@ -5,6 +5,7 @@ SELECT
 INSERT INTO
     instructor (
         ubc_employee_num,
+        email,
         prefix,
         first_name,
         last_name,
@@ -15,6 +16,7 @@ INSERT INTO
 VALUES
     (
         749174591,
+        'drjohndoejr@ubc.ca',
         'Dr.',
         'John',
         'Doe',
