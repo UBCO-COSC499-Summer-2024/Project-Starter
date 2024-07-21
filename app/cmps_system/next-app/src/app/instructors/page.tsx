@@ -1,17 +1,110 @@
 'use client';
+// this file uses copilot auto compleet in all around areas
+'use client'
+// This page provided CURD (C and U is still working on) function to the benchmark table 
 
-import React, { useEffect, useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useRouter } from 'next/navigation';
 import Container from 'react-bootstrap/Container';
-import Navbar from '@/app/components/NavBar';
-import { DataGrid } from '@mui/x-data-grid';
+import { csv2json, json2csv } from 'json-2-csv';
+import Navbar from "@/app/components/NavBar"
+import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link';
 import Image from 'next/image';
-// import { supabase } from '../supabaseClient';
-import './style.css';
-import { createClient } from '@supabase/supabase-js'
+import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormGroup, FormLabel, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
+import { Button, Modal, Typography, Box, styled } from '@mui/material';
+import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem, GridRowEditStopReasons } from '@mui/x-data-grid';
+import React from "react";
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 const Instructor = () => {
+  
+  const EditToolbar = useCallback((props) => {
+    console.log(props)
+    const { setTimeData, setRowModesModel, id } = props;
+
+    const handleClick = () => {
+        var id = 1;
+        if (TimeData.length >= 1) {
+            for (var i = 0; i < TimeData.length; i++) {
+                id = Math.max(id, TimeData[i].id + 1)
+            }
+        }
+        console.log(id)
+        setTimeData((oldRows) => [...oldRows, { id, name: '', year: '', hours: '' }]);
+        setRowModesModel((oldModel) => ({
+            ...oldModel,
+            [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
+
+        }));
+
+    };
+
+    const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+    var buttons = (<>
+        <Button
+            className="textPrimary"
+            onClick={handleEditClick(id)}
+            color="inherit"
+        >✏️Edit</Button>
+        <Button
+            onClick={handleDeleteClick(id)}
+            color="inherit"
+        >🗑️ Delete</Button></>)
+
+    if (isInEditMode) {
+        buttons = (<>
+            <Button
+                onClick={handleSaveClick(id)}>
+                💾 Save
+            </Button>
+            <Button
+                className="textPrimary"
+                onClick={handleCancelClick(id)}
+                color="inherit">❌ Cancel</Button>
+        </>)
+
+    }
+
+
+    return (
+        <GridToolbarContainer>
+            <Button onClick={() => { handleClick() }}>
+                ➕ Add record
+            </Button>
+
+            <Button onClick={useCallback(() => {
+                // csv.current.value=(json2csv(TimeData))
+                console.log(TimeData)
+                setDefaultCSV(json2csv(TimeData))
+                setCsvShow(true)
+            }, [TimeData])}>
+                📝 Edit As CSV
+            </Button>
+            {buttons}
+        </GridToolbarContainer>
+    )
+}, [rowModesModel, TimeData]);
+
   const tableColumns = [
     {
       field: 'name',
