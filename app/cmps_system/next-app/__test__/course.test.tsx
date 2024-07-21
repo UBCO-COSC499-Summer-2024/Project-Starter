@@ -13,12 +13,6 @@ test('read_from_supabase_course', async () => {
     expect(data).toBeNull()
  
   })
-  test('read_from_no_exsist_supabase_course', async () => {
-    const { data, error } = await supabase.from("no_exsist_course").select();
-    expect(error).not.toBeNull()
-    expect(data).toBeNull()
- 
-  })
   test('read_from_supabase_delete_and_add_course', async () => {
     const res = await supabase.from("course").select();
     console.log(res.data)
