@@ -2,6 +2,8 @@
 // gpt aided
 import Link from 'next/link';
 import Image from 'next/image';
+
+
 import { createClient } from '@supabase/supabase-js/dist/module';
 import { useState, useEffect } from 'react';
 import IconButton from '@mui/material/IconButton';

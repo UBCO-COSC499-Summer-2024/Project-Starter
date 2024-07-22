@@ -204,8 +204,15 @@ export default function Home() {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
-    const handleDeleteClick = (id) => () => {
+    const handleDeleteClick = (id) => async () => {
         setTimeData(TimeData.filter((row) => row.id !== id));
+        if(confirm("Are you sure you want to delete this row? This action is not recoverable!"))
+        {
+            const response = await supabase
+            .from('service_hours_entry')
+            .delete()
+            .eq("service_hours_entry_id", id)
+        }
     };
 
     const handleCancelClick = (id) => () => {

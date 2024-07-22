@@ -7,7 +7,9 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Navbar from '@/app/components/NavBar';
 import Link from 'next/link';
-import { supabase } from '../supabaseClient'; // Ensure this path is correct
+import { useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 const Account = () => {
   const [username, setUsername] = useState('');
@@ -15,9 +17,10 @@ const Account = () => {
   const [formData, setFormData] = useState({ displayName: '' });
   const [message, setMessage] = useState('');
   const [userUID, setUserUID] = useState('');
-  const [phone, setPhone] = useState('');
-  const phoneInputRef = useRef(null);
+  const [email, setEmail] = useState('');
+  const emailInputRef = useRef(null);
   const passwordInputRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -33,7 +36,7 @@ const Account = () => {
       const user = sessionData.session.user;
       setUserUID(user.id);
       setUsername(user.email || user.phone); // Use email if available, otherwise use phone
-      setPhone(user.phone);
+      setEmail(user.email);
 
       const displayName = user.user_metadata.display_name || '';
       setDisplayName(displayName);
@@ -81,17 +84,30 @@ const Account = () => {
   };
 
   const handleLogin = async () => {
-    const phone = phoneInputRef.current.value;
+    const email = emailInputRef.current.value;
     const password = passwordInputRef.current.value;
     let { error } = await supabase.auth.signInWithPassword({
-      phone: phone,
+      email: email,
       password: password,
     });
     if (error) {
-      setMessage("Invalid phone or password");
+      setMessage("Invalid email or password");
     } else {
       setMessage("Logged in successfully!");
       window.location.reload(); // Refresh to show the logged-in state
+    }
+  };
+
+  const handleLogout = async () => {
+    let { error } = await supabase.auth.signOut();
+    if (error) {
+      setMessage("Error logging out");
+    } else {
+      setMessage("Logged out successfully!");
+      setUserUID('');
+      setUsername('');
+      setDisplayName('');
+      router.push('http://localhost:3000');
     }
   };
 
@@ -120,6 +136,9 @@ const Account = () => {
                 <Button variant="secondary" type="button" className="mt-3 ml-3" onClick={() => setFormData({ displayName })}>
                   Cancel
                 </Button>
+                <Button variant="danger" type="button" className="mt-3 ml-3" onClick={handleLogout}>
+                  Logout
+                </Button>
               </Form>
             ) : (
               <div>
@@ -127,10 +146,10 @@ const Account = () => {
                 <Form>
                   <Form.Control
                     className="tw-grid tw-mt-6 tw-m-3"
-                    placeholder="Phone"
-                    aria-label="phone"
-                    type="phone"
-                    ref={phoneInputRef}
+                    placeholder="Email"
+                    aria-label="email"
+                    type="email"
+                    ref={emailInputRef}
                   />
                   <Form.Control
                     className="tw-grid tw-mt-6 tw-m-3"

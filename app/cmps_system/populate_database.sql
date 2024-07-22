@@ -1,13 +1,13 @@
 -- Instructors
-INSERT INTO instructor (ubc_employee_num, prefix, first_name, last_name, suffix, title, hire_date) VALUES
-(123456789, 'Dr.', 'John', 'Doe', NULL, 'Professor', '2015-08-15'),
-(987654321, 'Prof.', 'Jane', 'Smith', NULL, 'Associate Professor', '2017-05-12'),
-(112233445, 'Dr.', 'Emily', 'Johnson', NULL, 'Assistant Professor', '2020-01-10'),
-(223344556, 'Dr.', 'Michael', 'Brown', NULL, 'Lecturer', '2018-03-25'),
-(334455667, 'Prof.', 'Sarah', 'Davis', NULL, 'Professor', '2016-07-19'),
-(445566778, 'Dr.', 'David', 'Wilson', NULL, 'Lecturer', '2019-02-11'),
-(556677889, 'Prof.', 'Jessica', 'Taylor', NULL, 'Associate Professor', '2014-11-23'),
-(667788990, 'Dr.', 'Daniel', 'Moore', NULL, 'Assistant Professor', '2021-04-10');
+INSERT INTO instructor (ubc_employee_num, email, prefix, first_name, last_name, suffix, title, hire_date) VALUES
+(123456789, 'johndoe@ubc.ca', 'Dr.', 'John', 'Doe', NULL, 'Professor', '2015-08-15'),
+(987654321, 'janesmith@ubc.ca', 'Prof.', 'Jane', 'Smith', NULL, 'Associate Professor', '2017-05-12'),
+(112233445, 'emilyjohnson@ubc.ca', 'Dr.', 'Emily', 'Johnson', NULL, 'Assistant Professor', '2020-01-10'),
+(223344556, 'michaelbrown@ubc.ca', 'Dr.', 'Michael', 'Brown', NULL, 'Lecturer', '2018-03-25'),
+(334455667, 'sarahdavis@ubc.ca', 'Prof.', 'Sarah', 'Davis', NULL, 'Professor', '2016-07-19'),
+(445566778, 'davidwilson@ubc.ca', 'Dr.', 'David', 'Wilson', NULL, 'Lecturer', '2019-02-11'),
+(556677889, 'jessicataylor@ubc.ca', 'Prof.', 'Jessica', 'Taylor', NULL, 'Associate Professor', '2014-11-23'),
+(667788990, 'danielmoore@ubc.ca', 'Dr.', 'Daniel', 'Moore', NULL, 'Assistant Professor', '2021-04-10');
 
 -- Evaluation types
 INSERT INTO "evaluation_type" ("evaluation_type_name", "description", "requires_course", "requires_instructor", "requires_service_role") VALUES
