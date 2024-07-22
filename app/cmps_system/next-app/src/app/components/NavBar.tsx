@@ -1,12 +1,29 @@
 'use client'
+// gpt aided
 import Link from 'next/link';
 import Image from 'next/image';
-import styles from './NavBar.module.css';
 import { createClient } from '@supabase/supabase-js/dist/module';
 import { useState, useEffect } from 'react';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
+import React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+
+const pages = [
+    { name: "📊Dashboard", url: "/dashboard" },
+    { name: "👩🏻‍🏫Instructors", url: "/instructors" },
+    { name: "📖Courses", url: "/courses" },
+    { name: "💼Service Roles", url: "/service_roles" },
+    { name: "💯Evaluations", url: "/evaluations" },
+    { name: "🕒Service Roles Tracking", url: "/time_tracking" },
+    { name: "🎯Benchmark", url: "/time_tracking/benchmarks" },
+    { name: "🛠️Tools", url: "/tools" },
+];
 
 const NavBar = () => {
     const [email, setEmail] = useState("")
@@ -20,42 +37,32 @@ const NavBar = () => {
             setEmail(user.data.user.email)
         })()
     }, [])
+    const [anchorEl, setAnchorEl] = useState(null);
 
-    const pages = [
-        { name: "📊Dashboard", url: "/dashboard" },
-        { name: "👩🏻‍🏫Instructors", url: "/instructors" },
-        { name: "📖Courses", url: "/courses" },
-        { name: "💼Service Roles", url: "/service_roles" },
-        { name: "💯Evaluations", url: "/evaluations" },
-        { name: "🕒Service Roles Tracking", url: "/time_tracking" },
-        { name: "🎯Benchmark", url: "/time_tracking/benchmarks" },
-        { name: "🛠️Tools", url: "/tools" },
-    ]
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
     return (
-        <Navbar expand="sm" style={{ color: "white" }} style={{ backgroundColor: "#0055B7" }}>
-            <Container>
-                {/* <Navbar.Brand href="/">CMPS Mangement System</Navbar.Brand> */}
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse style={{marginLeft: "10px"}}  id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        {
-                            (pages).map((page, index) => (
-                                <>
-                                    <Nav.Link style={{ color: "white", paddingLeft: "10px", fontSize: "small" }} key={index} href={page.url}>{page.name}</Nav.Link>
-                                </>
-                            ))
-                        }
-                    </Nav>
-                </Navbar.Collapse>
-
-                <Navbar.Collapse className="justify-content-end">
-                    <Navbar.Text>
-                        <a style={{ color: "white" }} href="/account">Account</a>
-                    </Navbar.Text>
-                </Navbar.Collapse>
-
-            </Container>
-        </Navbar>
+        <AppBar position="static" sx={{ backgroundColor: "#0055B7" }}>
+            <Toolbar>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    CMPS Management System
+                </Typography>
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    {pages.map((page, index) => (
+                        <a key={index} href={page.url} style={{ color: "white", paddingLeft: "10px", fontSize: "small", textDecoration: "none" }}>
+                            {page.name}
+                        </a>
+                    ))}
+                </Box>
+              
+            </Toolbar>
+        </AppBar>
     );
 };
 
