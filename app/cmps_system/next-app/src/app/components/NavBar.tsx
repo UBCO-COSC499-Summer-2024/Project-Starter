@@ -3,67 +3,59 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './NavBar.module.css';
 import { createClient } from '@supabase/supabase-js/dist/module';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 
 const NavBar = () => {
-    useEffect(()=>{
-            (async function(){
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY); //copilot
-    
-                // get user info, semi-copilot
-                console.log(await supabase.auth.getUser())
-            })()
-    },[])
+    const [email, setEmail] = useState("")
+    useEffect(() => {
+        (async function () {
+            const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY); //copilot
+
+            // get user info, semi-copilot
+            const user = await supabase.auth.getUser()
+            console.log(user)
+            setEmail(user.data.user.email)
+        })()
+    }, [])
+
+    const pages = [
+        { name: "📊Dashboard", url: "/dashboard" },
+        { name: "👩🏻‍🏫Instructors", url: "/instructors" },
+        { name: "📖Courses", url: "/courses" },
+        { name: "💼Service Roles", url: "/service_roles" },
+        { name: "💯Evaluations", url: "/evaluations" },
+        { name: "🕒Service Roles Tracking", url: "/time_tracking" },
+        { name: "🎯Benchmark", url: "/time_tracking/benchmarks" },
+        { name: "🛠️Tools", url: "/tools" },
+    ]
     return (
-        <nav className={styles.nav}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Link href="/dashboard" className={styles.ubcLogoAndTitle}>
-                    <Image src="/ubc_logo.png" alt="UBC Logo" width={50} height={50} style={{ margin: '20px' }} />
-                    <h1>CMPS Department Management</h1>
-                </Link>
-                <Link href="/account" className={styles.profile}>
-                    <Image src="/profile_pic_placeholder.jpg" alt="User Profile" width={30} height={30} className={styles.profilePic} />
-                    <span>Username</span>
-                </Link>
-            </div>
-            <ul className={styles.navbarButtonsList}>
-                <li className={styles.navbarButton}>
-                    <Link href="/dashboard" className={styles.navbarButtonText}>
-                        DASHBOARD
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/instructors" className={styles.navbarButtonText}>
-                        INSTRUCTORS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/courses" className={styles.navbarButtonText}>
-                        COURSES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/service_roles" className={styles.navbarButtonText}>
-                        SERVICE ROLES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/evaluations" className={styles.navbarButtonText}>
-                        EVALUATIONS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/time_tracking" className={styles.navbarButtonText}>
-                        TIME TRACKING
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/tools" className={styles.navbarButtonText}>
-                        TOOLS
-                    </Link>
-                </li>
-            </ul>
-        </nav>
+        <Navbar expand="sm" style={{ color: "white" }} style={{ backgroundColor: "#0055B7" }}>
+            <Container>
+                {/* <Navbar.Brand href="/">CMPS Mangement System</Navbar.Brand> */}
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse style={{marginLeft: "10px"}}  id="basic-navbar-nav">
+                    <Nav className="me-auto">
+                        {
+                            (pages).map((page, index) => (
+                                <>
+                                    <Nav.Link style={{ color: "white", paddingLeft: "10px", fontSize: "small" }} key={index} href={page.url}>{page.name}</Nav.Link>
+                                </>
+                            ))
+                        }
+                    </Nav>
+                </Navbar.Collapse>
+
+                <Navbar.Collapse className="justify-content-end">
+                    <Navbar.Text>
+                        <a style={{ color: "white" }} href="/account">Account</a>
+                    </Navbar.Text>
+                </Navbar.Collapse>
+
+            </Container>
+        </Navbar>
     );
 };
 
