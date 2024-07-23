@@ -9,11 +9,6 @@ h1 {
     margin: 1rem;
 }
 
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-}
 
 .instructor-form {
     display: flex;
