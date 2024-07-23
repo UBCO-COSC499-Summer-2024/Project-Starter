@@ -14,7 +14,7 @@ test('read_from_no_exsist_supabase_course', async () => {
 
 })
 
-test('read_from_supabase_delete_and_add_benchmark', async () => {
+test('read_from_supabase_delete_and_add_course', async () => {
   const res = await supabase.from("course").select();
   expect(res.error).toBeNull()
   const response = await supabase
