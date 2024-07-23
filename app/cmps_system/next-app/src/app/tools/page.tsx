@@ -27,6 +27,7 @@ export default function Tools() {
                 <Link href="/tools/change-account-password" passHref>
                     <Button variant="warning" className="mt-2">Change the Password of an account</Button>
                 </Link>
+
             </Container>
         </main>
     );
