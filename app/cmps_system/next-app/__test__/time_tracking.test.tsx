@@ -19,7 +19,7 @@ test('read_from_no_exsist_supabase_time_tracking', async () => {
   expect(data).toBeNull()
 
 })
-test('read_from_supabase_delete_and_add_benchmark', async () => {
+test('read_from_supabase_fetch_benchmark', async () => {
   const res = await supabase.from("v_timetracking").select();
   expect(res.error).toBeNull()
 })
