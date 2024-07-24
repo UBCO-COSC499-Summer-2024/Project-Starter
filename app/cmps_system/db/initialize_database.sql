@@ -366,7 +366,7 @@ CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
     service_hours_entry_id as id,
-     CONCAT(
+    CONCAT(
         instructor.instructor_id,
         ' - ',
         instructor.last_name,
@@ -471,4 +471,40 @@ GROUP BY
     requires_instructor,
     requires_service_role;
 
-CREATE VIEW list_all_service_roles as SELECT service_role.service_role_id, CONCAT(service_role.service_role_id, ' - ', service_role.title) AS service_role_name FROM service_role
+CREATE VIEW
+    list_all_service_roles as
+SELECT
+    service_role.service_role_id,
+    CONCAT(
+        service_role.service_role_id,
+        ' - ',
+        service_role.title
+    ) AS service_role_name
+FROM
+    service_role;
+
+create table
+    public.user_role (
+        user_id uuid not null references auth.users on delete cascade,
+        email text,
+        role text,
+        primary key (user_id)
+    );
+
+alter table public.user_role enable row level security;
+
+-- inserts a row into public.profiles
+CREATE FUNCTION public.handle_new_user () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET
+    search_path = '' AS $$
+BEGIN
+  INSERT INTO public.user_role (user_id, email, role)
+  VALUES (new.id, new.email, 'staff');
+  RETURN new;
+END;
+$$;
+
+-- trigger the function every time a user is created
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users FOR EACH ROW
+EXECUTE PROCEDURE public.handle_new_user ();
