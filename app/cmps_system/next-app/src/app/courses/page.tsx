@@ -19,8 +19,8 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState, useEffect, useRef } from "react";
-import { DataGrid, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { DataGrid, GridRowModes, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
 import React from "react";
 
 ChartJS.register(
@@ -31,12 +31,12 @@ ChartJS.register(
     Tooltip,
     Legend
 );
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
     useEffect(() => {
         (async () => {
             try {
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 const { data, error } = await supabase.from("v_course").select();
                 if (error) throw error;
                 console.log(data)
@@ -64,24 +64,112 @@ export default function Home() {
     const [courseData, setCourseData] = useState([
     ]);
     const { push } = useRouter();
-    const [defaultCSV, setDefaultCSV] = useState("")
-    const EditToolbar = () => {
+    const [defaultCSV, setDefaultCSV] = useState("");
+    const [id, setId] = useState(0)
+
+    const [rowModesModel, setRowModesModel] = React.useState({});
+
+    const handleSaveClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    };
+
+    const handleDeleteClick = (id) => async () => {
+        setCourseData(courseData.filter((row) => row.id !== id));
+        if(confirm("Are you sure you want to delete this row? This action is not recoverable!"))
+        {
+            const response = await supabase
+            .from('course')
+            .delete()
+            .eq("course_id", id)
+        }
+    };
+
+    const handleCancelClick = (id) => () => {
+        setRowModesModel({
+            ...rowModesModel,
+            [id]: { mode: GridRowModes.View, ignoreModifications: true },
+        });
+    }
+    const handleEditClick = (id) => () => {
+        try {
+            if (!courseData.map(row => row.id).includes(id)) {
+                alert("Please select a valid row.")
+                return
+            }
+            setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+        }
+        catch {
+
+        }
+    };
+    
+    const EditToolbar = useCallback((props) => {
+        console.log(props)
+        const { setCourseData, setRowModesModel, id } = props;
+
+        const handleClick = () => {
+            var id = 1;
+            if (courseData.length >= 1) {
+                for (var i = 0; i < courseData.length; i++) {
+                    id = Math.max(id, courseData[i].id + 1)
+                }
+            }
+            console.log(id)
+            setCourseData((oldRows) => [...oldRows, { id, name: '', year: '', hours: '' }]);
+            setRowModesModel((oldModel) => ({
+                ...oldModel,
+                [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
+
+            }));
+
+        };
+
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        var buttons = (<>
+            <Button
+                className="textPrimary"
+                onClick={handleEditClick(id)}
+                color="inherit"
+            >✏️Edit</Button>
+            <Button
+                onClick={handleDeleteClick(id)}
+                color="inherit"
+            >🗑️ Delete</Button></>)
+
+        if (isInEditMode) {
+            buttons = (<>
+                <Button
+                    onClick={handleSaveClick(id)}>
+                    💾 Save
+                </Button>
+                <Button
+                    className="textPrimary"
+                    onClick={handleCancelClick(id)}
+                    color="inherit">❌ Cancel</Button>
+            </>)
+
+        }
+
+
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { push("/courses/create_new_course") }}>
+                <Button onClick={() => { handleClick() }}>
                     ➕ Add record
                 </Button>
 
-                <Button color="primary" onClick={() => {
+                <Button onClick={useCallback(() => {
                     // csv.current.value=(json2csv(courseData))
+                    console.log(courseData)
                     setDefaultCSV(json2csv(courseData))
                     setCsvShow(true)
-                }}>
-                    ✏️ Edit As CSV
+                }, [courseData])}>
+                    📝 Edit As CSV
                 </Button>
+                {buttons}
             </GridToolbarContainer>
         )
-    }
+    }, [rowModesModel, courseData]); 
+
 
     const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
@@ -152,6 +240,15 @@ export default function Home() {
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
+                            slotProps={{
+                                toolbar: { setCourseData, setRowModesModel, id },
+                            }}
+                            checkboxSelection={true}
+                            disableMultipleRowSelection={true}
+                            onRowSelectionModelChange={(newSelection) => {
+                                console.log(newSelection[0])
+                                setId(newSelection[0])
+                            }}
                         />
                     </div>
                 </Row>
@@ -187,7 +284,7 @@ export default function Home() {
                     >Add</Button>
                 </Box>
             </Modal>
-            <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button>
+            {/* <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button> */}
         </main >
     );
 }
