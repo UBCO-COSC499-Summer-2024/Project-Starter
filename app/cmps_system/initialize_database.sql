@@ -153,6 +153,7 @@ CREATE TABLE IF NOT EXISTS
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
+        "date_added" DATE NOT NULL DEFAULT CURRENT_DATE,
         "requires_course" BOOLEAN NULL DEFAULT NULL,
         "requires_instructor" BOOLEAN NULL DEFAULT NULL,
         "requires_service_role" BOOLEAN NULL DEFAULT NULL
@@ -456,10 +457,11 @@ SELECT
     evaluation_metric.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
+    COUNT(*) as num_entries,
+    date_added,
     requires_course,
     requires_instructor,
-    requires_service_role,
-    COUNT(*) as num_entries
+    requires_service_role
 FROM
     evaluation_type
     LEFT JOIN evaluation_metric ON evaluation_metric.evaluation_type_id = evaluation_type.evaluation_type_id
@@ -467,6 +469,7 @@ GROUP BY
     evaluation_metric.evaluation_type_id,
     evaluation_type_name,
     description,
+    date_added,
     requires_course,
     requires_instructor,
     requires_service_role;
