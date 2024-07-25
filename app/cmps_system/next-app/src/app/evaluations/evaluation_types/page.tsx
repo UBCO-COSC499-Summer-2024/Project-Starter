@@ -58,10 +58,32 @@ export default function EvaluationTypes() {
         );
     };
 
+    const processRowUpdate = async (newRow, oldRow) => {
+        try {
+            const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
+            const { error } = await supabase
+                .from('evaluation_type')
+                .update({
+                    evaluation_type_name: newRow.name,
+                    description: newRow.description,
+                    requires_course: newRow.requires_course,
+                    requires_instructor: newRow.requires_instructor,
+                    requires_service_role: newRow.requires_service_role
+                })
+                .eq('evaluation_type_id', newRow.id);
+
+            if (error) throw error;
+            return newRow;
+        } catch (error) {
+            console.error("Error updating data:", error);
+            return oldRow;
+        }
+    };
+
     const tableColumns = [
         { field: 'name', headerName: 'Evaluation Type', flex: 2, editable: true, renderCell: renderEvaluationTypeName },
         { field: 'description', headerName: 'Description', flex: 3, editable: true },
-        { field: 'num_entries', headerName: 'Number of Questions', flex: 1, editable: true },
+        { field: 'num_entries', headerName: 'Number of Questions', flex: 1, editable: false },
         { field: 'date_added', headerName: 'Date Added', flex: 1, editable: true },
         { field: 'requires_course', headerName: 'Requires Course', flex: 1, editable: true, type: 'boolean' },
         { field: 'requires_instructor', headerName: 'Requires Instructor', flex: 1, editable: true, type: 'boolean' },
@@ -149,6 +171,7 @@ export default function EvaluationTypes() {
                             rows={evaluationTypeData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
+                            processRowUpdate={processRowUpdate}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
                             autoHeight
                         />
@@ -177,10 +200,13 @@ export default function EvaluationTypes() {
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
                     <Button className="!tw-m-2" variant="contained" onClick={() => {
                         const csvText = csv.current.value;
-                        setEvaluationTypeData(csv2json(csvText));
+                        setEvaluationTypeData(csv2json(csvText).map((item: { evaluation_type_id: string }) => ({
+                            ...item,
+                            id: item.evaluation_type_id
+                        })));
                         handleCSVClose();
                     }}>
-                        Add
+                        Save
                     </Button>
                 </Box>
             </Modal>
