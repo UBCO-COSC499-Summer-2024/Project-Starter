@@ -6,9 +6,9 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Navbar from '@/app/components/NavBar';
-//import { supabase } from '../../supabaseClient'; // Ensure this path is correct
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
+
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 const ChangePassword = () => {
@@ -17,9 +17,9 @@ const ChangePassword = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [message, setMessage] = useState('');
   const [userUID, setUserUID] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const router = useRouter();
-  const phoneInputRef = useRef(null);
+  const emailInputRef = useRef(null);
   const passwordInputRef = useRef(null);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const ChangePassword = () => {
 
       const user = sessionData.session.user;
       setUserUID(user.id);
-      setPhone(user.phone);
+      setEmail(user.email);
       setMessage(`User is logged in with UID: ${user.id}`);
     };
 
@@ -69,9 +69,9 @@ const ChangePassword = () => {
 
       console.log('User:', user);
 
-      // Reauthenticate the user with the current password using phone number
+      // Reauthenticate the user with the current password using email
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        phone: user.phone,
+        email: user.email,
         password: currentPassword,
       });
 
@@ -99,14 +99,14 @@ const ChangePassword = () => {
   };
 
   const handleLogin = async () => {
-    const phone = phoneInputRef.current.value;
+    const email = emailInputRef.current.value;
     const password = passwordInputRef.current.value;
     let { error } = await supabase.auth.signInWithPassword({
-      phone: phone,
+      email: email,
       password: password,
     });
     if (error) {
-      setMessage("Invalid phone or password");
+      setMessage("Invalid email or password");
     } else {
       setMessage("Logged in successfully!");
       router.push("/account/change-password"); // Refresh to show the logged-in state
@@ -162,10 +162,10 @@ const ChangePassword = () => {
                 <Form>
                   <Form.Control
                     className="tw-grid tw-mt-6 tw-m-3"
-                    placeholder="Phone"
-                    aria-label="phone"
-                    type="phone"
-                    ref={phoneInputRef}
+                    placeholder="Email"
+                    aria-label="email"
+                    type="email"
+                    ref={emailInputRef}
                   />
                   <Form.Control
                     className="tw-grid tw-mt-6 tw-m-3"
@@ -187,10 +187,10 @@ const ChangePassword = () => {
                   <Form>
                     <Form.Control
                       className="tw-grid tw-mt-6 tw-m-3"
-                      placeholder="Phone"
-                      aria-label="phone"
-                      type="phone"
-                      ref={phoneInputRef}
+                      placeholder="Email"
+                      aria-label="email"
+                      type="email"
+                      ref={emailInputRef}
                     />
                     <Form.Control
                       className="tw-grid tw-mt-6 tw-m-3"
