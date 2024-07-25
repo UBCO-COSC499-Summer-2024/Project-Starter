@@ -32,9 +32,14 @@ describe('Supabase Mock Tests', () => {
     expect(supabase.auth.signInWithPassword).toHaveBeenCalled();
   });
 
-  test('calls updateUser', async () => {
+  test('calls updateUser and verifies password change', async () => {
+    // Update the password
     await supabase.auth.updateUser({ password: 'new-password' });
     expect(supabase.auth.updateUser).toHaveBeenCalled();
+
+    // Verify password change by signing in with the new password
+    await supabase.auth.signInWithPassword({ email: 'test@example.com', password: 'new-password' });
+    expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({ email: 'test@example.com', password: 'new-password' });
   });
 
   test('calls signOut', async () => {
