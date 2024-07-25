@@ -37,6 +37,7 @@ const CourseForm = () => {
     const [modalMessage, setModalMessage] = useState('');
     const [modalTitle, setModalTitle] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const [newCourseId, setNewCourseId] = useState(null);
 
     // Handle form input changes
     const handleChange = (e) => {
@@ -54,7 +55,8 @@ const CourseForm = () => {
         // Insert evaluation entry into database
         const { data, error } = await supabase
             .from('course')
-            .insert([formData]);
+            .insert([formData])
+            .select();
 
         // Display modal message based on success or failure
         if (error) {
@@ -65,6 +67,7 @@ const CourseForm = () => {
             setModalTitle('Success');
             setModalMessage('Course created successfully.');
             setIsSuccess(true);
+            setNewCourseId(data[0].course_id);
         }
 
         setModalShow(true);
@@ -284,6 +287,16 @@ const CourseForm = () => {
                     </Modal.Header>
                     <Modal.Body>{modalMessage}</Modal.Body>
                     <Modal.Footer>
+                        {isSuccess && (
+                            <>
+                                <Button variant="secondary" onClick={() => window.location.href = '/courses'}>
+                                    Return to courses
+                                </Button>
+                                <Button variant="primary" onClick={() => window.location.href = `/courses/course_info?id=${newCourseId}`}>
+                                    Go to course
+                                </Button>
+                            </>
+                        )}
                         <Button variant="secondary" onClick={handleModalClose}>
                             Close
                         </Button>
