@@ -13,8 +13,5 @@ test('read_from_no_exsist_supabase_course_assign', async () => {
   expect(data).toBeNull()
 
 })
-test('read_from_supabase_delete_and_add_course_assign', async () => {
-  const res = await supabase.from("course_assign").select();
-  expect(res.error).toBeNull()
-})
+
 

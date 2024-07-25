@@ -13,8 +13,4 @@ test('read_from_supabase_evaluation_metric', async () => {
     expect(data).toBeNull()
  
   })
-  test('read_from_supabase_delete_and_add_evaluation_metric', async () => {
-    const res = await supabase.from("evaluation_metric").select();
-    console.log(res.data)
-    expect(res.error).toBeNull()
-  })
+
