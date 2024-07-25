@@ -51,6 +51,7 @@ export default function Home() {
     }, [])
 
     const tableColumns = [
+        { field: 'id', headerName: 'ID', width: 10, editable: false },
         { field: 'course_title', headerName: 'Course', width: 100, editable: true },
         { field: 'academic_year', headerName: 'Academic Year', width: 200, editable: true },
         { field: 'term', headerName: 'Term', width: 200, editable: true },
@@ -271,7 +272,7 @@ export default function Home() {
                     p: 4,
                 }}>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Batch Editing
+                        Batch Editing, you can leave id blank and it will be auto generated
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
@@ -291,7 +292,7 @@ export default function Home() {
                                 snapshot.push(newRow)
                                 console.log((await supabase
                                     .from("course")
-                                    .insert({course_id: newRow.id, 
+                                    .insert({course_id: newRow.id ? newRow.id : undefined, 
                                         course_title: newRow.course_title,
                                         building: newRow.location.split(" ")[0],
                                         room_num: newRow.location.split(" ")[1],
@@ -344,7 +345,7 @@ export default function Home() {
                         handleCSVClose()
                     }}
 
-                    >Add</Button>
+                    >Apply</Button>
                 </Box>
             </Modal>
             {/* <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button> */}
