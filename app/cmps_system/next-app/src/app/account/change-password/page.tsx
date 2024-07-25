@@ -7,8 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Navbar from '@/app/components/NavBar';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-
+import { createClient } from '@supabase/supabase-js'
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 const ChangePassword = () => {
@@ -16,8 +15,7 @@ const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [userUID, setUserUID] = useState('');
-  const [email, setEmail] = useState('');
+  const [userEmail, setUserEmail] = useState(''); // Store the user's email instead of UID
   const router = useRouter();
   const emailInputRef = useRef(null);
   const passwordInputRef = useRef(null);
@@ -34,9 +32,8 @@ const ChangePassword = () => {
       }
 
       const user = sessionData.session.user;
-      setUserUID(user.id);
-      setEmail(user.email);
-      setMessage(`User is logged in with UID: ${user.id}`);
+      setUserEmail(user.email); // Set the email instead of UID
+      setMessage(`User is logged in with email: ${user.email}`); // Display the email
     };
 
     checkUser();
@@ -120,7 +117,7 @@ const ChangePassword = () => {
         <Card className="mt-5">
           <Card.Body>
             <Card.Title>Change Password</Card.Title>
-            {userUID ? (
+            {userEmail ? (
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formCurrentPassword">
                   <Form.Label>Current Password</Form.Label>
@@ -159,30 +156,6 @@ const ChangePassword = () => {
             ) : (
               <div>
                 <p>{message}</p>
-                <Form>
-                  <Form.Control
-                    className="tw-grid tw-mt-6 tw-m-3"
-                    placeholder="Email"
-                    aria-label="email"
-                    type="email"
-                    ref={emailInputRef}
-                  />
-                  <Form.Control
-                    className="tw-grid tw-mt-6 tw-m-3"
-                    placeholder="Password"
-                    aria-label="password"
-                    type="password"
-                    ref={passwordInputRef}
-                  />
-                  <Button variant="primary" onClick={handleLogin} className="mt-3">
-                    Login
-                  </Button>
-                </Form>
-              </div>
-            )}
-            {message && (
-              <div>
-                <p className="mt-3 text-success">{message}</p>
                 {message === 'No user is currently logged in!' && (
                   <Form>
                     <Form.Control
@@ -204,6 +177,11 @@ const ChangePassword = () => {
                     </Button>
                   </Form>
                 )}
+              </div>
+            )}
+            {message && (
+              <div>
+                <p className="mt-3" style={{ color: message.includes('Error') || message.includes('incorrect') ? 'red' : 'green' }}>{message}</p>
               </div>
             )}
           </Card.Body>
