@@ -14,12 +14,12 @@ UPDATE TO authenticated USING (true);
 CREATE POLICY "insert_instructors" ON public.instructor FOR INSERT TO authenticated
 WITH
     CHECK (
-        EXISTS (
+        (
             SELECT
                 role
             FROM
                 public.user_role
             WHERE
                 user_id = auth.uid ()
-        )
+        ) IN ('head', 'staff')
     );
