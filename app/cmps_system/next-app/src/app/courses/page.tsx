@@ -277,7 +277,24 @@ export default function Home() {
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
                     <Button className="!tw-m-2" variant="contained" onClick={() => {
                         const csvText = csv.current.value;
-                        setCourseData(csv2json(csvText))
+                        const newJSON = csv2json(csvText);
+                        const oldJSON = courseData;
+                        for(const newRow of newJSON){
+                            if(!oldJSON.map(row => row.id).includes(newRow.id)){
+                                // check for create
+                                oldJSON.push(newRow)
+                            }
+                            else if(oldJSON.map(row => row.id).includes(newRow.id)){
+                                // check for update
+                                oldJSON[oldJSON.map(row => row.id).indexOf(newRow.id)] = newRow
+                            }
+                            else if(!oldJSON.map(row => row.id).includes(newRow.id)){
+                                // check for delete
+                                oldJSON = oldJSON.filter(row => row.id !== newRow.id)
+                            }
+                        }
+                            
+                        setCourseData(oldJSON)
                         handleCSVClose()
                     }}
 
