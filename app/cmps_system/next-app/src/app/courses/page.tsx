@@ -37,7 +37,7 @@ export default function Home() {
     useEffect(() => {
         (async () => {
             try {
-                const { data, error } = await supabase.from("v_course").select();
+                const { data, error } = await supabase.from("v_courses_with_instructors").select();
                 if (error) throw error;
                 console.log(data)
                 setCourseData(data)
@@ -52,13 +52,19 @@ export default function Home() {
 
     const tableColumns = [
         { field: 'course_title', headerName: 'Course', width: 100, editable: true },
+        { field: 'academic_year', headerName: 'Academic Year', width: 200, editable: true },
+        { field: 'term', headerName: 'Term', width: 200, editable: true },
         { field: 'location', headerName: 'Location', width: 200, editable: true },
-        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true },
+        { field: 'subject_code', headerName: 'Subject', width: 200, editable: true },
+        { field: 'course_num', headerName: 'Course Num', width: 200, editable: true },
+        { field: 'section_num', headerName: 'Session Num', width: 200, editable: true },
+        // { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true }, this should not be shown here as it should be in course assign
         { field: 'num_students', headerName: 'Number of Students', width: 200, editable: true },
-        { field: 'num_TAs', headerName: 'Number of TAs', width: 200, editable: true },
+        { field: 'num_tas', headerName: 'Number of TAs', width: 200, editable: true },
         { field: 'average_grade', headerName: 'Average Grade', width: 200, editable: true },
         { field: 'year_level', headerName: 'Year Level', width: 200, editable: true },
         { field: 'session', headerName: 'Session', width: 200, editable: true },
+
     ]
 
     const [courseData, setCourseData] = useState([
@@ -75,12 +81,11 @@ export default function Home() {
 
     const handleDeleteClick = (id) => async () => {
         setCourseData(courseData.filter((row) => row.id !== id));
-        if(confirm("Are you sure you want to delete this row? It will delete all related evaluation and course assign. This action is not recoverable!"))
-        {
+        if (confirm("Are you sure you want to delete this row? It will delete all related evaluation and course assign. This action is not recoverable!")) {
             const response = await supabase
-            .from('course')
-            .delete()
-            .eq("course_id", id)
+                .from('course')
+                .delete()
+                .eq("course_id", id)
         }
     };
 
@@ -102,7 +107,7 @@ export default function Home() {
 
         }
     };
-    
+
     const EditToolbar = useCallback((props) => {
         console.log(props)
         const { setCourseData, setRowModesModel, id } = props;
@@ -168,7 +173,7 @@ export default function Home() {
                 {buttons}
             </GridToolbarContainer>
         )
-    }, [rowModesModel, courseData]); 
+    }, [rowModesModel, courseData]);
 
 
     const [csvShow, setCsvShow] = useState(false)
@@ -275,26 +280,67 @@ export default function Home() {
 
 
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button className="!tw-m-2" variant="contained" onClick={() => {
+                    <Button className="!tw-m-2" variant="contained" onClick={async () => {
                         const csvText = csv.current.value;
                         const newJSON = csv2json(csvText);
                         const oldJSON = courseData;
-                        for(const newRow of newJSON){
-                            if(!oldJSON.map(row => row.id).includes(newRow.id)){
+                        var snapshot = JSON.parse(JSON.stringify(oldJSON))
+                        for (const newRow of newJSON) {
+                            if (!snapshot.map(row => row.id).includes(newRow.id)) {
                                 // check for create
-                                oldJSON.push(newRow)
+                                snapshot.push(newRow)
+                                console.log((await supabase
+                                    .from("course")
+                                    .insert({course_id: newRow.id, 
+                                        course_title: newRow.course_title,
+                                        building: newRow.location.split(" ")[0],
+                                        room_num: newRow.location.split(" ")[1],
+                                        num_students: newRow.num_students,
+                                        num_tas: newRow.num_tas,
+                                        term: newRow.term,
+                                        academic_year: newRow.academic_year,
+                                        subject_code: newRow.subject_code,
+                                        course_num: newRow.course_num,
+                                        section_num: newRow.section_num,
+                                        average_grade: newRow.average_grade,
+                                        year_level: newRow.year_level,
+                                        session: newRow.session})).error)
+                                
                             }
-                            else if(oldJSON.map(row => row.id).includes(newRow.id)){
+                            else if (snapshot.map(row => row.id).includes(newRow.id)) {
                                 // check for update
-                                oldJSON[oldJSON.map(row => row.id).indexOf(newRow.id)] = newRow
-                            }
-                            else if(!oldJSON.map(row => row.id).includes(newRow.id)){
-                                // check for delete
-                                oldJSON = oldJSON.filter(row => row.id !== newRow.id)
+                                snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow
+                                // do coresponding database operation 
+                                console.log((await supabase
+                                    .from("course")
+                                    .update({course_id: newRow.id, 
+                                        course_title: newRow.course_title,
+                                        building: newRow.location.split(" ")[0],
+                                        room_num: newRow.location.split(" ")[1],
+                                        num_students: newRow.num_students,
+                                        num_tas: newRow.num_tas,
+                                        term: newRow.term,
+                                        academic_year: newRow.academic_year,
+                                        subject_code: newRow.subject_code,
+                                        course_num: newRow.course_num,
+                                        section_num: newRow.section_num,
+                                        average_grade: newRow.average_grade,
+                                        year_level: newRow.year_level,
+                                        session: newRow.session}).eq("course_id", newRow.id)).error)
                             }
                         }
-                            
-                        setCourseData(oldJSON)
+                        for (const oldRow of oldJSON) {
+                            if (!newJSON.map(row => row.id).includes(oldRow.id)) {
+                                // check for delete
+                                snapshot.splice(snapshot.map(row => row.id).indexOf(oldRow.id), 1)
+                                // do coresponding database operation 
+                                console.log((await supabase
+                                    .from("course")
+                                    .delete().eq("course_id", oldRow.id)).error)
+                            }
+                        }
+
+                        setCourseData(snapshot)
                         handleCSVClose()
                     }}
 

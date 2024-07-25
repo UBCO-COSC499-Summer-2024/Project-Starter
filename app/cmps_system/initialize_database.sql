@@ -349,13 +349,16 @@ CREATE OR REPLACE VIEW
     v_courses_with_instructors AS
 SELECT
     course.course_id as id,
-    subject_code,
-    course_num,
-    section_num,
-    course_title,
     academic_year,
-    session,
     term,
+    course_num,
+    num_students,
+    subject_code,
+    section_num,
+    num_TAs,
+    average_grade,
+    year_level,
+    session,
     COALESCE(
         STRING_AGG(
             CONCAT(
@@ -382,15 +385,12 @@ SELECT
         ),
         ''
     ) as instructor_ids,
-    num_students,
-    num_tas,
-    average_grade,
     CONCAT(building, ' ', room_num) as location
 FROM
     course
     LEFT JOIN course_assign ON course.course_id = course_assign.course_id
     LEFT JOIN instructor ON instructor.instructor_id = course_assign.instructor_id
-GROUP BY
+  GROUP BY
     course.course_id,
     subject_code,
     course_num,
