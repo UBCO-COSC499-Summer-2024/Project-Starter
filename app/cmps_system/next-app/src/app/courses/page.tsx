@@ -1,15 +1,12 @@
-// this file uses copilot auto compleet in all around areas
 'use client'
+import { useEffect, useRef, useState } from "react";
+import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import Container from 'react-bootstrap/Container';
 import { csv2json, json2csv } from 'json-2-csv';
-import Navbar from "@/app/components/NavBar"
-import { createClient } from '@supabase/supabase-js'
-import Link from 'next/link';
-import Image from 'next/image';
-import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormGroup, FormLabel, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Button, Modal, Typography, Box, styled } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -21,7 +18,10 @@ import {
 } from 'chart.js';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { DataGrid, GridRowModes, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
+
 import React from "react";
+import Navbar from "@/app/components/NavBar";
+import Container from 'react-bootstrap/Container';
 
 ChartJS.register(
     CategoryScale,
@@ -34,23 +34,60 @@ ChartJS.register(
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
+    const [courseData, setCourseData] = useState([]);
+    const { push } = useRouter();
+    const [defaultCSV, setDefaultCSV] = useState("");
+    const [csvShow, setCsvShow] = useState(false);
+    const csv = useRef(null);
+
     useEffect(() => {
         (async () => {
             try {
+
                 const { data, error } = await supabase.from("v_course").select();
+
                 if (error) throw error;
-                console.log(data)
-                setCourseData(data)
+                setCourseData(data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
+        })();
+    }, []);
 
-            catch (error) {
-                console.error("Error fetching data:", error)
+    const handleSectionClick = (id, event) => {
+        event.preventDefault();
+        push(`/courses/course_info?id=${id}`);
+    };
 
-            }
-        })()
-    }, [])
+    const renderSectionNumber = (params) => {
+        return (
+            <a
+                href={`/courses/course_info?id=${params.row.id}`}
+                onClick={(event) => handleSectionClick(params.row.id, event)}
+                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+            >
+                {params.value}
+            </a>
+        );
+    };
+
+    const renderInstructorNames = (params) => {
+        const names = params.row.instructor_names.split(', ');
+        const ids = params.row.instructor_ids.split(', ');
+        return (
+            <div>
+                {names.map((name, index) => (
+                    <React.Fragment key={ids[index]}>
+                        <a href={`/instructors/instructor_info?id=${ids[index]}`}>{name}</a>
+                        {index < names.length - 1 && <span>, </span>}
+                    </React.Fragment>
+                ))}
+            </div>
+        );
+    };
 
     const tableColumns = [
+
         { field: 'course_title', headerName: 'Course', width: 100, editable: true },
         { field: 'location', headerName: 'Location', width: 200, editable: true },
         { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true },
@@ -150,7 +187,6 @@ export default function Home() {
 
         }
 
-
         return (
             <GridToolbarContainer>
                 <Button onClick={() => { handleClick() }}>
@@ -164,15 +200,18 @@ export default function Home() {
                     setCsvShow(true)
                 }, [courseData])}>
                     📝 Edit As CSV
+
                 </Button>
                 {buttons}
             </GridToolbarContainer>
+
         )
     }, [rowModesModel, courseData]); 
 
 
-    const [csvShow, setCsvShow] = useState(false)
+
     const handleCSVClose = () => setCsvShow(false);
+
     const blue = {
         100: '#DAECFF',
         200: '#b6daff',
@@ -209,37 +248,34 @@ export default function Home() {
         background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
         border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
         box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
-      
         &:hover {
           border-color: ${blue[400]};
         }
-      
         &:focus {
           border-color: ${blue[400]};
           box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
         }
-      
-        // firefox
         &:focus-visible {
           outline: 0;
         }
       `,
     );
-    const csv = useRef(null);
+
     return (
         <main>
             <Navbar />
             <h1 style={{ marginRight: "10px" }}>Courses</h1>
 
-            <Container>
+            <Container fluid style={{ maxWidth: '100%' }}>
                 <Row className="h-32">
-                    <div className="tw-p-3">
+                    <div style={{ width: '100%', padding: '1rem' }}>
                         <DataGrid
                             editMode="row"
                             rows={courseData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
+
                             slotProps={{
                                 toolbar: { setCourseData, setRowModesModel, id },
                             }}
@@ -249,6 +285,7 @@ export default function Home() {
                                 console.log(newSelection[0])
                                 setId(newSelection[0])
                             }}
+
                         />
                     </div>
                 </Row>
@@ -256,7 +293,7 @@ export default function Home() {
 
             <Modal open={csvShow} onClose={handleCSVClose}>
                 <Box sx={{
-                    position: 'absolute' as 'absolute',
+                    position: 'absolute',
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
@@ -272,19 +309,19 @@ export default function Home() {
                         <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
                     </Typography>
 
-
-
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
                     <Button className="!tw-m-2" variant="contained" onClick={() => {
                         const csvText = csv.current.value;
-                        setCourseData(csv2json(csvText))
-                        handleCSVClose()
-                    }}
-
-                    >Add</Button>
+                        setCourseData(csv2json(csvText));
+                        handleCSVClose();
+                    }}>
+                        Add
+                    </Button>
                 </Box>
             </Modal>
+
             {/* <Button onClick={() => { push("/courses/create_new_course") }}>Create a new course</Button> */}
         </main >
+
     );
 }

@@ -1,6 +1,6 @@
 # Dockerfile.dev
 
-FROM node:18-alpine
+FROM node:18.20.4-alpine
 
 WORKDIR /app
 
