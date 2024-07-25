@@ -10,8 +10,8 @@ import Image from 'next/image';
 // import { supabase } from '../supabaseClient';
 import './style.css';
 import { createClient } from '@supabase/supabase-js'
-import { json2csv } from 'json-2-csv';
-import { Button } from '@mui/material';
+import { csv2json, json2csv } from 'json-2-csv';
+import { Box, Button, Modal, TextareaAutosize, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 const Instructor = () => {
@@ -41,7 +41,11 @@ const Instructor = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [defaultCSV, setDefaultCSV] = useState("")
   const [id, setId] = useState(0)
+  const [csvShow, setCsvShow] = useState(false)
+  const handleCSVClose = () => setCsvShow(false);
+  const csv = useRef(null);
 
+  
   useEffect(() => {
     const fetchInstructors = async () => {
       const { data, error } = await supabase.from('instructor').select('*');
@@ -159,6 +163,7 @@ const Instructor = () => {
 
     }
 
+    const [csvShow, setCsvShow] = useState(false)
 
     return (
       <GridToolbarContainer>
@@ -223,7 +228,43 @@ const Instructor = () => {
         </Link> */}
       </span>
       {renderTable()}
-    </Container>
+
+      <Modal open={csvShow} onClose={handleCSVClose}>
+        <Box sx={{
+          position: 'absolute' as 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: "80%",
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Batch Editing
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
+          </Typography>
+
+
+
+          <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
+          <Button className="!tw-m-2" variant="contained" onClick={async () => {
+            if (!confirm("Are you sure to submit? This will rewrite all records in the database with the imported CSV and this cannot be undo!"))
+              return
+            const csvText = csv.current.value;
+            const json_time_data = csv2json(csvText)
+            setInstructors(json_time_data)
+
+            handleCSVClose()
+          }}
+
+          >Apply</Button>
+        </Box>
+      </Modal>
+
+    </Container >
   );
 };
 
