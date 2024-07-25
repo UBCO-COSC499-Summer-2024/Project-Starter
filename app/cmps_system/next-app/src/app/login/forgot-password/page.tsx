@@ -21,11 +21,15 @@ export default function ForgotPassword() {
             setErrorMessage('Please enter your email.');
             return;
         }
-
-        // Send verification code logic here
-        setErrorMessage('');
-        setSuccessMessage('Verification code sent to your email.');
-        setStep(2);
+    
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        if (error) {
+            setErrorMessage('Error sending verification code.');
+        } else {
+            setErrorMessage('');
+            setSuccessMessage('Verification code sent to your email.');
+            setStep(2);
+        }
     }
 
     async function handleVerifyCode() {
