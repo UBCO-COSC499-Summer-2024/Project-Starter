@@ -503,12 +503,19 @@ SELECT
 
 -- Inserts a row into public.user_role every time a new user is created
 -- The default role is 'instructor'
+-- There are currently preset roles for two predefined emails:
+-- 'head@ubc.ca' and 'staff@ubc.ca'. We need to remember
+-- to get rid of these special cases when we're finished the project
 CREATE FUNCTION public.handle_new_user () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
 SET
     search_path = '' AS $$
 BEGIN
   INSERT INTO public.user_role (user_id, email, role)
-  VALUES (new.id, new.email, 'instructor');
+  VALUES (new.id, new.email, CASE 
+            WHEN NEW.email = 'head@email.com' THEN 'head'
+            WHEN NEW.email = 'staff@email.com' THEN 'staff'
+            ELSE 'instructor'  -- Default role  
+        END);
   RETURN new;
 END;
 $$;
