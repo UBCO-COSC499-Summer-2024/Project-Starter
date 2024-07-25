@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS
     "instructor" (
         "instructor_id" SERIAL NOT NULL,
         "ubc_employee_num" BIGINT NOT NULL,
+        "email" VARCHAR(255) NULL,
         "prefix" VARCHAR(255) NULL,
         "first_name" VARCHAR(255) NOT NULL,
         "last_name" VARCHAR(255) NOT NULL,
