@@ -4,8 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { csv2json, json2csv } from 'json-2-csv';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Button, Modal, Typography, Box, styled } from '@mui/material';
-import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import { Button, Modal, Typography, Box, styled, TextareaAutosize as BaseTextareaAutosize } from '@mui/material';
 import { Row } from "react-bootstrap";
 import { DataGrid, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
 import React from "react";
@@ -85,9 +84,9 @@ export default function EvaluationTypes() {
         { field: 'description', headerName: 'Description', flex: 3, editable: true },
         { field: 'num_entries', headerName: 'Number of Questions', flex: 1, editable: false },
         { field: 'date_added', headerName: 'Date Added', flex: 1, editable: true },
-        { field: 'requires_course', headerName: 'Requires Course', flex: 1, editable: true, type: 'boolean' },
-        { field: 'requires_instructor', headerName: 'Requires Instructor', flex: 1, editable: true, type: 'boolean' },
-        { field: 'requires_service_role', headerName: 'Requires Service Role', flex: 1, editable: true, type: 'boolean' },
+        { field: 'requires_course', headerName: 'Requires Course', flex: 1, editable: false, type: 'boolean' },
+        { field: 'requires_instructor', headerName: 'Requires Instructor', flex: 1, editable: false, type: 'boolean' },
+        { field: 'requires_service_role', headerName: 'Requires Service Role', flex: 1, editable: false, type: 'boolean' },
     ];
 
     const EditToolbar = () => {
