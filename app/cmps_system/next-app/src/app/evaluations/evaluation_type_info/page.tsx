@@ -44,6 +44,7 @@ const EvaluationTypeInfo = () => {
     const [editMode, setEditMode] = useState({});
     const [editEvaluationTypeMode, setEditEvaluationTypeMode] = useState({});
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [deleteEvaluationTypeConfirmOpen, setDeleteEvaluationTypeConfirmOpen] = useState(false);
     const [metricToDelete, setMetricToDelete] = useState(null);
     const [addMetricOpen, setAddMetricOpen] = useState(false);
     const [newMetric, setNewMetric] = useState({
@@ -94,7 +95,7 @@ const EvaluationTypeInfo = () => {
                 .eq('evaluation_type_id', id);
             if (error) throw error;
             alert('Evaluation type removed successfully');
-            router.push('/evaluation_types');
+            router.push('/evaluations/evaluation_types');
         } catch (error) {
             setError(error.message);
         }
@@ -109,6 +110,16 @@ const EvaluationTypeInfo = () => {
     };
 
     const handleSave = async (metric) => {
+        const originalMetric = metrics.find(m => m.metric_num === metric.metric_num);
+        if (
+            metric.metric_description === originalMetric.metric_description &&
+            metric.min_value === originalMetric.min_value &&
+            metric.max_value === originalMetric.max_value
+        ) {
+            setEditMode((prevState) => ({ ...prevState, [metric.metric_num]: false }));
+            return;
+        }
+
         setLoading(true);
         try {
             const { error } = await supabase
@@ -132,6 +143,11 @@ const EvaluationTypeInfo = () => {
     };
 
     const handleEvaluationTypeSave = async (field) => {
+        if (evaluationType[field] === originalEvaluationType[field]) {
+            setEditEvaluationTypeMode((prevState) => ({ ...prevState, [field]: false }));
+            return;
+        }
+
         setLoading(true);
         try {
             const { error } = await supabase
@@ -232,6 +248,22 @@ const EvaluationTypeInfo = () => {
 
     const handleNewMetricChange = (field, value) => {
         setNewMetric((prevMetric) => ({ ...prevMetric, [field]: value }));
+    };
+
+    const openDeleteEvaluationTypeConfirm = () => {
+        setDeleteEvaluationTypeConfirmOpen(true);
+    };
+
+    const closeDeleteEvaluationTypeConfirm = () => {
+        setDeleteEvaluationTypeConfirmOpen(false);
+    };
+
+    const originalEvaluationType = {
+        evaluation_type_name: evaluationTypeName,
+        description,
+        requires_course: requiresCourse,
+        requires_instructor: requiresInstructor,
+        requires_service_role: requiresServiceRole,
     };
 
     return (
@@ -406,8 +438,8 @@ const EvaluationTypeInfo = () => {
                             Add Evaluation Metric
                         </Button>
                         <div style={{ marginTop: '20px' }}>
-                            <Button variant="contained" color="secondary" onClick={handleDelete}>Remove this evaluation type</Button>
-                            <Button variant="contained" color="primary" onClick={() => router.push('/evaluation_types')}>Back</Button>
+                            <Button variant="contained" color="secondary" onClick={openDeleteEvaluationTypeConfirm}>Remove this evaluation type</Button>
+                            <Button variant="contained" color="primary" onClick={() => router.push('/evaluations/evaluation_types')}>Back</Button>
                         </div>
                     </>
                 ) : (
@@ -482,6 +514,25 @@ const EvaluationTypeInfo = () => {
                         <Button variant="contained" color="secondary" onClick={closeAddMetric}>Cancel</Button>
                         <Button variant="contained" color="primary" onClick={handleAddMetric} style={{ marginLeft: '10px' }}>Add</Button>
                     </div>
+                </div>
+            </Modal>
+
+            <Modal open={deleteEvaluationTypeConfirmOpen} onClose={closeDeleteEvaluationTypeConfirm}>
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 400,
+                    backgroundColor: 'white',
+                    padding: '16px',
+                    boxShadow: 24,
+                    p: 4,
+                }}>
+                    <h2>Confirm Delete</h2>
+                    <p>Do you really want to remove this evaluation type? Any evaluation entries that reference this type will be deleted as well.</p>
+                    <Button variant="contained" color="secondary" onClick={closeDeleteEvaluationTypeConfirm}>Cancel</Button>
+                    <Button variant="contained" color="primary" onClick={handleDelete}>Delete</Button>
                 </div>
             </Modal>
         </div>
