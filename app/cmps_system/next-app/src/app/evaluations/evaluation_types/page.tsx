@@ -1,27 +1,15 @@
-// this file uses copilot auto compleet in all around areas
 'use client'
+import { useEffect, useRef, useState } from "react";
+import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import Container from 'react-bootstrap/Container';
 import { csv2json, json2csv } from 'json-2-csv';
-import Navbar from "@/app/components/NavBar"
-import { createClient } from '@supabase/supabase-js'
-import Link from 'next/link';
-import Image from 'next/image';
-import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormGroup, FormLabel, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
-import { Button, Modal, Typography, Box, styled } from '@mui/material';
-import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
-import { useState, useEffect, useRef } from "react";
-import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridActionsCellItem } from '@mui/x-data-grid';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Button, Modal, Typography, Box, styled, TextareaAutosize as BaseTextareaAutosize } from '@mui/material';
+import { Row } from "react-bootstrap";
+import { DataGrid, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
 import React from "react";
+import Navbar from "@/app/components/NavBar";
+import Container from 'react-bootstrap/Container';
 
 ChartJS.register(
     CategoryScale,
@@ -32,109 +20,94 @@ ChartJS.register(
     Legend
 );
 
-
-
-export default function Home() {
-
+export default function EvaluationTypes() {
+    const [evaluationTypeData, setEvaluationTypeData] = useState([]);
+    const { push } = useRouter();
+    const [defaultCSV, setDefaultCSV] = useState("");
+    const [csvShow, setCsvShow] = useState(false);
+    const csv = useRef(null);
 
     useEffect(() => {
         (async () => {
             try {
                 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-                const { data, error } = await supabase.from("v_timetracking").select();
+                const { data, error } = await supabase.from("v_evaluation_type_info").select();
                 if (error) throw error;
-                console.log(data)
-                setTimeData(data)
+                setEvaluationTypeData(data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
+        })();
+    }, []);
 
-            catch (error) {
-                console.error("Error fetching data:", error)
+    const handleEvaluationTypeClick = (id, event) => {
+        event.preventDefault();
+        push(`/evaluations/evaluation_type_info?id=${id}`);
+    };
 
-            }
-        })()
-    }, [])
-    const tableColumns = [
-        { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: false, valueOptions: ["United Kingdom", "Spain", "Brazil"] },
-        { field: 'service_role_name', headerName: 'Service Role', width: 300, editable: false },
-        { field: 'year', headerName: 'Year', width: 200, editable: true },
-        { field: 'month', headerName: 'Month', width: 200, editable: true },
-        { field: 'hours', headerName: 'Hours', width: 200, editable: true }
-    ]
+    const renderEvaluationTypeName = (params) => {
+        return (
+            <a
+                href={`/evaluations/evaluation_type_info?id=${params.row.id}`}
+                onClick={(event) => handleEvaluationTypeClick(params.row.id, event)}
+                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+            >
+                {params.value}
+            </a>
+        );
+    };
 
-    const [TimeData, setTimeData] = useState([
-    ]);
+    const processRowUpdate = async (newRow, oldRow) => {
+        try {
+            const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
+            const { error } = await supabase
+                .from('evaluation_type')
+                .update({
+                    evaluation_type_name: newRow.name,
+                    description: newRow.description,
+                    requires_course: newRow.requires_course,
+                    requires_instructor: newRow.requires_instructor,
+                    requires_service_role: newRow.requires_service_role
+                })
+                .eq('evaluation_type_id', newRow.id);
 
-
-
-    const { push } = useRouter();
-    const [defaultCSV, setDefaultCSV] = useState("")
-    const [id, setId] = useState(0)
-    const EditToolbar = (props) => {
-        console.log(props)
-        const { setTimeData, setRowModesModel } = props;
-
-        const handleClick = () => {
-            var id = 1;
-            if (TimeData.length >= 1) {
-                for (var i = 0; i < TimeData.length; i++) {
-                    id = Math.max(id, TimeData[i].id + 1)
-                }
-            }
-            console.log(id)
-            setTimeData((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
-            setRowModesModel((oldModel) => ({
-                ...oldModel,
-                [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
-            }));
-        };
-        console.log(id)
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-            const buttons = (<>
-                <Button
-                    onClick={handleSaveClick(id)}>
-                    💾 Save
-                </Button>
-                <Button
-                    className="textPrimary"
-                    onClick={handleCancelClick(id)}
-                    color="inherit">❌ Cancel</Button>
-            </>)
-
+            if (error) throw error;
+            return newRow;
+        } catch (error) {
+            console.error("Error updating data:", error);
+            return oldRow;
         }
+    };
 
-        const buttons = (<>
-            <Button
-                className="textPrimary"
-                onClick={handleEditClick(id)}
-                color="inherit"
-            >✏️Edit</Button>
-            <Button
-                onClick={handleDeleteClick(id)}
-                color="inherit"
-            >🗑️ Delete</Button></>)
-        console.log(buttons)
+    const tableColumns = [
+        { field: 'name', headerName: 'Evaluation Type', flex: 2, editable: true, renderCell: renderEvaluationTypeName },
+        { field: 'description', headerName: 'Description', flex: 3, editable: true },
+        { field: 'num_entries', headerName: 'Number of Questions', flex: 1, editable: false },
+        { field: 'date_added', headerName: 'Date Added', flex: 1, editable: true },
+        { field: 'requires_course', headerName: 'Requires Course', flex: 1, editable: false, type: 'boolean' },
+        { field: 'requires_instructor', headerName: 'Requires Instructor', flex: 1, editable: false, type: 'boolean' },
+        { field: 'requires_service_role', headerName: 'Requires Service Role', flex: 1, editable: false, type: 'boolean' },
+    ];
+
+    const EditToolbar = () => {
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { handleClick() }}>
+                <Button color="primary" onClick={() => { push("/evaluations/create_new_evaluation_type") }}>
                     ➕ Add record
                 </Button>
 
                 <Button color="primary" onClick={() => {
-                    // csv.current.value=(json2csv(TimeData))
-                    setDefaultCSV(json2csv(TimeData))
-                    setCsvShow(true)
+                    setDefaultCSV(json2csv(evaluationTypeData));
+                    setCsvShow(true);
                 }}>
-                    📝 Edit As CSV
+                    ✏️ Edit As CSV
                 </Button>
-                {buttons}
             </GridToolbarContainer>
-        )
-    }
+        );
+    };
 
-    const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
+
     const blue = {
         100: '#DAECFF',
         200: '#b6daff',
@@ -171,65 +144,35 @@ export default function Home() {
         background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
         border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
         box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
-      
         &:hover {
           border-color: ${blue[400]};
         }
-      
         &:focus {
           border-color: ${blue[400]};
           box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
         }
-      
-        // firefox
         &:focus-visible {
           outline: 0;
         }
       `,
     );
-    const csv = useRef(null);
-    const [rowModesModel, setRowModesModel] = React.useState({});
-    const handleSaveClick = (id) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-    };
 
-    const handleDeleteClick = (id) => () => {
-        setTimeData(TimeData.filter((row) => row.id !== id));
-    };
-
-    const handleCancelClick = (id) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
-        });
-    }
-    const handleEditClick = (id) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-    };
     return (
         <main>
             <Navbar />
             <h1 style={{ marginRight: "10px" }}>Evaluation Types</h1>
 
-            <Container>
+            <Container fluid style={{ maxWidth: '100%' }}>
                 <Row className="h-32">
-                    <div className="tw-p-3">
+                    <div style={{ width: '100%', padding: '1rem' }}>
                         <DataGrid
                             editMode="row"
-                            rows={TimeData}
+                            rows={evaluationTypeData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
+                            processRowUpdate={processRowUpdate}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
-                            rowModesModel={rowModesModel}
-                            slotProps={{
-                                toolbar: { setTimeData, setRowModesModel },
-                            }}
-                            checkboxSelection={true}
-                            disableMultipleRowSelection={true}
-                            onRowSelectionModelChange={(newSelection) => {
-                                console.log(newSelection[0])
-                                setId(newSelection[0])
-                            }}
+                            autoHeight
                         />
                     </div>
                 </Row>
@@ -237,7 +180,7 @@ export default function Home() {
 
             <Modal open={csvShow} onClose={handleCSVClose}>
                 <Box sx={{
-                    position: 'absolute' as 'absolute',
+                    position: 'absolute',
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
@@ -253,19 +196,19 @@ export default function Home() {
                         <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
                     </Typography>
 
-
-
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
                     <Button className="!tw-m-2" variant="contained" onClick={() => {
                         const csvText = csv.current.value;
-                        setTimeData(csv2json(csvText))
-                        handleCSVClose()
-                    }}
-
-                    >Add</Button>
+                        setEvaluationTypeData(csv2json(csvText).map((item: { evaluation_type_id: string }) => ({
+                            ...item,
+                            id: item.evaluation_type_id
+                        })));
+                        handleCSVClose();
+                    }}>
+                        Save
+                    </Button>
                 </Box>
             </Modal>
-            <Button onClick={() => { push("/time_tracking/benchmarks") }}>Edit Benchmarks</Button>
-        </main >
+        </main>
     );
 }
