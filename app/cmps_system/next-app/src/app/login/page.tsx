@@ -20,7 +20,7 @@ export default function Home() {
 
         // Validation
         if (!email || !password) {
-            setErrorMessage('email and password are required.');
+            setErrorMessage('Email and password are required.');
             setSuccessMessage('');
             return;
         }
@@ -77,7 +77,7 @@ export default function Home() {
                 {successMessage && <Alert variant="success" className="tw-mt-4">{successMessage}</Alert>}
                 <Form.Control
                     className="tw-grid tw-mt-6 tw-m-3"
-                    placeholder="email"
+                    placeholder="Email"
                     aria-label="email"
                     type="email"
                     aria-describedby="basic-addon1"
@@ -105,8 +105,14 @@ export default function Home() {
                 >
                     {loading ? 'Logging in...' : 'Login'}
                 </Button>
+                <Button
+                    variant="link"
+                    className="tw-m-3 tw-text-blue-500"
+                    onClick={() => router.push('/login/forgot-password')}
+                >
+                    Forgot Password?
+                </Button>
             </Card>
         </div>
     );
 }
-
