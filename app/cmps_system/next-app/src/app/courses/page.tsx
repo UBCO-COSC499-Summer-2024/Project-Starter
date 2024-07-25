@@ -75,7 +75,7 @@ export default function Home() {
 
     const handleDeleteClick = (id) => async () => {
         setCourseData(courseData.filter((row) => row.id !== id));
-        if(confirm("Are you sure you want to delete this row? This action is not recoverable!"))
+        if(confirm("Are you sure you want to delete this row? It will delete all related evaluation and course assign. This action is not recoverable!"))
         {
             const response = await supabase
             .from('course')
