@@ -83,14 +83,21 @@ const CourseForm = () => {
             <div className="container">
                 <form className="course-form" onSubmit={handleSubmit}>
                     <h1>Add New Course</h1>
+
                     <div className="form-group">
                         <label htmlFor="subject_code">Subject Code:</label>
-                        <input type="text" id="subject_code" name="subject_code" onChange={handleChange} required />
+                        <select id="subject_code" name="subject_code" onChange={handleChange} required>
+                            <option value="">Select Subject Code</option>
+                            <option value="COSC">COSC</option>
+                            <option value="MATH">MATH</option>
+                            <option value="PHYS">PHYS</option>
+                            <option value="STAT">STAT</option>
+                        </select>
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="course_num">Course Number:</label>
-                        <input type="text" id="course_num" name="course_num" onChange={handleChange} required />
+                        <input type="number" id="course_num" name="course_num" placeholder="101" onChange={handleChange} required />
                     </div>
 
                     <div className="form-group">
@@ -100,12 +107,12 @@ const CourseForm = () => {
 
                     <div className="form-group">
                         <label htmlFor="section_num">Section Number:</label>
-                        <input type="text" id="section_num" name="section_num" onChange={handleChange} required />
+                        <input type="number" id="section_num" name="section_num" placeholder="001" onChange={handleChange} required />
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="academic_year">Academic Year:</label>
-                        <input type="text" id="academic_year" name="academic_year" onChange={handleChange} required />
+                        <input type="number" id="academic_year" name="academic_year" placeholder={new Date().getFullYear().toString()} onChange={handleChange} required />
                     </div>
 
                     <div className="form-group">
@@ -136,7 +143,7 @@ const CourseForm = () => {
                         <label htmlFor="mode_of_delivery">Mode of Delivery:</label>
                         <select id="mode_of_delivery" name="mode_of_delivery" onChange={handleChange}>
                             <option value="">Select Mode of Delivery</option>
-                            <option value="In-Person">In Person</option>
+                            <option selected value="In-Person">In Person</option>
                             <option value="Online">Online</option>
                             <option value="Hybrid">Hybrid</option>
                             <option value="Hybrid">Multi-access</option>
