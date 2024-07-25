@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
 import Navbar from '@/app/components/NavBar';
@@ -45,7 +45,7 @@ const Instructor = () => {
   const handleCSVClose = () => setCsvShow(false);
   const csv = useRef(null);
 
-  
+
   useEffect(() => {
     const fetchInstructors = async () => {
       const { data, error } = await supabase.from('instructor').select('*');
