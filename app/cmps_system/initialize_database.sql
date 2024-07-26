@@ -1,4 +1,3 @@
---TODO: rename long constraint names
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
 CREATE TABLE IF NOT EXISTS
@@ -54,8 +53,8 @@ CREATE TABLE IF NOT EXISTS
         "days" VARCHAR(255) NULL,
         "start_time" TIME(0) WITHOUT TIME ZONE NULL,
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
-        "num_students" INTEGER NULL,
-        "num_tas" INTEGER NULL,
+        "num_students" INTEGER NULL DEFAULT 0,
+        "num_tas" INTEGER NULL DEFAULT 0,
         "average_grade" DECIMAL(5, 3) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
@@ -153,6 +152,7 @@ CREATE TABLE IF NOT EXISTS
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
+        "date_added" DATE NOT NULL DEFAULT CURRENT_DATE,
         "requires_course" BOOLEAN NULL DEFAULT NULL,
         "requires_instructor" BOOLEAN NULL DEFAULT NULL,
         "requires_service_role" BOOLEAN NULL DEFAULT NULL
@@ -346,27 +346,70 @@ from
     instructor;
 
 CREATE OR REPLACE VIEW
-    v_course AS
+    v_courses_with_instructors AS
 SELECT
-    course_assign.assignment_id as id,
+    course.course_id as id,
+    subject_code,
+    course_num,
+    section_num,
     course_title,
-    CONCAT(building, ' ', room_num) as location,
-    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_name,
+    academic_year,
+    session,
+    term,
+    COALESCE(
+        STRING_AGG(
+            CONCAT(
+                instructor.prefix,
+                ' ',
+                instructor.first_name,
+                ' ',
+                instructor.last_name
+            ),
+            ', '
+            ORDER BY
+                instructor.last_name,
+                instructor.first_name
+        ),
+        'No Instructor'
+    ) as instructor_names,
+    COALESCE(
+        STRING_AGG(
+            instructor.instructor_id::TEXT,
+            ', '
+            ORDER BY
+                instructor.last_name,
+                instructor.first_name
+        ),
+        ''
+    ) as instructor_ids,
     num_students,
-    course."num_tas",
+    num_tas,
     average_grade,
-    year_level,
-    session
+    CONCAT(building, ' ', room_num) as location
 FROM
     course
-    JOIN course_assign on course.course_id = course_assign.course_id
-    JOIN instructor ON instructor.instructor_id = course_assign.instructor_id;
+    LEFT JOIN course_assign ON course.course_id = course_assign.course_id
+    LEFT JOIN instructor ON instructor.instructor_id = course_assign.instructor_id
+GROUP BY
+    course.course_id,
+    subject_code,
+    course_num,
+    section_num,
+    course_title,
+    academic_year,
+    session,
+    term,
+    num_students,
+    num_tas,
+    average_grade,
+    building,
+    room_num;
 
 CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
     service_hours_entry_id as id,
-     CONCAT(
+    CONCAT(
         instructor.instructor_id,
         ' - ',
         instructor.last_name,
@@ -458,10 +501,11 @@ SELECT
     evaluation_metric.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
+    COUNT(*) as num_entries,
+    date_added,
     requires_course,
     requires_instructor,
-    requires_service_role,
-    COUNT(*) as num_entries
+    requires_service_role
 FROM
     evaluation_type
     LEFT JOIN evaluation_metric ON evaluation_metric.evaluation_type_id = evaluation_type.evaluation_type_id
@@ -469,8 +513,19 @@ GROUP BY
     evaluation_metric.evaluation_type_id,
     evaluation_type_name,
     description,
+    date_added,
     requires_course,
     requires_instructor,
     requires_service_role;
 
-CREATE VIEW list_all_service_roles as SELECT service_role.service_role_id, CONCAT(service_role.service_role_id, ' - ', service_role.title) AS service_role_name FROM service_role
+CREATE VIEW
+    list_all_service_roles as
+SELECT
+    service_role.service_role_id,
+    CONCAT(
+        service_role.service_role_id,
+        ' - ',
+        service_role.title
+    ) AS service_role_name
+FROM
+    service_role

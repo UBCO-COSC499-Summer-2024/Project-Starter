@@ -29,6 +29,7 @@ ChartJS.register(
     Tooltip,
     Legend
 );
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
     const [instructors, setInstructors] = useState([])
@@ -152,7 +153,13 @@ export default function Home() {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
-    const handleDeleteClick = (id) => () => {
+    const handleDeleteClick = (id) => async () => {
+        if(!confirm("Are you sure you want to delete this record?")) return;
+        const error = (await supabase.from("evaluation_entry").delete().eq("evaluation_entry_id", id)).error;
+        if(error) {
+            console.error("Error deleting record:", error);
+            return;
+        }
         setTimeData(TimeData.filter((row) => row.id !== id));
     };
 
