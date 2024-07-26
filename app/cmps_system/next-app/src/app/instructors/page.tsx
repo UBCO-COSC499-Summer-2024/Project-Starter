@@ -112,8 +112,6 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
         const transformedData = data.map((instructor) => ({
           id: instructor.instructor_id,
           name: `${instructor.last_name}, ${instructor.first_name}`,
-          firstName: instructor.first_name,
-          lastName: instructor.last_name,
           ubc_employee_num: instructor.ubc_employee_num,
           title: instructor.title,
           hire_date: instructor.hire_date,
@@ -316,11 +314,25 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
             const oldJSON = instructors;
             var snapshot = JSON.parse(JSON.stringify(oldJSON))
             for (const newRow of newJSON) {
+              try{
+                if(newRow.name.split(", ").length!=2)
+                {
+                  alert("Please follow the name format: Last Name, First Name on row "+newRow.id)
+                  return
+                }
+              }
+              catch (error){
+                alert("Please follow the name format: Last Name, First Name on row "+newRow.id)
+                return
+              }
+          
+
                 if (!snapshot.map(row => row.id).includes(newRow.id)) {
                     // check for create
+                    console.log("create")
                     snapshot.push(newRow)
                     // do coresponding database operation
-                    await supabase
+                    const error = (await supabase
                         .from("instructor")
                         .insert({
                             instructor_id: newRow.id ? newRow.id : undefined,
@@ -329,25 +341,36 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
                             ubc_employee_num: newRow.ubc_employee_num,
                             title: newRow.title,
                             hire_date: newRow.hire_date
-                        })
+                        })).error
+                    if (error) {
+                        alert("Error on row " + newRow.id + ": " + error.message)
+                        return
+                    }
+
                 }
                 else if (snapshot.map(row => row.id).includes(newRow.id)) {
                     // check for update
+                    console.log("update")
                     snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow
                     // do coresponding database operation 
-                    await supabase
-                        .from("instructor")
-                        .update({
-                            first_name: newRow.name.split(", ")[1],
-                            last_name: newRow.name.split(", ")[0],
-                            ubc_employee_num: newRow.ubc_employee_num,
-                            title: newRow.title,
-                            hire_date: newRow.hire_date
-                        }).eq("instructor_id", newRow.id)
+                    const error = (await supabase
+                    .from("instructor")
+                    .update({
+                        first_name: newRow.name.split(", ")[1],
+                        last_name: newRow.name.split(", ")[0],
+                        ubc_employee_num: newRow.ubc_employee_num,
+                        title: newRow.title,
+                        hire_date: newRow.hire_date
+                    }).eq("instructor_id", newRow.id)).error
+                    if (error) {
+                        alert("Error on row " + newRow.id + ": " + error.message)
+                        return
+                    }
                 }
             }
             for (const oldRow of oldJSON) {
                 if (!newJSON.map(row => row.id).includes(oldRow.id)) {
+                    console.log("delete")
                     // check for delete
                     snapshot.splice(snapshot.map(row => row.id).indexOf(oldRow.id), 1)
                     // do coresponding database operation 
