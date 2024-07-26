@@ -31,14 +31,21 @@ ChartJS.register(
 );
 
 export default function Home() {
+    const [instructors, setInstructors] = useState([])
+    const [courseSections, setCourseSections] = useState([])
     useEffect(() => {
         (async () => {
             try {
                 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-                const { data, error } = await supabase.from("v_evaluations_page").select();
+                var { data, error } = await supabase.from("v_evaluations_page").select();
                 if (error) throw error;
                 console.log(data)
                 setTimeData(data)
+                var { data, error } = await supabase.from("list_of_instructors").select();
+                console.log(data)
+                setInstructors(data.map((instructor) => instructor.name))
+                var { data, error } = await supabase.from("list_of_course_sections").select(); 
+                setCourseSections(data.map((course) => course.concat))
             }
             catch (error) {
                 console.error("Error fetching data:", error)
@@ -47,14 +54,15 @@ export default function Home() {
     }, [])
 
     const tableColumns = [
-        { field: 'evaluation_type', headerName: 'Evaluation Type', width: 200, editable: false },
-        { field: 'instructor', headerName: 'Instructor', width: 150, editable: false },
-        { field: 'course', headerName: 'Course', width: 150, editable: false },
-        { field: 'service_role', headerName: 'Service Role', width: 200, editable: false },
-        { field: 'question_num', headerName: 'Question', width: 100, editable: false },
-        { field: 'question', headerName: 'Question Text', width: 300, editable: false },
+        { field: 'id', headerName: 'Evaluation ID', width: 10, editable: false },
+        { field: 'evaluation_type', headerName: 'Evaluation Type', width: 200, editable: true },
+        { field: 'instructor', headerName: 'Instructor', width: 150, editable: true, type: 'singleSelect', valueOptions: instructors },
+        { field: 'course', headerName: 'Course', width: 150, editable: true, type: 'singleSelect', valueOptions: courseSections },
+        { field: 'service_role', headerName: 'Service Role', width: 200, editable: true },
+        { field: 'question_num', headerName: 'Question', width: 100, editable: true },
+        { field: 'question', headerName: 'Question Text', width: 300, editable: true },
         { field: 'answer', headerName: 'Answer', width: 150, editable: true },
-        { field: 'evaluation_date', headerName: 'Date', width: 200, editable: false }
+        { field: 'evaluation_date', headerName: 'Date', width: 200, editable: true }
     ]
 
     const [TimeData, setTimeData] = useState([]);

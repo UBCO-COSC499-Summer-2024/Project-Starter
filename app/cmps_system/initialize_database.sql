@@ -416,6 +416,8 @@ SELECT
 from
     service_hours_benchmark
     JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
+    
+CREATE OR REPLACE VIEW list_of_course_sections AS SELECT CONCAT(subject_code, ' ', course_num, ' ', section_num) FROM course;
 
 CREATE OR REPLACE VIEW
     v_evaluations_page AS
@@ -423,7 +425,7 @@ SELECT
     evaluation_entry_id as id,
     evaluation_type_name as evaluation_type,
     CASE
-        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name)
         ELSE ''
     END AS instructor,
     CASE
