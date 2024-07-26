@@ -38,7 +38,18 @@ export default function ForgotPassword() {
             return;
         }
 
-        // Verify code logic here
+        // Verify code logic
+        const { data, error } = await supabase.auth.verifyOtp({
+            email,
+            token: code,
+            type: 'recovery'
+        });
+
+        if (error) {
+            setErrorMessage('Invalid verification code.');
+            return;
+        }
+
         setErrorMessage('');
         setSuccessMessage('Code verified. You can now reset your password.');
         setStep(3);
@@ -54,10 +65,18 @@ export default function ForgotPassword() {
             return;
         }
 
-        // Reset password logic here
-        setErrorMessage('');
-        setSuccessMessage('Password reset successfully. You can now log in with your new password.');
-        setStep(4); // Move to the final step
+        // Reset password logic
+        const { error } = await supabase.auth.updateUser({
+            password: newPassword,
+        });
+
+        if (error) {
+            setErrorMessage('Error resetting password.');
+        } else {
+            setErrorMessage('');
+            setSuccessMessage('Password reset successfully. You can now log in with your new password.');
+            setStep(4);
+        }
     }
 
     return (
@@ -109,7 +128,7 @@ export default function ForgotPassword() {
                     <div>
                         <Form.Control
                             className="tw-grid tw-mt-6 tw-m-3"
-                            placeholder="New Password(at least 6 numbers)"
+                            placeholder="New Password"
                             aria-label="new-password"
                             type="password"
                             value={newPassword}
