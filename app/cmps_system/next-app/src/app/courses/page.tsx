@@ -20,7 +20,7 @@ import {
     Legend,
 } from 'chart.js';
 import { useState, useEffect, useRef, useCallback } from "react";
-import { DataGrid, GridRowModes, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
+import { DataGrid, GridRowModes, GridSlots, GridToolbarContainer, GridRowEditStopReasons } from '@mui/x-data-grid';
 import React from "react";
 
 ChartJS.register(
@@ -72,7 +72,7 @@ export default function Home() {
     ]);
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("");
-    const [id, setId] = useState(0)
+    const [id, setId] = useState('0')
 
     const [rowModesModel, setRowModesModel] = React.useState({});
 
@@ -104,8 +104,8 @@ export default function Home() {
             }
             setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
         }
-        catch {
-
+        catch (error) {
+            alert(`OOBA: Unknown Error! ${error}`)
         }
     };
 
@@ -241,13 +241,59 @@ export default function Home() {
                 <Row className="h-32">
                     <div className="tw-p-3">
                         <DataGrid
+                            onProcessRowUpdateError={(event) => {
+                                console.error(event) 
+                            }}
+                            processRowUpdate={async (newRow) => {
+                                console.log(newRow)
+                                const oldRow = courseData.filter((row) => row.id === newRow.id)[0]
+
+                                if (newRow.location.split(" ").length != 2) {
+                                    alert("Location should be in format of 'building room_num'")
+                                    // discard editing
+                                    setRowModesModel({
+                                        ...rowModesModel,
+                                        [newRow.id]: { mode: GridRowModes.View, ignoreModifications: true },
+                                      });
+                                    return oldRow
+                                }
+                                const error = (await supabase.from("course").update({
+                                    course_id: newRow.id,
+                                    course_title: newRow.course_title,
+                                    building: newRow.location.split(" ")[0],
+                                    room_num: newRow.location.split(" ")[1],
+                                    num_students: newRow.num_students,
+                                    num_tas: newRow.num_tas,
+                                    term: newRow.term,
+                                    academic_year: newRow.academic_year,
+                                    subject_code: newRow.subject_code,
+                                    course_num: newRow.course_num,
+                                    section_num: newRow.section_num,
+                                    average_grade: newRow.average_grade,
+                                    year_level: newRow.year_level,
+                                    session: newRow.session
+                                }).eq("course_id", newRow.id)).error
+                                if (error) {
+                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
+                                    return oldRow
+                                }
+                                console.log("success")
+                                return newRow
+                            }}
                             editMode="row"
                             rows={courseData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
+                            rowModesModel={rowModesModel}
+ 
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
                             slotProps={{
                                 toolbar: { setCourseData, setRowModesModel, id },
+                            }}
+                            onRowEditStop={(params, event) => {
+                                if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+                                    event.defaultMuiPrevented = true;
+                                }
                             }}
                             checkboxSelection={true}
                             disableMultipleRowSelection={true}
@@ -287,14 +333,13 @@ export default function Home() {
                         const oldJSON = courseData;
                         var snapshot = JSON.parse(JSON.stringify(oldJSON))
                         for (const newRow of newJSON) {
-                            try{
-                                if(newRow.location.split(" ").length!=2)
-                                {
+                            try {
+                                if (newRow.location.split(" ").length != 2) {
                                     alert("Location should be in format of 'building room_num'")
                                     return
                                 }
                             }
-                            catch(error){
+                            catch (error) {
                                 alert("Location should be in format of 'building room_num'")
                                 return
                             }
@@ -303,7 +348,8 @@ export default function Home() {
                                 snapshot.push(newRow)
                                 const error = ((await supabase
                                     .from("course")
-                                    .insert({course_id: newRow.id ? newRow.id : undefined, 
+                                    .insert({
+                                        course_id: newRow.id ? newRow.id : undefined,
                                         course_title: newRow.course_title,
                                         building: newRow.location.split(" ")[0],
                                         room_num: newRow.location.split(" ")[1],
@@ -316,12 +362,13 @@ export default function Home() {
                                         section_num: newRow.section_num,
                                         average_grade: newRow.average_grade,
                                         year_level: newRow.year_level,
-                                        session: newRow.session})).error)
+                                        session: newRow.session
+                                    })).error)
                                 if (error) {
                                     alert(`Error On Row ${newRow.id}: ${error.message}`)
                                     return
                                 }
-                                
+
                             }
                             else if (snapshot.map(row => row.id).includes(newRow.id)) {
                                 // check for update
@@ -329,7 +376,8 @@ export default function Home() {
                                 // do coresponding database operation 
                                 const error = ((await supabase
                                     .from("course")
-                                    .update({course_id: newRow.id, 
+                                    .update({
+                                        course_id: newRow.id,
                                         course_title: newRow.course_title,
                                         building: newRow.location.split(" ")[0],
                                         room_num: newRow.location.split(" ")[1],
@@ -342,12 +390,13 @@ export default function Home() {
                                         section_num: newRow.section_num,
                                         average_grade: newRow.average_grade,
                                         year_level: newRow.year_level,
-                                        session: newRow.session}).eq("course_id", newRow.id)).error)
+                                        session: newRow.session
+                                    }).eq("course_id", newRow.id)).error)
                                 if (error) {
                                     alert(`Error On Row ${newRow.id}: ${error.message}`)
                                     return
                                 }
-                                
+
                             }
                         }
                         for (const oldRow of oldJSON) {
