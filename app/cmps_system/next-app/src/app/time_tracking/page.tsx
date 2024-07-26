@@ -282,11 +282,8 @@ export default function Home() {
                             }}
 
                             onRowEditStop={(params, event) => {
-
                                 if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-
                                     event.defaultMuiPrevented = true;
-
                                 }
 
                             }}
