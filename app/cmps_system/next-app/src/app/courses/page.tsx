@@ -287,10 +287,21 @@ export default function Home() {
                         const oldJSON = courseData;
                         var snapshot = JSON.parse(JSON.stringify(oldJSON))
                         for (const newRow of newJSON) {
+                            try{
+                                if(newRow.location.split(" ").length!=2)
+                                {
+                                    alert("Location should be in format of 'building room_num'")
+                                    return
+                                }
+                            }
+                            catch(error){
+                                alert("Location should be in format of 'building room_num'")
+                                return
+                            }
                             if (!snapshot.map(row => row.id).includes(newRow.id)) {
                                 // check for create
                                 snapshot.push(newRow)
-                                console.log((await supabase
+                                const error = ((await supabase
                                     .from("course")
                                     .insert({course_id: newRow.id ? newRow.id : undefined, 
                                         course_title: newRow.course_title,
@@ -306,13 +317,17 @@ export default function Home() {
                                         average_grade: newRow.average_grade,
                                         year_level: newRow.year_level,
                                         session: newRow.session})).error)
+                                if (error) {
+                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
+                                    return
+                                }
                                 
                             }
                             else if (snapshot.map(row => row.id).includes(newRow.id)) {
                                 // check for update
                                 snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow
                                 // do coresponding database operation 
-                                console.log((await supabase
+                                const error = ((await supabase
                                     .from("course")
                                     .update({course_id: newRow.id, 
                                         course_title: newRow.course_title,
@@ -328,6 +343,11 @@ export default function Home() {
                                         average_grade: newRow.average_grade,
                                         year_level: newRow.year_level,
                                         session: newRow.session}).eq("course_id", newRow.id)).error)
+                                if (error) {
+                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
+                                    return
+                                }
+                                
                             }
                         }
                         for (const oldRow of oldJSON) {
