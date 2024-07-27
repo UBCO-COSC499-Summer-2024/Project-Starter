@@ -113,7 +113,7 @@ const Account = () => {
 
   return (
     <main>
-      <Navbar />
+      <Navbar /> 
       <Container>
         <Card className="mt-5">
           <Card.Body>
@@ -130,13 +130,13 @@ const Account = () => {
                     onChange={handleInputChange}
                   />
                 </Form.Group>
-                <Button variant="primary" type="submit" className="mt-3">
+                <Button variant="primary" type="submit" className="tw-m-1">
                   Save
                 </Button>
-                <Button variant="secondary" type="button" className="mt-3 ml-3" onClick={() => setFormData({ displayName })}>
+                <Button variant="secondary" type="button" className="tw-m-1" onClick={() => setFormData({ displayName })}>
                   Cancel
                 </Button>
-                <Button variant="danger" type="button" className="mt-3 ml-3" onClick={handleLogout}>
+                <Button variant="danger" type="button" className="tw-m-1" onClick={handleLogout}>
                   Logout
                 </Button>
               </Form>
