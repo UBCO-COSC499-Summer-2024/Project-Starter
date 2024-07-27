@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Form, FormControl, FormGroup, FormLabel, NavDropdown, NavLink, NavbarCollapse, NavbarText, Row, Table } from "react-bootstrap";
 import { Button, Modal, Typography, Box, styled } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import getUserType from "@/app/components/getUserType";
+
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -51,21 +53,25 @@ export default function Home() {
         })()
     }, [])
 
+    const [editable, setEditable] = useState(false)
+    useState(async () => {
+        setEditable(await getUserType() != "instructor" ? true : false)
+    })
     const tableColumns = [
         { field: 'id', headerName: 'ID', width: 10, editable: false },
-        { field: 'course_title', headerName: 'Course', width: 100, editable: true },
-        { field: 'academic_year', headerName: 'Academic Year', width: 200, editable: true },
-        { field: 'term', headerName: 'Term', width: 200, editable: true },
-        { field: 'location', headerName: 'Location', width: 200, editable: true },
-        { field: 'subject_code', headerName: 'Subject', width: 200, editable: true },
-        { field: 'course_num', headerName: 'Course Num', width: 200, editable: true },
-        { field: 'section_num', headerName: 'Session Num', width: 200, editable: true },
-        // { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: true }, this should not be shown here as it should be in course assign
-        { field: 'num_students', headerName: 'Number of Students', width: 200, editable: true },
-        { field: 'num_tas', headerName: 'Number of TAs', width: 200, editable: true },
-        { field: 'average_grade', headerName: 'Average Grade', width: 200, editable: true },
-        { field: 'year_level', headerName: 'Year Level', width: 200, editable: true },
-        { field: 'session', headerName: 'Session', width: 200, editable: true },
+        { field: 'course_title', headerName: 'Course', width: 100, editable: editable },
+        { field: 'academic_year', headerName: 'Academic Year', width: 200, editable: editable },
+        { field: 'term', headerName: 'Term', width: 200, editable: editable },
+        { field: 'location', headerName: 'Location', width: 200, editable: editable },
+        { field: 'subject_code', headerName: 'Subject', width: 200, editable: editable },
+        { field: 'course_num', headerName: 'Course Num', width: 200, editable: editable },
+        { field: 'section_num', headerName: 'Session Num', width: 200, editable: editable },
+        // { field: 'instructor_name', headerName: 'Instructor', width: 200, editable: editable }, this should not be shown here as it should be in course assign
+        { field: 'num_students', headerName: 'Number of Students', width: 200, editable: editable },
+        { field: 'num_tas', headerName: 'Number of TAs', width: 200, editable: editable },
+        { field: 'average_grade', headerName: 'Average Grade', width: 200, editable: editable },
+        { field: 'year_level', headerName: 'Year Level', width: 200, editable: editable },
+        { field: 'session', headerName: 'Session', width: 200, editable: editable },
 
     ]
 
@@ -109,8 +115,8 @@ export default function Home() {
             alert(`OOBA: Unknown Error! ${error}`)
         }
     };
-
-    const EditToolbar = useCallback((props) => {
+    
+    const EditToolbarFunc =  useCallback((props) => {
         console.log(props)
         const { setCourseData, setRowModesModel, id } = props;
 
@@ -177,6 +183,7 @@ export default function Home() {
         )
     }, [rowModesModel, courseData]);
 
+    const EditToolbar = editable ? EditToolbarFunc : ()=>{return<></>}
 
     const [csvShow, setCsvShow] = useState(false)
     const handleCSVClose = () => setCsvShow(false);
