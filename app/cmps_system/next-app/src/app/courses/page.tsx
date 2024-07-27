@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { csv2json, json2csv } from 'json-2-csv';
@@ -7,7 +7,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Button, Modal, Typography, Box, styled } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Row } from "react-bootstrap";
-import { DataGrid, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
+import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridRowEditStopReasons } from '@mui/x-data-grid';
 import React from "react";
 import Navbar from "@/app/components/NavBar";
 import Container from 'react-bootstrap/Container';
@@ -22,16 +22,18 @@ ChartJS.register(
 );
 
 export default function Home() {
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
     const [courseData, setCourseData] = useState([]);
     const { push } = useRouter();
     const [defaultCSV, setDefaultCSV] = useState("");
     const [csvShow, setCsvShow] = useState(false);
+    const [rowModesModel, setRowModesModel] = useState({});
+    const [id, setId] = useState('0');
     const csv = useRef(null);
 
     useEffect(() => {
         (async () => {
             try {
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 const { data, error } = await supabase.from("v_courses_with_instructors").select();
                 if (error) throw error;
                 setCourseData(data);
@@ -100,22 +102,101 @@ export default function Home() {
         { field: 'location', headerName: 'Location', flex: 1, editable: true },
     ];
 
-    const EditToolbar = () => {
+    const handleSaveClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    };
+
+    const handleDeleteClick = (id) => async () => {
+        setCourseData(courseData.filter((row) => row.id !== id));
+        if (confirm("Are you sure you want to delete this row? It will delete all related evaluation and course assign. This action is not recoverable!")) {
+            const response = await supabase
+                .from('course')
+                .delete()
+                .eq("course_id", id)
+        }
+    };
+
+    const handleCancelClick = (id) => () => {
+        setRowModesModel({
+            ...rowModesModel,
+            [id]: { mode: GridRowModes.View, ignoreModifications: true },
+        });
+    }
+
+    const handleEditClick = (id) => () => {
+        try {
+            if (!courseData.map(row => row.id).includes(id)) {
+                alert("Please select a valid row.")
+                return
+            }
+            setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+        }
+        catch (error) {
+            alert(`OOBA: Unknown Error! ${error}`)
+        }
+    };
+
+    const EditToolbar = useCallback((props) => {
+        const { setCourseData, setRowModesModel, id } = props;
+
+        const handleClick = () => {
+            var id = 1;
+            if (courseData.length >= 1) {
+                for (var i = 0; i < courseData.length; i++) {
+                    id = Math.max(id, courseData[i].id + 1)
+                }
+            }
+            setCourseData((oldRows) => [...oldRows, { id, name: '', year: '', hours: '' }]);
+            setRowModesModel((oldModel) => ({
+                ...oldModel,
+                [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
+
+            }));
+
+        };
+
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        var buttons = (<>
+            <Button
+                className="textPrimary"
+                onClick={handleEditClick(id)}
+                color="inherit"
+            >✏️Edit</Button>
+            <Button
+                onClick={handleDeleteClick(id)}
+                color="inherit"
+            >🗑️ Delete</Button></>)
+
+        if (isInEditMode) {
+            buttons = (<>
+                <Button
+                    onClick={handleSaveClick(id)}>
+                    💾 Save
+                </Button>
+                <Button
+                    className="textPrimary"
+                    onClick={handleCancelClick(id)}
+                    color="inherit">❌ Cancel</Button>
+            </>)
+
+        }
+
         return (
             <GridToolbarContainer>
-                <Button color="primary" onClick={() => { push("/courses/create_new_course") }}>
+                <Button onClick={() => { handleClick() }}>
                     ➕ Add record
                 </Button>
 
-                <Button color="primary" onClick={() => {
-                    setDefaultCSV(json2csv(courseData));
-                    setCsvShow(true);
-                }}>
-                    ✏️ Edit As CSV
+                <Button onClick={useCallback(() => {
+                    setDefaultCSV(json2csv(courseData))
+                    setCsvShow(true)
+                }, [courseData])}>
+                    📝 Edit As CSV
                 </Button>
+                {buttons}
             </GridToolbarContainer>
-        );
-    };
+        )
+    }, [rowModesModel, courseData]);
 
     const handleCSVClose = () => setCsvShow(false);
 
@@ -181,8 +262,57 @@ export default function Home() {
                             rows={courseData}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
+                            rowModesModel={rowModesModel}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
-                            autoHeight
+                            slotProps={{
+                                toolbar: { setCourseData, setRowModesModel, id },
+                            }}
+                            onRowEditStop={(params, event) => {
+                                if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+                                    event.defaultMuiPrevented = true;
+                                }
+                            }}
+                            checkboxSelection={true}
+                            disableMultipleRowSelection={true}
+                            onRowSelectionModelChange={(newSelection) => {
+                                setId(newSelection[0])
+                            }}
+                            processRowUpdate={async (newRow) => {
+                                const oldRow = courseData.filter((row) => row.id === newRow.id)[0]
+
+                                if (newRow.location.split(" ").length != 2) {
+                                    alert("Location should be in format of 'building room_num'")
+                                    setRowModesModel({
+                                        ...rowModesModel,
+                                        [newRow.id]: { mode: GridRowModes.View, ignoreModifications: true },
+                                    });
+                                    return oldRow
+                                }
+                                const { error } = await supabase.from("course").update({
+                                    course_id: newRow.id,
+                                    course_title: newRow.course_title,
+                                    building: newRow.location.split(" ")[0],
+                                    room_num: newRow.location.split(" ")[1],
+                                    num_students: newRow.num_students,
+                                    num_tas: newRow.num_tas,
+                                    term: newRow.term,
+                                    academic_year: newRow.academic_year,
+                                    subject_code: newRow.subject_code,
+                                    course_num: newRow.course_num,
+                                    section_num: newRow.section_num,
+                                    average_grade: newRow.average_grade,
+                                    year_level: newRow.year_level,
+                                    session: newRow.session
+                                }).eq("course_id", newRow.id)
+                                if (error) {
+                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
+                                    return oldRow
+                                }
+                                return newRow
+                            }}
+                            onProcessRowUpdateError={(error) => {
+                                console.error("Row update error:", error);
+                            }}
                         />
                     </div>
                 </Row>
@@ -207,13 +337,88 @@ export default function Home() {
                     </Typography>
 
                     <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button className="!tw-m-2" variant="contained" onClick={() => {
+                    <Button className="!tw-m-2" variant="contained" onClick={async () => {
                         const csvText = csv.current.value;
-                        setCourseData(csv2json(csvText));
-                        handleCSVClose();
-                    }}>
-                        Add
-                    </Button>
+                        const newJSON = csv2json(csvText);
+                        const oldJSON = courseData;
+                        var snapshot = JSON.parse(JSON.stringify(oldJSON))
+                        for (const newRow of newJSON) {
+                            try {
+                                if (newRow.location.split(" ").length != 2) {
+                                    alert("Location should be in format of 'building room_num'")
+                                    return
+                                }
+                            }
+                            catch (error) {
+                                alert("Location should be in format of 'building room_num'")
+                                return
+                            }
+                            if (!snapshot.map(row => row.id).includes(newRow.id)) {
+                                snapshot.push(newRow)
+                                const error = ((await supabase
+                                    .from("course")
+                                    .insert({
+                                        course_id: newRow.id ? newRow.id : undefined,
+                                        course_title: newRow.course_title,
+                                        building: newRow.location.split(" ")[0],
+                                        room_num: newRow.location.split(" ")[1],
+                                        num_students: newRow.num_students,
+                                        num_tas: newRow.num_tas,
+                                        term: newRow.term,
+                                        academic_year: newRow.academic_year,
+                                        subject_code: newRow.subject_code,
+                                        course_num: newRow.course_num,
+                                        section_num: newRow.section_num,
+                                        average_grade: newRow.average_grade,
+                                        year_level: newRow.year_level,
+                                        session: newRow.session
+                                    })).error)
+                                if (error) {
+                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
+                                    return
+                                }
+
+                            }
+                            else if (snapshot.map(row => row.id).includes(newRow.id)) {
+                                snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow
+                                const error = ((await supabase
+                                    .from("course")
+                                    .update({
+                                        course_id: newRow.id,
+                                        course_title: newRow.course_title,
+                                        building: newRow.location.split(" ")[0],
+                                        room_num: newRow.location.split(" ")[1],
+                                        num_students: newRow.num_students,
+                                        num_tas: newRow.num_tas,
+                                        term: newRow.term,
+                                        academic_year: newRow.academic_year,
+                                        subject_code: newRow.subject_code,
+                                        course_num: newRow.course_num,
+                                        section_num: newRow.section_num,
+                                        average_grade: newRow.average_grade,
+                                        year_level: newRow.year_level,
+                                        session: newRow.session
+                                    }).eq("course_id", newRow.id)).error)
+                                if (error) {
+                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
+                                    return
+
+                                }
+
+                            }
+                        }
+                        for (const oldRow of oldJSON) {
+                            if (!newJSON.map(row => row.id).includes(oldRow.id)) {
+                                snapshot.splice(snapshot.map(row => row.id).indexOf(oldRow.id), 1)
+                                await supabase.from("course").delete().eq("course_id", oldRow.id)
+                            }
+                        }
+
+                        setCourseData(snapshot)
+                        handleCSVClose()
+                    }}
+
+                    >Apply</Button>
                 </Box>
             </Modal>
         </main>
