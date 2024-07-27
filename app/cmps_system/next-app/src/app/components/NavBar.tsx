@@ -23,7 +23,8 @@ const NavBar = () => {
             }
         })();
     }, [supabase]);
-
+    const [Page, setPage] = useState('');
+    const tabs = ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "TOOLS"];
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -36,42 +37,13 @@ const NavBar = () => {
                     <span>{userName}</span>
                 </Link>
             </div>
-            <ul className={styles.navbarButtonsList}>
+            <ul className={styles.navbarButtonsList} style={{fontSize: "small"}}>
                 <li className={styles.navbarButton}>
                     <Link href="/dashboard" className={styles.navbarButtonText}>
-                        DASHBOARD
+                        
                     </Link>
                 </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/instructors" className={styles.navbarButtonText}>
-                        INSTRUCTORS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/courses" className={styles.navbarButtonText}>
-                        COURSES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/service_roles" className={styles.navbarButtonText}>
-                        SERVICE ROLES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/evaluations" className={styles.navbarButtonText}>
-                        EVALUATIONS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/time_tracking" className={styles.navbarButtonText}>
-                        TIME TRACKING
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/tools" className={styles.navbarButtonText}>
-                        TOOLS
-                    </Link>
-                </li>
+               
             </ul>
         </nav>
     );
