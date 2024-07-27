@@ -57,7 +57,7 @@ export default function EventsPage() {
                 />
                 {(userRole === 'Staff' || userRole === 'Head') && (
                     <Button 
-                        onClick={() => push('/time_tracking/events/new')}
+                        onClick={() => push('/time_tracking/events/create_new_event')}
                         variant="contained"
                         color="primary"
                         style={{ marginTop: '20px' }}
