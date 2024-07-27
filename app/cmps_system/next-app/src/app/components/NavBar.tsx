@@ -8,7 +8,8 @@ import getUserType from "@/app/components/getUserType";
 const NavBar = () => {
     const [isInstructor, setIsInstructor] = useState(true);
 
-    (async () => {
+    useEffect(()=>{
+            (async () => {
         const usertype = await getUserType()
         if (usertype === 'instructor') {
             setIsInstructor(true)
@@ -17,6 +18,7 @@ const NavBar = () => {
             setIsInstructor(false)
         }
     })()
+    },[])
     const [userName, setUserName] = useState('Username');
 
     useEffect(() => {
