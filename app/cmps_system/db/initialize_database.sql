@@ -352,6 +352,7 @@ SELECT
     academic_year,
     term,
     course_num,
+    course_title,
     num_students,
     subject_code,
     section_num,
