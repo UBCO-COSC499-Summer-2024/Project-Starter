@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Table from 'react-bootstrap/Table';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 import { createClient } from '@supabase/supabase-js';
@@ -33,12 +34,24 @@ const InstructorInfo = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
+  const [courseModalShow, setCourseModalShow] = useState(false);
   const [serviceRoles, setServiceRoles] = useState([]);
   const [serviceRoleAssignments, setServiceRoleAssignments] = useState([]);
   const [courseAssignments, setCourseAssignments] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedPosition, setSelectedPosition] = useState('Instructor');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [endDate, setEndDate] = useState('');
   const [showNewServiceRole, setShowNewServiceRole] = useState(false);
+  const [filters, setFilters] = useState({
+    academic_year: '',
+    session: '',
+    term: '',
+    subject_code: '',
+    course_num: ''
+  });
 
   useEffect(() => {
     if (id) {
@@ -47,22 +60,27 @@ const InstructorInfo = () => {
           const [{ data: instructorData, error: instructorError },
             { data: serviceRoleData, error: serviceRoleError },
             { data: assignedRoleData, error: assignedRoleError },
-            { data: assignedCoursesData, error: assignedCoursesError }] = await Promise.all([
+            { data: assignedCoursesData, error: assignedCoursesError },
+            { data: coursesData, error: coursesError }] = await Promise.all([
               supabase.from('instructor').select('*').eq('instructor_id', id).single(),
               supabase.from('service_role').select('*'),
               supabase.from('service_role_assign').select('*').eq('instructor_id', id),
-              supabase.from('course_assign').select('*').eq('instructor_id', id)
+              supabase.from('v_teaching_assignments').select('*').eq('instructor_id', id),
+              supabase.from('v_courses_with_instructors').select('*')
             ]);
 
           if (instructorError) throw instructorError;
           if (serviceRoleError) throw serviceRoleError;
           if (assignedRoleError) throw assignedRoleError;
           if (assignedCoursesError) throw assignedCoursesError;
+          if (coursesError) throw coursesError;
 
           setInstructor(instructorData);
           setServiceRoles(serviceRoleData);
           setServiceRoleAssignments(assignedRoleData);
           setCourseAssignments(assignedCoursesData);
+          setCourses(coursesData);
+          setFilteredCourses(coursesData);
         } catch (error) {
           setError(error.message);
         } finally {
@@ -155,6 +173,56 @@ const InstructorInfo = () => {
 
   const handleNewServiceRole = () => {
     setShowNewServiceRole(true);
+  };
+
+  const handleNewCourseAssignment = () => {
+    setCourseModalShow(true);
+  };
+
+  const handleCourseAssignmentSave = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('course_assign')
+        .insert({
+          instructor_id: id,
+          course_id: selectedCourse,
+          position: selectedPosition,
+          start_date: new Date().toISOString().split('T')[0]
+        })
+        .select('*');  // Explicitly select the inserted data
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setCourseAssignments((prevAssignments) => [...prevAssignments, data[0]]);
+        setCourseModalShow(false);  // Reset course modal
+        setSelectedCourse('');
+        setSelectedPosition('Instructor');
+      }
+
+      alert('Course assignment added successfully');
+    } catch (error) {
+      console.error('Save Error:', error);
+      setError(error.message);
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+    applyFilters({ ...filters, [name]: value });
+  };
+
+  const applyFilters = (filterValues) => {
+    setFilteredCourses(courses.filter(course => {
+      return Object.keys(filterValues).every(key =>
+        !filterValues[key] || course[key]?.toString().toLowerCase().includes(filterValues[key].toLowerCase())
+      );
+    }));
+  };
+
+  const handleRowClick = (courseId) => {
+    setSelectedCourse(courseId);
   };
 
   return (
@@ -255,13 +323,16 @@ const InstructorInfo = () => {
               </thead>
               <tbody>
                 {courseAssignments.map((assignment, index) => (
-                  <tr key={assignment.assignment_id || index}>
-                    <td>{assignment.course_id}</td>
+                  <tr key={assignment.id || index}>
+                    <td>{assignment.full_course_name}</td>
                     <td>{assignment.position}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <Button className="btn btn-primary mb-3" onClick={handleNewCourseAssignment}>
+              Assign New Teaching Assignment
+            </Button>
 
             <div className="instructor-info-footer">
               <Button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</Button>
@@ -290,6 +361,77 @@ const InstructorInfo = () => {
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSave} disabled={!endDate}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={courseModalShow} onHide={() => setCourseModalShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign New Teaching Assignment</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <fieldset style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
+            <legend style={{ paddingLeft: '5px', paddingRight: '5px' }}>Filter Options</legend>
+            <div className="d-flex justify-content-between">
+              <div>
+                <Form.Group controlId="filterAcademicYear">
+                  <Form.Label>Academic Year</Form.Label>
+                  <Form.Control type="text" placeholder="Academic Year" name="academic_year" value={filters.academic_year} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterSession">
+                  <Form.Label>Session</Form.Label>
+                  <Form.Control type="text" placeholder="Session" name="session" value={filters.session} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterTerm">
+                  <Form.Label>Term</Form.Label>
+                  <Form.Control type="text" placeholder="Term" name="term" value={filters.term} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterSubjectCode">
+                  <Form.Label>Subject Code</Form.Label>
+                  <Form.Control type="text" placeholder="Subject Code" name="subject_code" value={filters.subject_code} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterCourseNum">
+                  <Form.Label>Course Number</Form.Label>
+                  <Form.Control type="text" placeholder="Course Number" name="course_num" value={filters.course_num} onChange={handleFilterChange} />
+                </Form.Group>
+              </div>
+              <div className="ml-3">
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCourses.map((course) => (
+                      <tr
+                        key={course.course_id}
+                        onClick={() => handleRowClick(course.course_id)}
+                        className={selectedCourse === course.course_id ? "table-primary" : ""}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <td>{course.full_course_name}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            </div>
+          </fieldset>
+          <Form.Group controlId="selectPosition">
+            <Form.Label>Position</Form.Label>
+            <Form.Select value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}>
+              <option value="Instructor">Instructor</option>
+              <option value="TA">TA</option>
+            </Form.Select>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setCourseModalShow(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleCourseAssignmentSave} disabled={!selectedCourse || !selectedPosition}>
             Save
           </Button>
         </Modal.Footer>
