@@ -169,6 +169,7 @@ const InstructorInfo = () => {
 
           if (data && data.length > 0) {
             setServiceRoleAssignments((prevAssignments) => [...prevAssignments, data[0]]);
+            setShowNewServiceRole(false);  // Reset showNewServiceRole
           }
         }
       } else if (selectedAssignment.type === 'course') {
@@ -204,6 +205,7 @@ const InstructorInfo = () => {
 
           if (data && data.length > 0) {
             setCourseAssignments((prevAssignments) => [...prevAssignments, data[0]]);
+            setShowNewCourseAssignment(false);  // Reset showNewCourseAssignment
           }
         }
       }

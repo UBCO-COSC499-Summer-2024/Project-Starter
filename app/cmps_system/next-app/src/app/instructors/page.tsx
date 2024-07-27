@@ -19,8 +19,8 @@ const Instructor = () => {
       width: 200,
       editable: true,
       renderCell: (params) => (
-        <Link 
-          href={`/instructors/instructor_info?id=${params.row.id}&firstName=${params.row.firstName}&lastName=${params.row.lastName}&ubcEmployeeNum=${params.row.ubc_employee_num}&title=${params.row.title}&hireDate=${params.row.hire_date}`} 
+        <Link
+          href={`/instructors/instructor_info?id=${params.row.id}`}
           legacyBehavior
         >
           {params.value}
@@ -108,17 +108,19 @@ const Instructor = () => {
   };
 
   return (
-    <Container fluid className="banner">
+    <main>
       <Navbar />
-      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{ marginRight: '10px' }}>Instructors</h1>
-        <Link href="/instructors/create_new_instructor" style={{ display: 'flex', alignItems: 'center', margin: '0 3em', fontSize: '1.5em' }}>
-          <Image src="/plus.svg" alt="Add new instructor plus icon" width={20} height={20} style={{ margin: '20px' }} />
-          Create new instructor
-        </Link>
-      </span>
-      {renderTable()}
-    </Container>
+      <Container fluid className="banner">
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h1 style={{ marginRight: '10px' }}>Instructors</h1>
+          <Link href="/instructors/create_new_instructor" style={{ display: 'flex', alignItems: 'center', margin: '0 3em', fontSize: '1.5em' }}>
+            <Image src="/plus.svg" alt="Add new instructor plus icon" width={20} height={20} style={{ margin: '20px' }} />
+            Create new instructor
+          </Link>
+        </span>
+        {renderTable()}
+      </Container>
+    </main>
   );
 };
 
