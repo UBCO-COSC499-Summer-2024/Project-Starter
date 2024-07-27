@@ -67,7 +67,7 @@ export default function Home() {
             <div>
                 {names.map((name, index) => (
                     <React.Fragment key={ids[index]}>
-                        <a href={`/instructors/instructor_info?id={ids[index]}`}>{name}</a>
+                        <a href={`/instructors/instructor_info?id=${ids[index]}`}>{name}</a>
                         {index < names.length - 1 && <span>, </span>}
                     </React.Fragment>
                 ))}
@@ -151,12 +151,16 @@ export default function Home() {
     };
 
     const handleDeleteClick = (id) => async () => {
-        setCourseData(courseData.filter((row) => row.id !== id));
         if (confirm("Are you sure you want to delete this course? It will delete all related evaluations and teaching assignments. This action is not recoverable!")) {
             const response = await supabase
                 .from('course')
                 .delete()
-                .eq("course_id", id)
+                .eq("course_id", id);
+            if (!response.error) {
+                setCourseData(courseData.filter((row) => row.id !== id));
+            } else {
+                alert("Error deleting course");
+            }
         }
     };
 
