@@ -15,8 +15,7 @@ import { Box, Button, Modal, styled, Typography } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 
 import { useRouter } from 'next/navigation';
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-const Instructor = () => {
+import supabase from "@/app/components/supabaseClient";const Instructor = () => {
   const tableColumns = [
     { field: 'id', headerName: 'Employee ID', width: 20, editable: false },
     {

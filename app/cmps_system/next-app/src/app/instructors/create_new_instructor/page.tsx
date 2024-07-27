@@ -7,8 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-
+import supabase from "@/app/components/supabaseClient";
 const InstructorForm = () => {
   const [formData, setFormData] = useState({
     prefix: '',
