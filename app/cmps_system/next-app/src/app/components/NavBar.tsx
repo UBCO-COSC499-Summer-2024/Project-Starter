@@ -2,12 +2,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './NavBar.module.css';
-import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
+import supabase from "@/app/components/supabaseClient";
+
 
 const NavBar = () => {
     const [userName, setUserName] = useState('Username');
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
     useEffect(() => {
         (async function () {

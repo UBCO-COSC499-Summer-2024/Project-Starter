@@ -9,8 +9,7 @@ import Navbar from '@/app/components/NavBar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-
+import supabase from "@/app/components/supabaseClient";
 const Account = () => {
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
