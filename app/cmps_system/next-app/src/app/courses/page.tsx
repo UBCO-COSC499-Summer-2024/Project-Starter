@@ -28,7 +28,8 @@ export default function Home() {
     const [defaultCSV, setDefaultCSV] = useState("");
     const [csvShow, setCsvShow] = useState(false);
     const [rowModesModel, setRowModesModel] = useState({});
-    const [id, setId] = useState('0');
+    const [selectedRows, setSelectedRows] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
     const csv = useRef(null);
 
     useEffect(() => {
@@ -146,105 +147,125 @@ export default function Home() {
         { field: 'location', headerName: 'Location', flex: 1, editable: true },
     ];
 
-    const handleSaveClick = (id) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    const handleSaveClick = async () => {
+        const updates = selectedRows.map(async (id) => {
+            const row = courseData.find(row => row.id === id);
+            if (!row) return null;
+
+            const { error } = await supabase.from("course").update({
+                course_id: row.id,
+                course_title: row.course_title,
+                building: row.location.split(" ")[0],
+                room_num: row.location.split(" ")[1],
+                num_students: row.num_students,
+                num_tas: row.num_tas,
+                term: row.term,
+                academic_year: row.academic_year,
+                subject_code: row.subject_code,
+                course_num: row.course_num,
+                section_num: row.section_num,
+                average_grade: row.average_grade,
+                year_level: row.year_level,
+                session: row.session
+            }).eq("course_id", row.id);
+
+            if (error) {
+                alert(`Error On Row ${row.id}: ${error.message}`);
+                return null;
+            }
+
+            return row;
+        });
+
+        await Promise.all(updates);
+        setRowModesModel({});
+        setIsEditing(false);
     };
 
-    const handleDeleteClick = (id) => async () => {
-        if (confirm("Are you sure you want to delete this course? It will delete all related evaluations and teaching assignments. This action is not recoverable!")) {
-            const response = await supabase
-                .from('course')
-                .delete()
-                .eq("course_id", id);
-            if (!response.error) {
-                setCourseData(courseData.filter((row) => row.id !== id));
-            } else {
-                alert("Error deleting course");
-            }
+    const handleDeleteClick = async () => {
+        if (confirm("Are you sure you want to delete the selected courses? This action is not recoverable!")) {
+            const deletions = selectedRows.map(async (id) => {
+                const response = await supabase.from('course').delete().eq("course_id", id);
+                if (response.error) {
+                    alert(`Error deleting course ${id}: ${response.error.message}`);
+                }
+            });
+
+            await Promise.all(deletions);
+            setCourseData(courseData.filter((row) => !selectedRows.includes(row.id)));
+            setIsEditing(false);
         }
     };
 
-    const handleCancelClick = (id) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
-        });
+    const handleCancelClick = () => {
+        setRowModesModel({});
+        setIsEditing(false);
     }
 
-    const handleEditClick = (id) => () => {
-        try {
-            if (!courseData.map(row => row.id).includes(id)) {
-                alert("Please select a valid row.")
-                return
-            }
-            setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-        }
-        catch (error) {
-            alert(`OOBA: Unknown Error! ${error}`)
-        }
+    const handleEditClick = () => {
+        const newModel = {};
+        selectedRows.forEach(id => {
+            newModel[id] = { mode: GridRowModes.Edit };
+        });
+        setRowModesModel(newModel);
+        setIsEditing(true);
     };
 
     const EditToolbar = useCallback((props) => {
-        const { setCourseData, setRowModesModel, id } = props;
+        const { setCourseData, setRowModesModel } = props;
 
         const handleClick = () => {
-            var id = 1;
-            if (courseData.length >= 1) {
-                for (var i = 0; i < courseData.length; i++) {
-                    id = Math.max(id, courseData[i].id + 1)
-                }
-            }
-            setCourseData((oldRows) => [...oldRows, { id, name: '', year: '', hours: '' }]);
+            const newId = courseData.length ? Math.max(...courseData.map(row => row.id)) + 1 : 1;
+            setCourseData((oldRows) => [...oldRows, { id: newId, name: '', year: '', hours: '' }]);
             setRowModesModel((oldModel) => ({
                 ...oldModel,
-                [id]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
-
+                [newId]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
             }));
-
         };
-
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-        var buttons = (<>
-            <Button
-                className="textPrimary"
-                onClick={handleEditClick(id)}
-                color="inherit"
-            >✏️Edit</Button>
-            <Button
-                onClick={handleDeleteClick(id)}
-                color="inherit"
-            >🗑️ Delete</Button></>)
-
-        if (isInEditMode) {
-            buttons = (<>
-                <Button
-                    onClick={handleSaveClick(id)}>
-                    💾 Save
-                </Button>
-                <Button
-                    className="textPrimary"
-                    onClick={handleCancelClick(id)}
-                    color="inherit">❌ Cancel</Button>
-            </>)
-
-        }
 
         return (
             <GridToolbarContainer>
-                <Button onClick={() => { handleClick() }}>
+                <Button onClick={handleClick}>
                     ➕ Add record
                 </Button>
 
                 <Button onClick={useCallback(() => {
-                    setDefaultCSV(json2csv(courseData))
-                    setCsvShow(true)
+                    setDefaultCSV(json2csv(courseData));
+                    setCsvShow(true);
                 }, [courseData])}>
                     📝 Edit As CSV
                 </Button>
-                {buttons}
+
+                {!isEditing && (
+                    <Button
+                        className="textPrimary"
+                        onClick={handleEditClick}
+                        color="inherit"
+                    >✏️ Edit</Button>
+                )}
+
+                {isEditing && (
+                    <>
+                        <Button
+                            onClick={handleSaveClick}
+                            color="inherit"
+                        >💾 Save</Button>
+
+                        <Button
+                            className="textPrimary"
+                            onClick={handleCancelClick}
+                            color="inherit"
+                        >❌ Cancel</Button>
+                    </>
+                )}
+
+                <Button
+                    onClick={handleDeleteClick}
+                    color="inherit"
+                >🗑️ Delete</Button>
             </GridToolbarContainer>
-        )
-    }, [rowModesModel, courseData]);
+        );
+    }, [rowModesModel, courseData, selectedRows, isEditing]);
 
     const handleCSVClose = () => setCsvShow(false);
 
@@ -313,7 +334,7 @@ export default function Home() {
                             rowModesModel={rowModesModel}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
                             slotProps={{
-                                toolbar: { setCourseData, setRowModesModel, id },
+                                toolbar: { setCourseData, setRowModesModel },
                             }}
                             onRowEditStop={(params, event) => {
                                 if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -321,9 +342,8 @@ export default function Home() {
                                 }
                             }}
                             checkboxSelection={true}
-                            disableMultipleRowSelection={true}
                             onRowSelectionModelChange={(newSelection) => {
-                                setId(newSelection[0])
+                                setSelectedRows(newSelection);
                             }}
                             processRowUpdate={async (newRow) => {
                                 const oldRow = courseData.filter((row) => row.id === newRow.id)[0]
@@ -334,7 +354,7 @@ export default function Home() {
                                         ...rowModesModel,
                                         [newRow.id]: { mode: GridRowModes.View, ignoreModifications: true },
                                     });
-                                    return oldRow
+                                    return oldRow;
                                 }
                                 const { error } = await supabase.from("course").update({
                                     course_id: newRow.id,
@@ -351,12 +371,12 @@ export default function Home() {
                                     average_grade: newRow.average_grade,
                                     year_level: newRow.year_level,
                                     session: newRow.session
-                                }).eq("course_id", newRow.id)
+                                }).eq("course_id", newRow.id);
                                 if (error) {
-                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
-                                    return oldRow
+                                    alert(`Error On Row ${newRow.id}: ${error.message}`);
+                                    return oldRow;
                                 }
-                                return newRow
+                                return newRow;
                             }}
                             onProcessRowUpdateError={(error) => {
                                 console.error("Row update error:", error);
