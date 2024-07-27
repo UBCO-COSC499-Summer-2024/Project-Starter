@@ -1,4 +1,3 @@
---TODO: rename long constraint names
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
 CREATE TABLE IF NOT EXISTS
@@ -54,8 +53,8 @@ CREATE TABLE IF NOT EXISTS
         "days" VARCHAR(255) NULL,
         "start_time" TIME(0) WITHOUT TIME ZONE NULL,
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
-        "num_students" INTEGER NULL,
-        "num_tas" INTEGER NULL,
+        "num_students" INTEGER NULL DEFAULT 0,
+        "num_tas" INTEGER NULL DEFAULT 0,
         "average_grade" DECIMAL(5, 3) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
@@ -153,6 +152,7 @@ CREATE TABLE IF NOT EXISTS
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
+        "date_added" DATE NOT NULL DEFAULT CURRENT_DATE,
         "requires_course" BOOLEAN NULL DEFAULT NULL,
         "requires_instructor" BOOLEAN NULL DEFAULT NULL,
         "requires_service_role" BOOLEAN NULL DEFAULT NULL
@@ -304,7 +304,7 @@ ALTER TABLE "evaluation_entry"
 ADD CONSTRAINT "evaluation_entry_metric_num_foreign" FOREIGN KEY ("metric_num", "evaluation_type_id") REFERENCES "evaluation_metric" ("metric_num", "evaluation_type_id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE "evaluation_entry"
-ADD CONSTRAINT "evaluation_entry_course_id_foreign" FOREIGN KEY ("course_id") REFERENCES "course" ("course_id") ON DELETE SET NULL;
+ADD CONSTRAINT "evaluation_entry_course_id_foreign" FOREIGN KEY ("course_id") REFERENCES "course" ("course_id") ON DELETE CASCADE;
 
 ALTER TABLE "service_hours_entry"
 ADD CONSTRAINT "service_hours_entry_instructor_id_foreign" FOREIGN KEY ("instructor_id") REFERENCES "instructor" ("instructor_id") ON DELETE CASCADE;
@@ -346,27 +346,70 @@ from
     instructor;
 
 CREATE OR REPLACE VIEW
-    v_course AS
+    v_courses_with_instructors AS
 SELECT
-    course_assign.assignment_id as id,
-    course_title,
-    CONCAT(building, ' ', room_num) as location,
-    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_name,
+    course.course_id as id,
+    academic_year,
+    term,
+    course_num,
     num_students,
-    course."num_tas",
+    subject_code,
+    section_num,
+    num_TAs,
     average_grade,
     year_level,
-    session
+    session,
+    COALESCE(
+        STRING_AGG(
+            CONCAT(
+                instructor.prefix,
+                ' ',
+                instructor.first_name,
+                ' ',
+                instructor.last_name
+            ),
+            ', '
+            ORDER BY
+                instructor.last_name,
+                instructor.first_name
+        ),
+        'No Instructor'
+    ) as instructor_names,
+    COALESCE(
+        STRING_AGG(
+            instructor.instructor_id::TEXT,
+            ', '
+            ORDER BY
+                instructor.last_name,
+                instructor.first_name
+        ),
+        ''
+    ) as instructor_ids,
+    CONCAT(building, ' ', room_num) as location
 FROM
     course
-    JOIN course_assign on course.course_id = course_assign.course_id
-    JOIN instructor ON instructor.instructor_id = course_assign.instructor_id;
+    LEFT JOIN course_assign ON course.course_id = course_assign.course_id
+    LEFT JOIN instructor ON instructor.instructor_id = course_assign.instructor_id
+  GROUP BY
+    course.course_id,
+    subject_code,
+    course_num,
+    section_num,
+    course_title,
+    academic_year,
+    session,
+    term,
+    num_students,
+    num_tas,
+    average_grade,
+    building,
+    room_num;
 
 CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
     service_hours_entry_id as id,
-     CONCAT(
+    CONCAT(
         instructor.instructor_id,
         ' - ',
         instructor.last_name,
@@ -456,10 +499,11 @@ SELECT
     evaluation_metric.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
+    COUNT(*) as num_entries,
+    date_added,
     requires_course,
     requires_instructor,
-    requires_service_role,
-    COUNT(*) as num_entries
+    requires_service_role
 FROM
     evaluation_type
     LEFT JOIN evaluation_metric ON evaluation_metric.evaluation_type_id = evaluation_type.evaluation_type_id
@@ -467,8 +511,61 @@ GROUP BY
     evaluation_metric.evaluation_type_id,
     evaluation_type_name,
     description,
+    date_added,
     requires_course,
     requires_instructor,
     requires_service_role;
 
-CREATE VIEW list_all_service_roles as SELECT service_role.service_role_id, CONCAT(service_role.service_role_id, ' - ', service_role.title) AS service_role_name FROM service_role
+CREATE VIEW
+    list_all_service_roles as
+SELECT
+    service_role.service_role_id,
+    CONCAT(
+        service_role.service_role_id,
+        ' - ',
+        service_role.title
+    ) AS service_role_name
+FROM
+    service_role;
+
+CREATE TABLE
+    public.user_role (
+        user_id UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE,
+        email TEXT,
+        role TEXT,
+        PRIMARY KEY (user_id)
+    );
+
+ALTER TABLE public.user_role enable row level security;
+
+-- Only allow users to see their own role
+-- This needs to exist so that the policies are
+-- able to check user roles, whilst preventing
+-- users from seeing other users' roles
+CREATE POLICY "select_own_role" ON public.user_role FOR
+SELECT
+    TO authenticated USING (user_id = auth.uid ());
+
+-- Inserts a row into public.user_role every time a new user is created
+-- The default role is 'instructor'
+-- There are currently preset roles for two predefined emails:
+-- 'head@ubc.ca' and 'staff@ubc.ca'. We need to remember
+-- to get rid of these special cases when we're finished the project
+CREATE FUNCTION public.handle_new_user () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET
+    search_path = '' AS $$
+BEGIN
+  INSERT INTO public.user_role (user_id, email, role)
+  VALUES (new.id, new.email, CASE 
+            WHEN NEW.email = 'head@email.com' THEN 'head'
+            WHEN NEW.email = 'staff@email.com' THEN 'staff'
+            ELSE 'instructor'  -- Default role  
+        END);
+  RETURN new;
+END;
+$$;
+
+-- Trigger the function every time a user is created
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users FOR EACH ROW
+EXECUTE PROCEDURE public.handle_new_user ();
