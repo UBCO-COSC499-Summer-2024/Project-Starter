@@ -20,7 +20,7 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-
+import supabase from "@/app/components/supabaseClient";
 export default function Home() {
     const [courseData, setCourseData] = useState([]);
     const { push } = useRouter();
@@ -31,7 +31,6 @@ export default function Home() {
     useEffect(() => {
         (async () => {
             try {
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 const { data, error } = await supabase.from("v_courses_with_instructors").select();
                 if (error) throw error;
                 setCourseData(data);
