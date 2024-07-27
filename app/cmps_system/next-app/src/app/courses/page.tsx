@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { csv2json, json2csv } from 'json-2-csv';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Button, Modal, Typography, Box, styled } from '@mui/material';
+import { Button, Modal, Typography, Box, styled, Select, MenuItem } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Row } from "react-bootstrap";
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridRowEditStopReasons } from '@mui/x-data-grid';
@@ -67,11 +67,44 @@ export default function Home() {
             <div>
                 {names.map((name, index) => (
                     <React.Fragment key={ids[index]}>
-                        <a href={`/instructors/instructor_info?id=${ids[index]}`}>{name}</a>
+                        <a href={`/instructors/instructor_info?id={ids[index]}`}>{name}</a>
                         {index < names.length - 1 && <span>, </span>}
                     </React.Fragment>
                 ))}
             </div>
+        );
+    };
+
+    const renderSessionSelector = (params) => {
+        return (
+            <Select
+                value={params.value || ''}
+                onChange={(event) => {
+                    const row = params.row;
+                    row.session = event.target.value;
+                    params.api.setEditCellValue({ id: row.id, field: 'session', value: row.session });
+                }}
+            >
+                <MenuItem value="Winter">Winter</MenuItem>
+                <MenuItem value="Summer">Summer</MenuItem>
+            </Select>
+        );
+    };
+
+    const renderTermSelector = (params) => {
+        return (
+            <Select
+                value={params.value || ''}
+                onChange={(event) => {
+                    const row = params.row;
+                    row.term = event.target.value;
+                    params.api.setEditCellValue({ id: row.id, field: 'term', value: row.term });
+                }}
+            >
+                <MenuItem value="Term 1">Term 1</MenuItem>
+                <MenuItem value="Term 2">Term 2</MenuItem>
+                <MenuItem value="Term 1-2">Term 1-2</MenuItem>
+            </Select>
         );
     };
 
@@ -87,13 +120,24 @@ export default function Home() {
         },
         { field: 'course_title', headerName: 'Course Title', flex: 2, editable: true },
         { field: 'academic_year', headerName: 'Academic Year', flex: 1, editable: true },
-        { field: 'session', headerName: 'Session', flex: 1, editable: true },
-        { field: 'term', headerName: 'Term', flex: 1, editable: true },
+        {
+            field: 'session',
+            headerName: 'Session',
+            flex: 1,
+            editable: true,
+            renderEditCell: renderSessionSelector
+        },
+        {
+            field: 'term',
+            headerName: 'Term',
+            flex: 1,
+            editable: true,
+            renderEditCell: renderTermSelector
+        },
         {
             field: 'instructor_names',
             headerName: 'Instructors',
             flex: 2,
-            editable: true,
             renderCell: renderInstructorNames
         },
         { field: 'num_students', headerName: 'Students', flex: 1, editable: true },
@@ -108,7 +152,7 @@ export default function Home() {
 
     const handleDeleteClick = (id) => async () => {
         setCourseData(courseData.filter((row) => row.id !== id));
-        if (confirm("Are you sure you want to delete this row? It will delete all related evaluation and course assign. This action is not recoverable!")) {
+        if (confirm("Are you sure you want to delete this course? It will delete all related evaluations and teaching assignments. This action is not recoverable!")) {
             const response = await supabase
                 .from('course')
                 .delete()
