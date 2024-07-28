@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataGrid } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
-import Container from 'react-bootstrap/Container';
+import Container from '@mui/material/Container'; // Use material Container for better styling
 import { createClient } from '@supabase/supabase-js';
+import Navbar from '@/app/components/NavBar';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
@@ -20,7 +21,17 @@ export default function EventsPage() {
             if (error) {
                 console.error('Error fetching events:', error);
             } else {
-                setEvents(data);
+                const formattedData = data.map(event => ({
+                    ...event,
+                    event_datetime: new Date(event.event_datetime).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                }));
+                setEvents(formattedData);
             }
         }
         fetchEvents();
@@ -29,32 +40,25 @@ export default function EventsPage() {
     const columns = [
         { field: 'description', headerName: 'Description', width: 300 },
         { field: 'location', headerName: 'Location', width: 200 },
-        { 
-            field: 'event_datetime', 
-            headerName: 'Time and Date', 
-            width: 200, 
-            type: 'dateTime',
-            valueGetter: (params) => {
-                // Check if the event_datetime field is present and valid
-                const datetime = params.row?.event_datetime;
-                return datetime ? new Date(datetime) : null;
-            }
-        },
+        { field: 'event_datetime', headerName: 'Time and Date', width: 200 },
         { field: 'duration', headerName: 'Duration', width: 150 },
         { field: 'is_meeting', headerName: 'Is Meeting?', width: 150, type: 'boolean' },
     ];
 
     return (
         <main>
-            <Container>
+            <Navbar />
+            <Container maxWidth={false} style={{ padding: '20px' }}>
                 <h1>Events</h1>
-                <DataGrid 
-                    rows={events} 
-                    columns={columns} 
-                    pageSize={10} 
-                    autoHeight
-                    getRowId={(row) => row.event_id} // Specify event_id as the unique identifier
-                />
+                <div style={{ height: 600, width: '100%' }}>
+                    <DataGrid
+                        rows={events}
+                        columns={columns}
+                        pageSize={10}
+                        autoHeight
+                        getRowId={(row) => row.event_id} // Specify event_id as the unique identifier
+                    />
+                </div>
                 {(userRole === 'Staff' || userRole === 'Head') && (
                     <Button 
                         onClick={() => push('/time_tracking/events/create_new_event')}
