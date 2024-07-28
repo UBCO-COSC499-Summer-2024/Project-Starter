@@ -31,8 +31,7 @@ ChartJS.register(
     Legend
 );
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-const parseData = function (x) {
+import supabase from "@/app/components/supabaseClient";const parseData = function (x) {
 
     return {
         labels: x.map(entry => entry.month),

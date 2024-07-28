@@ -32,8 +32,7 @@ ChartJS.register(
     Legend
 );
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-
+import supabase from "@/app/components/supabaseClient";
 
 export default function Home() {
     const [instructors, setInstructors] = useState([])
@@ -290,11 +289,8 @@ export default function Home() {
                             }}
 
                             onRowEditStop={(params, event) => {
-
                                 if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-
                                     event.defaultMuiPrevented = true;
-
                                 }
 
                             }}

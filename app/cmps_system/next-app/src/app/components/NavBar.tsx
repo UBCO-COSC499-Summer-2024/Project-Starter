@@ -2,12 +2,24 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './NavBar.module.css';
-import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
-
+import supabase from "@/app/components/supabaseClient";
+import getUserType from "@/app/components/getUserType";
 const NavBar = () => {
+    const [isInstructor, setIsInstructor] = useState(true);
+
+    useEffect(()=>{
+            (async () => {
+        const usertype = await getUserType()
+        if (usertype === 'instructor') {
+            setIsInstructor(true)
+        }
+        else {
+            setIsInstructor(false)
+        }
+    })()
+    },[])
     const [userName, setUserName] = useState('Username');
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
     useEffect(() => {
         (async function () {
@@ -67,11 +79,11 @@ const NavBar = () => {
                         TIME TRACKING
                     </Link>
                 </li>
-                <li className={styles.navbarButton}>
+               {!isInstructor && <li className={styles.navbarButton}>
                     <Link href="/tools" className={styles.navbarButtonText}>
                         TOOLS
                     </Link>
-                </li>
+                </li>}
             </ul>
         </nav>
     );

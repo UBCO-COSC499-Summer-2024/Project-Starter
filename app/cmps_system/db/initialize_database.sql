@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
         "num_students" INTEGER NULL DEFAULT 0,
         "num_tas" INTEGER NULL DEFAULT 0,
-        "average_grade" DECIMAL(5, 3) NULL,
+        "average_grade" DECIMAL(5, 2) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
         "registration_status" VARCHAR(255) NULL,
@@ -64,6 +64,16 @@ CREATE TABLE IF NOT EXISTS
 
 ALTER TABLE "course"
 ADD PRIMARY KEY ("course_id");
+
+ALTER TABLE "course"
+ADD CONSTRAINT "course_unique" UNIQUE (
+    "academic_year",
+    "session",
+    "term",
+    "subject_code",
+    "course_num",
+    "section_num"
+);
 
 CREATE TABLE IF NOT EXISTS
     "course_assign" (
@@ -352,6 +362,7 @@ SELECT
     academic_year,
     term,
     course_num,
+    course_title,
     num_students,
     subject_code,
     section_num,
@@ -459,6 +470,8 @@ SELECT
 from
     service_hours_benchmark
     JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
+    
+CREATE OR REPLACE VIEW list_of_course_sections AS SELECT CONCAT(subject_code, ' ', course_num, ' ', section_num) FROM course;
 
 CREATE OR REPLACE VIEW
     v_evaluations_page AS
@@ -466,7 +479,7 @@ SELECT
     evaluation_entry_id as id,
     evaluation_type_name as evaluation_type,
     CASE
-        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name)
         ELSE ''
     END AS instructor,
     CASE

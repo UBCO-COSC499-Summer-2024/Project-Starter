@@ -19,8 +19,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Checkbox from '@mui/material/Checkbox';
 import { createClient } from '@supabase/supabase-js';
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-
+import supabase from "@/app/components/supabaseClient";
 const EvaluationTypeInfo = () => {
     const searchParams = useSearchParams();
     const router = useRouter();

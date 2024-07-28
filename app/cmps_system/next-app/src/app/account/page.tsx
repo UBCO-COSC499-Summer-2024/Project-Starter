@@ -9,8 +9,7 @@ import Navbar from '@/app/components/NavBar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-
+import supabase from "@/app/components/supabaseClient";
 const Account = () => {
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -113,7 +112,7 @@ const Account = () => {
 
   return (
     <main>
-      <Navbar />
+      <Navbar /> 
       <Container>
         <Card className="mt-5">
           <Card.Body>
@@ -130,13 +129,13 @@ const Account = () => {
                     onChange={handleInputChange}
                   />
                 </Form.Group>
-                <Button variant="primary" type="submit" className="mt-3">
+                <Button variant="primary" type="submit" className="tw-m-1">
                   Save
                 </Button>
-                <Button variant="secondary" type="button" className="mt-3 ml-3" onClick={() => setFormData({ displayName })}>
+                <Button variant="secondary" type="button" className="tw-m-1" onClick={() => setFormData({ displayName })}>
                   Cancel
                 </Button>
-                <Button variant="danger" type="button" className="mt-3 ml-3" onClick={handleLogout}>
+                <Button variant="danger" type="button" className="tw-m-1" onClick={handleLogout}>
                   Logout
                 </Button>
               </Form>
