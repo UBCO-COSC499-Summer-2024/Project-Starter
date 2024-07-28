@@ -17,8 +17,7 @@ import {
 import { useState, useEffect } from "react";
 import { DataGrid } from '@mui/x-data-grid';
 import React from "react";
-import { createClient } from '@supabase/supabase-js'
-
+import supabase from "@/app/components/supabaseClient";
 
 ChartJS.register(
     CategoryScale,
@@ -29,7 +28,6 @@ ChartJS.register(
     Legend
 );
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function Home() {
     const tableColumns = [

@@ -4,10 +4,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { createClient } from '@supabase/supabase-js';
 import { useRef, useState } from "react"; 
 import { useRouter } from 'next/navigation';
+import supabase from "@/app/components/supabaseClient";
 
 export default function Home() {
     const router = useRouter();
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
     const email_input = useRef(null);
     const password_input = useRef(null);
     const [errorMessage, setErrorMessage] = useState('');
