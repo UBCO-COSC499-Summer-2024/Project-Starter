@@ -110,6 +110,7 @@ export default function Home() {
     };
 
     const tableColumns = [
+        { field: 'id', headerName: 'ID', width: 50, editable: false },
         { field: 'subject_code', headerName: 'Subject', flex: 1, editable: true },
         { field: 'course_num', headerName: 'Course No.', flex: 1, editable: true },
         {
