@@ -65,6 +65,16 @@ CREATE TABLE IF NOT EXISTS
 ALTER TABLE "course"
 ADD PRIMARY KEY ("course_id");
 
+ALTER TABLE "course"
+ADD CONSTRAINT "course_unique" UNIQUE (
+    "academic_year",
+    "session",
+    "term",
+    "subject_code",
+    "course_num",
+    "section_num"
+);
+
 CREATE TABLE IF NOT EXISTS
     "course_assign" (
         "assignment_id" SERIAL NOT NULL,

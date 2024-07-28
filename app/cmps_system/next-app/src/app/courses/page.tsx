@@ -360,6 +360,7 @@ export default function Home() {
 
             // Upsert new and updated rows
             for (const newRow of newJsonData) {
+                newRow.course_id = newRow.course_id ? newRow.course_id : undefined
                 const { error: upsertError } = await supabase.from("course").upsert(newRow);
                 if (upsertError) {
                     alert(`Error on row ${newRow.course_id}: ${upsertError.message}`);
@@ -476,6 +477,9 @@ export default function Home() {
                 }}>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         Batch Editing
+                    </Typography>
+                    <Typography id="modal-modal-title" variant="h8" component="h2">
+                        You can leave 'course_id' empty and it will be auto-generated.
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <TextField
