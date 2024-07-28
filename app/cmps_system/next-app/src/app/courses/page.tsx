@@ -203,6 +203,11 @@ export default function Home() {
     }
 
     const handleEditClick = () => {
+        if (selectedRows.length === 0) {
+            alert("Please select a row first.");
+            return;
+        }
+
         const newModel = {};
         selectedRows.forEach(id => {
             newModel[id] = { mode: GridRowModes.Edit };
@@ -210,6 +215,63 @@ export default function Home() {
         setRowModesModel(newModel);
         setIsEditing(true);
     };
+
+    const handleProcessRowUpdate = async (newRow) => {
+        const oldRow = courseData.find((row) => row.id === newRow.id);
+        if (!oldRow) return oldRow;
+
+        if (newRow.location.split(" ").length !== 2) {
+            alert("Location should be in format of 'building room_num'");
+            setRowModesModel((oldModel) => ({
+                ...oldModel,
+                [newRow.id]: { mode: GridRowModes.View, ignoreModifications: true },
+            }));
+            return oldRow;
+        }
+
+        const { error } = await supabase.from("course").update({
+            course_id: newRow.id,
+            course_title: newRow.course_title,
+            building: newRow.location.split(" ")[0],
+            room_num: newRow.location.split(" ")[1],
+            num_students: newRow.num_students,
+            num_tas: newRow.num_tas,
+            term: newRow.term,
+            academic_year: newRow.academic_year,
+            subject_code: newRow.subject_code,
+            course_num: newRow.course_num,
+            section_num: newRow.section_num,
+            average_grade: newRow.average_grade,
+            year_level: newRow.year_level,
+            session: newRow.session
+        }).eq("course_id", newRow.id);
+
+        if (error) {
+            alert(`Error On Row ${newRow.id}: ${error.message}`);
+            return oldRow;
+        }
+
+        return newRow;
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter' && isEditing) {
+            event.preventDefault();
+            handleSaveClick();
+        }
+    };
+
+    useEffect(() => {
+        if (isEditing) {
+            window.addEventListener('keydown', handleKeyDown);
+        } else {
+            window.removeEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isEditing]);
 
     const EditToolbar = useCallback((props) => {
         const { setCourseData, setRowModesModel } = props;
@@ -345,39 +407,7 @@ export default function Home() {
                             onRowSelectionModelChange={(newSelection) => {
                                 setSelectedRows(newSelection);
                             }}
-                            processRowUpdate={async (newRow) => {
-                                const oldRow = courseData.filter((row) => row.id === newRow.id)[0]
-
-                                if (newRow.location.split(" ").length != 2) {
-                                    alert("Location should be in format of 'building room_num'")
-                                    setRowModesModel({
-                                        ...rowModesModel,
-                                        [newRow.id]: { mode: GridRowModes.View, ignoreModifications: true },
-                                    });
-                                    return oldRow;
-                                }
-                                const { error } = await supabase.from("course").update({
-                                    course_id: newRow.id,
-                                    course_title: newRow.course_title,
-                                    building: newRow.location.split(" ")[0],
-                                    room_num: newRow.location.split(" ")[1],
-                                    num_students: newRow.num_students,
-                                    num_tas: newRow.num_tas,
-                                    term: newRow.term,
-                                    academic_year: newRow.academic_year,
-                                    subject_code: newRow.subject_code,
-                                    course_num: newRow.course_num,
-                                    section_num: newRow.section_num,
-                                    average_grade: newRow.average_grade,
-                                    year_level: newRow.year_level,
-                                    session: newRow.session
-                                }).eq("course_id", newRow.id);
-                                if (error) {
-                                    alert(`Error On Row ${newRow.id}: ${error.message}`);
-                                    return oldRow;
-                                }
-                                return newRow;
-                            }}
+                            processRowUpdate={handleProcessRowUpdate}
                             onProcessRowUpdateError={(error) => {
                                 console.error("Row update error:", error);
                             }}
