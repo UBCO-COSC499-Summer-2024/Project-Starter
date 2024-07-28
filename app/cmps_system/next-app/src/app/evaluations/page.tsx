@@ -279,6 +279,18 @@ export default function Evaluations() {
                                 }
                             }))}
                             pageSizeOptions={[10000]}
+                            initialState={{
+                                sorting: {
+                                    sortModel: [
+                                        { field: 'evaluation_date', sort: 'desc' },
+                                        { field: 'evaluation_type', sort: 'asc' },
+                                        { field: 'instructor_full_name', sort: 'asc' },
+                                        { field: 'course', sort: 'asc' },
+                                        { field: 'service_role', sort: 'asc' },
+                                        { field: 'question_num', sort: 'asc' },
+                                    ],
+                                },
+                            }}
                             slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
                             rowModesModel={rowModesModel}
                             slotProps={{
