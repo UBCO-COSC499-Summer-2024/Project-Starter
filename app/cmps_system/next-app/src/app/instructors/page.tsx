@@ -163,6 +163,15 @@ const Instructor = () => {
     return updatedRow;
   };
 
+  const handleSaveClick = () => {
+    selectedRows.forEach((id) => {
+      setRowModesModel((prev) => ({
+        ...prev,
+        [id]: { mode: GridRowModes.View }
+      }));
+    });
+  };
+
   const { push } = useRouter();
   const EditToolbar = useCallback((props) => {
     console.log(props);
@@ -170,15 +179,6 @@ const Instructor = () => {
 
     const handleClick = () => {
       push("/instructors/create_new_instructor");
-    };
-
-    const handleSaveClick = () => {
-      selectedRows.forEach((id) => {
-        setRowModesModel((prev) => ({
-          ...prev,
-          [id]: { mode: GridRowModes.View }
-        }));
-      });
     };
 
     const handleDeleteClick = () => async () => {
@@ -291,6 +291,12 @@ const Instructor = () => {
           onRowSelectionModelChange={(newSelection) => {
             setSelectedRows(newSelection);
           }}
+          onCellKeyDown={(params, event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              handleSaveClick();
+            }
+          }}
         />
       </div>
     );
@@ -325,20 +331,20 @@ const Instructor = () => {
               if (!confirm("Are you sure to submit? This will rewrite all records in the database with the imported CSV and this cannot be undone!"))
                 return;
               const csvText = csv.current.value;
-              const json_time_data = csv2json(csvText);
-              setInstructors(json_time_data);
-
-              const newJSON = csv2json(csvText);
+              const newJSON = await csv2json(csvText);
               const oldJSON = instructors;
               var snapshot = JSON.parse(JSON.stringify(oldJSON));
               for (const newRow of newJSON) {
                 try {
-                  if (newRow.name.split(", ").length != 2) {
+                  const nameParts = newRow.name.split(',').map((part) => part.trim());
+                  if (nameParts.length != 2) {
                     alert("Please follow the name format: Last Name, First Name on row " + newRow.id);
                     return;
                   }
-                }
-                catch (error) {
+
+                  newRow.first_name = nameParts[1];
+                  newRow.last_name = nameParts[0];
+                } catch (error) {
                   alert("Please follow the name format: Last Name, First Name on row " + newRow.id);
                   return;
                 }
@@ -352,8 +358,8 @@ const Instructor = () => {
                     .from("instructor")
                     .insert({
                       instructor_id: newRow.id ? newRow.id : undefined,
-                      first_name: newRow.name.split(", ")[1],
-                      last_name: newRow.name.split(", ")[0],
+                      first_name: newRow.first_name,
+                      last_name: newRow.last_name,
                       ubc_employee_num: newRow.ubc_employee_num,
                       title: newRow.title,
                       hire_date: newRow.hire_date
@@ -362,8 +368,7 @@ const Instructor = () => {
                     alert("Error on row " + newRow.id + ": " + error.message);
                     return;
                   }
-                }
-                else if (snapshot.map(row => row.id).includes(newRow.id)) {
+                } else if (snapshot.map(row => row.id).includes(newRow.id)) {
                   // check for update
                   console.log("update");
                   snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow;
@@ -371,8 +376,8 @@ const Instructor = () => {
                   const error = (await supabase
                     .from("instructor")
                     .update({
-                      first_name: newRow.name.split(", ")[1],
-                      last_name: newRow.name.split(", ")[0],
+                      first_name: newRow.first_name,
+                      last_name: newRow.last_name,
                       ubc_employee_num: newRow.ubc_employee_num,
                       title: newRow.title,
                       hire_date: newRow.hire_date
