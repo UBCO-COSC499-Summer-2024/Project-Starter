@@ -28,7 +28,6 @@ ChartJS.register(
     Legend
 );
 
-
 export default function Home() {
     const tableColumns = [
         {
@@ -37,14 +36,14 @@ export default function Home() {
             width: 200,
             editable: false,
             renderCell: (params) => (
-                <Link href={`/service_roles/service_role_info?title=${params.row.title}&description=${params.row.description}&default_expected_hours=${params.row.default_expected_hours}&building=${params.row.building}&room_num=${params.row.room_num}`} legacyBehavior>
+                <Link href={`/service_roles/service_role_info?id=${params.row.id}`}>
                     {params.value}
                 </Link>
             )
         },
-        { field: 'description', headerName: 'Description', width: 300, editable: true },
-        { field: 'default_expected_hours', headerName: 'Default Monthly Hours', width: 200, editable: true },
-        { field: 'assignees', headerName: 'Number of Assignees', width: 200, editable: true }
+        { field: 'description', headerName: 'Description', width: 300, editable: false },
+        { field: 'default_expected_hours', headerName: 'Default Monthly Hours', width: 200, editable: false },
+        { field: 'assignees', headerName: 'Number of Assignees', width: 200, editable: false } // Ensure this is not editable
     ];
 
     const [serviceRoles, setServiceRoles] = useState([]);
@@ -63,7 +62,7 @@ export default function Home() {
                         default_expected_hours,
                         building,
                         room_num,
-                        service_role_assign (instructor_id)
+                        service_role_assign (service_role_id)
                     `);
                 if (error) throw error;
 
@@ -100,10 +99,10 @@ export default function Home() {
                 <Row className="h-32">
                     <div className="tw-p-3">
                         <DataGrid
-                            editMode="row"
                             rows={serviceRoles}
                             columns={tableColumns}
                             pageSizeOptions={[10000]}
+                            getRowId={(row) => row.id} // Ensure each row has a unique ID
                         />
                     </div>
                 </Row>
@@ -122,6 +121,6 @@ export default function Home() {
                 </Link>
             </span>
             {renderTable()}
-        </main >
+        </main>
     );
 }

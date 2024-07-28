@@ -2,22 +2,18 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Container from 'react-bootstrap/Container';
 import Navbar from '@/app/components/NavBar';
-import { DataGrid, GridRowModes, GridSlots, GridToolbarContainer } from '@mui/x-data-grid';
+import { DataGrid, GridRowModes, GridSlots, GridToolbarContainer, GridRowEditStopReasons } from '@mui/x-data-grid';
 import Link from 'next/link';
-import Image from 'next/image';
-// import { supabase } from '../supabaseClient';
-import './style.css';
-import { createClient } from '@supabase/supabase-js'
 import { csv2json, json2csv } from 'json-2-csv';
 import { Box, Button, Modal, styled, Typography } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
-
 import { useRouter } from 'next/navigation';
-import supabase from "@/app/components/supabaseClient";const Instructor = () => {
+import supabase from "@/app/components/supabaseClient";
+
+const Instructor = () => {
   const tableColumns = [
-    { field: 'id', headerName: 'Employee ID', width: 20, editable: false },
+    { field: 'id', headerName: 'ID', width: 20, editable: false },
     {
       field: 'name',
       headerName: 'Instructors',
@@ -41,10 +37,11 @@ import supabase from "@/app/components/supabaseClient";const Instructor = () => 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rowModesModel, setRowModesModel] = useState({});
-  const [defaultCSV, setDefaultCSV] = useState("")
-  const [id, setId] = useState(0)
-  const [csvShow, setCsvShow] = useState(false)
+  const [defaultCSV, setDefaultCSV] = useState("");
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [csvShow, setCsvShow] = useState(false);
   const handleCSVClose = () => setCsvShow(false);
+
   const blue = {
     100: '#DAECFF',
     200: '#b6daff',
@@ -52,9 +49,9 @@ import supabase from "@/app/components/supabaseClient";const Instructor = () => 
     500: '#007FFF',
     600: '#0072E5',
     900: '#003A75',
-};
+  };
 
-const grey = {
+  const grey = {
     50: '#F3F6F9',
     100: '#E5EAF2',
     200: '#DAE2ED',
@@ -65,9 +62,9 @@ const grey = {
     700: '#434D5B',
     800: '#303740',
     900: '#1C2025',
-};
+  };
 
-const TextareaAutosize = styled(BaseTextareaAutosize)(
+  const TextareaAutosize = styled(BaseTextareaAutosize)(
     ({ theme }) => `
     box-sizing: border-box;
     width: 100%;
@@ -96,10 +93,9 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
       outline: 0;
     }
   `,
-);
+  );
 
   const csv = useRef(null);
-
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -125,13 +121,30 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
 
   const handleProcessRowUpdate = async (newRow) => {
     const updatedRow = { ...newRow };
-    const nameParts = newRow.name.split(' ');
-
+    const nameParts = newRow.name.split(',').map((part) => part.trim());
+    try {
+      if (nameParts.length != 2) {
+        alert("Please follow the name format: Last Name, First Name.");
+        setRowModesModel({
+          ...rowModesModel,
+          [newRow.id]: { mode: GridRowModes.View, ignoreModifications: true },
+        });
+        return;
+      }
+    }
+    catch (error) {
+      alert("Please follow the name format: Last Name, First Name!");
+      setRowModesModel({
+        ...rowModesModel,
+        [newRow.id]: { mode: GridRowModes.View, ignoreModifications: true },
+      });
+      return;
+    }
     const { error } = await supabase
       .from('instructor')
       .update({
-        first_name: nameParts[0],
-        last_name: nameParts[1],
+        first_name: nameParts[1],
+        last_name: nameParts[0],
         ubc_employee_num: newRow.ubc_employee_num,
         title: newRow.title,
         hire_date: newRow.hire_date,
@@ -148,93 +161,104 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
     return updatedRow;
   };
 
+  const handleSaveClick = () => {
+    selectedRows.forEach((id) => {
+      setRowModesModel((prev) => ({
+        ...prev,
+        [id]: { mode: GridRowModes.View }
+      }));
+    });
+  };
+
   const { push } = useRouter();
   const EditToolbar = useCallback((props) => {
-    console.log(props)
-    const { setInstructors, setRowModesModel, id } = props;
+    const { setInstructors, setRowModesModel, selectedRows } = props;
 
     const handleClick = () => {
-      push("/instructors/create_new_instructor")
+      push("/instructors/create_new_instructor");
     };
 
-    const handleSaveClick = (id) => () => {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-    };
-
-    const handleDeleteClick = (id) => async () => {
-      setInstructors(instructors.filter((row) => row.id !== id));
-      if (confirm("Are you sure you want to delete this row? This action is not recoverable!")) {
-        const response = await supabase
+    const handleDeleteClick = async () => {
+      if (confirm("Are you sure you want to delete these instructors? All evaluations, course assignments, and service role assignments involving this instructor will be deleted as well. This action is not recoverable!")) {
+        const { error } = await supabase
           .from('instructor')
           .delete()
-          .eq("instructor_id", id)
-      }
-    };
-
-    const handleCancelClick = (id) => () => {
-      setRowModesModel({
-        ...rowModesModel,
-        [id]: { mode: GridRowModes.View, ignoreModifications: true },
-      });
-    }
-    const handleEditClick = (id) => () => {
-      try {
-        if (!instructors.map(row => row.id).includes(id)) {
-          alert("Please select a valid row.")
-          return
+          .in("instructor_id", selectedRows);
+        if (error) {
+          console.error('Error deleting instructors:', error);
+          setError(error.message);
+          return;
         }
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-      }
-      catch {
-
+        setInstructors(instructors.filter((row) => !selectedRows.includes(row.id)));
       }
     };
 
-    const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-    var buttons = (<>
-      <Button
-        className="textPrimary"
-        onClick={handleEditClick(id)}
-        color="inherit"
-      >✏️Edit</Button>
-      <Button
-        onClick={handleDeleteClick(id)}
-        color="inherit"
-      >🗑️ Delete</Button></>)
+    const handleCancelClick = () => {
+      setRowModesModel((prev) => {
+        const newModel = { ...prev };
+        selectedRows.forEach((id) => {
+          newModel[id] = { mode: GridRowModes.View, ignoreModifications: true };
+        });
+        return newModel;
+      });
+    };
 
-    if (isInEditMode) {
-      buttons = (<>
-        <Button
-          onClick={handleSaveClick(id)}>
-          💾 Save
-        </Button>
+    const handleEditClick = () => {
+      setRowModesModel((prev) => {
+        const newModel = { ...prev };
+        selectedRows.forEach((id) => {
+          newModel[id] = { mode: GridRowModes.Edit };
+        });
+        return newModel;
+      });
+    };
+
+    const isInEditMode = selectedRows.some((id) => rowModesModel[id]?.mode === GridRowModes.Edit);
+    var buttons = (
+      <>
         <Button
           className="textPrimary"
-          onClick={handleCancelClick(id)}
-          color="inherit">❌ Cancel</Button>
-      </>)
+          onClick={handleEditClick}
+          color="inherit"
+        >✏️Edit</Button>
+        <Button
+          onClick={handleDeleteClick}
+          color="inherit"
+        >🗑️ Delete</Button>
+      </>
+    );
 
+    if (isInEditMode) {
+      buttons = (
+        <>
+          <Button
+            onClick={handleSaveClick}>
+            💾 Save
+          </Button>
+          <Button
+            className="textPrimary"
+            onClick={handleCancelClick}
+            color="inherit">❌ Cancel</Button>
+        </>
+      );
     }
-
 
     return (
       <GridToolbarContainer>
-        <Button onClick={() => { handleClick() }}>
+        <Button onClick={handleClick}>
           ➕ Add record
         </Button>
 
         <Button onClick={useCallback(() => {
-          // csv.current.value=(json2csv(instructors))
-          console.log(instructors)
-          setDefaultCSV(json2csv(instructors))
-          setCsvShow(true)
+          setDefaultCSV(json2csv(instructors));
+          setCsvShow(true);
         }, [instructors])}>
           📝 Edit As CSV
         </Button>
         {buttons}
       </GridToolbarContainer>
-    )
-  }, [rowModesModel, instructors]);
+    );
+  }, [rowModesModel, instructors, selectedRows]);
 
   const renderTable = () => {
     if (loading) {
@@ -244,150 +268,140 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
       return <p>Error fetching instructors: {error}</p>;
     }
     return (
-      <Container>
-        <div className="tw-p-3">
-          <DataGrid
-            editMode="row"
-            rows={instructors}
-            columns={tableColumns}
-            processRowUpdate={handleProcessRowUpdate}
-            pageSizeOptions={[10000]}
-            slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
-            rowModesModel={rowModesModel}
-            slotProps={{
-              toolbar: { setInstructors, setRowModesModel, id },
-            }}
-            checkboxSelection={true}
-            disableMultipleRowSelection={true}
-            onRowSelectionModelChange={(newSelection) => {
-              console.log(newSelection[0])
-              setId(newSelection[0])
-            }}
-          />
-        </div>
-      </Container>
+      <div style={{ padding: '16px', width: '100%' }}>
+        <DataGrid
+          onRowEditStop={(params, event) => {
+            if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+              event.defaultMuiPrevented = true;
+            }
+          }}
+          onProcessRowUpdateError={(event) => {
+            console.error(event);
+          }}
+          editMode="row"
+          rows={instructors}
+          columns={tableColumns}
+          processRowUpdate={handleProcessRowUpdate}
+          pageSizeOptions={[10000]}
+          slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
+          rowModesModel={rowModesModel}
+          slotProps={{
+            toolbar: { setInstructors, setRowModesModel, selectedRows },
+          }}
+          checkboxSelection={true}
+          onRowSelectionModelChange={(newSelection) => {
+            setSelectedRows(newSelection);
+          }}
+          onCellKeyDown={(params, event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              handleSaveClick();
+            }
+          }}
+        />
+      </div>
     );
   };
 
   return (
-    <Container fluid className="banner">
+    <main>
       <Navbar />
-      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{ marginRight: '10px' }}>Instructors</h1>
-        {/* <Link href="/instructors/create_new_instructor" style={{ display: 'flex', alignItems: 'center', margin: '0 3em', fontSize: '1.5em' }}>
-          <Image src="/plus.svg" alt="Add new instructor plus icon" width={20} height={20} style={{ margin: '20px' }} />
-          Create new instructor
-        </Link> */}
-      </span>
-      {renderTable()}
+      <h1 style={{ marginRight: "10px" }}>Instructors</h1>
+      <div className="banner" style={{ width: '100%' }}>
+        {renderTable()}
 
-      <Modal open={csvShow} onClose={handleCSVClose}>
-        <Box sx={{
-          position: 'absolute' as 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: "80%",
-          bgcolor: 'background.paper',
-          boxShadow: 24,
-          p: 4,
-        }}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Batch Editing
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
-          </Typography>
+        <Modal open={csvShow} onClose={handleCSVClose}>
+          <Box sx={{
+            position: 'absolute' as 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: "80%",
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+          }}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Batch Editing
+            </Typography>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+              <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
+            </Typography>
+            <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
+            <Button className="!tw-m-2" variant="contained" onClick={async () => {
+              if (!confirm("Are you sure to submit? This will rewrite all records in the database with the imported CSV and this cannot be undone!"))
+                return;
+              const csvText = csv.current.value;
+              const newJSON = await csv2json(csvText);
+              const oldJSON = instructors;
+              var snapshot = JSON.parse(JSON.stringify(oldJSON));
+              for (const newRow of newJSON) {
+                try {
+                  const nameParts = newRow.name.split(',').map((part) => part.trim());
+                  if (nameParts.length != 2) {
+                    alert("Please follow the name format: Last Name, First Name on row " + newRow.id);
+                    return;
+                  }
 
-
-
-          <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-          <Button className="!tw-m-2" variant="contained" onClick={async () => {
-            if (!confirm("Are you sure to submit? This will rewrite all records in the database with the imported CSV and this cannot be undo!"))
-              return
-            const csvText = csv.current.value;
-            const json_time_data = csv2json(csvText)
-            setInstructors(json_time_data)
-
-            const newJSON = csv2json(csvText);
-            const oldJSON = instructors;
-            var snapshot = JSON.parse(JSON.stringify(oldJSON))
-            for (const newRow of newJSON) {
-              try{
-                if(newRow.name.split(", ").length!=2)
-                {
-                  alert("Please follow the name format: Last Name, First Name on row "+newRow.id)
-                  return
+                  newRow.first_name = nameParts[1];
+                  newRow.last_name = nameParts[0];
+                } catch (error) {
+                  alert("Please follow the name format: Last Name, First Name on row " + newRow.id);
+                  return;
                 }
-              }
-              catch (error){
-                alert("Please follow the name format: Last Name, First Name on row "+newRow.id)
-                return
-              }
-          
 
                 if (!snapshot.map(row => row.id).includes(newRow.id)) {
-                    // check for create
-                    console.log("create")
-                    snapshot.push(newRow)
-                    // do coresponding database operation
-                    const error = (await supabase
-                        .from("instructor")
-                        .insert({
-                            instructor_id: newRow.id ? newRow.id : undefined,
-                            first_name: newRow.name.split(", ")[1],
-                            last_name: newRow.name.split(", ")[0],
-                            ubc_employee_num: newRow.ubc_employee_num,
-                            title: newRow.title,
-                            hire_date: newRow.hire_date
-                        })).error
-                    if (error) {
-                        alert("Error on row " + newRow.id + ": " + error.message)
-                        return
-                    }
-
-                }
-                else if (snapshot.map(row => row.id).includes(newRow.id)) {
-                    // check for update
-                    console.log("update")
-                    snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow
-                    // do coresponding database operation 
-                    const error = (await supabase
+                  snapshot.push(newRow);
+                  // do corresponding database operation
+                  const error = (await supabase
+                    .from("instructor")
+                    .insert({
+                      instructor_id: newRow.id ? newRow.id : undefined,
+                      first_name: newRow.first_name,
+                      last_name: newRow.last_name,
+                      ubc_employee_num: newRow.ubc_employee_num,
+                      title: newRow.title,
+                      hire_date: newRow.hire_date
+                    })).error;
+                  if (error) {
+                    alert("Error on row " + newRow.id + ": " + error.message);
+                    return;
+                  }
+                } else if (snapshot.map(row => row.id).includes(newRow.id)) {
+                  snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow;
+                  // do corresponding database operation 
+                  const error = (await supabase
                     .from("instructor")
                     .update({
-                        first_name: newRow.name.split(", ")[1],
-                        last_name: newRow.name.split(", ")[0],
-                        ubc_employee_num: newRow.ubc_employee_num,
-                        title: newRow.title,
-                        hire_date: newRow.hire_date
-                    }).eq("instructor_id", newRow.id)).error
-                    if (error) {
-                        alert("Error on row " + newRow.id + ": " + error.message)
-                        return
-                    }
+                      first_name: newRow.first_name,
+                      last_name: newRow.last_name,
+                      ubc_employee_num: newRow.ubc_employee_num,
+                      title: newRow.title,
+                      hire_date: newRow.hire_date
+                    }).eq("instructor_id", newRow.id)).error;
+                  if (error) {
+                    alert("Error on row " + newRow.id + ": " + error.message);
+                    return;
+                  }
                 }
-            }
-            for (const oldRow of oldJSON) {
+              }
+              for (const oldRow of oldJSON) {
                 if (!newJSON.map(row => row.id).includes(oldRow.id)) {
-                    console.log("delete")
-                    // check for delete
-                    snapshot.splice(snapshot.map(row => row.id).indexOf(oldRow.id), 1)
-                    // do coresponding database operation 
-                    console.log((await supabase
-                        .from("instructor")
-                        .delete().eq("instructor_id", oldRow.id)).error)
+                  // check for delete
+                  snapshot.splice(snapshot.map(row => row.id).indexOf(oldRow.id), 1);
+                  // do corresponding database operation 
+                  await supabase.from("instructor").delete().eq("instructor_id", oldRow.id);
                 }
-            }
+              }
 
-            setInstructors(snapshot)
-            handleCSVClose()
-          }}
-
-          >Apply</Button>
-        </Box>
-      </Modal>
-
-    </Container >
+              setInstructors(snapshot);
+              handleCSVClose();
+            }}
+            >Apply</Button>
+          </Box>
+        </Modal>
+      </div>
+    </main>
   );
 };
 
