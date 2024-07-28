@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataGrid } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
-import Container from '@mui/material/Container'; // Use material Container for better styling
+import Container from '@mui/material/Container';
 import { createClient } from '@supabase/supabase-js';
 import Navbar from '@/app/components/NavBar';
-
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
+import AddIcon from '@mui/icons-material/Add';
+import Box from '@mui/material/Box';
+import supabase from "@/app/components/supabaseClient";
 
 export default function EventsPage() {
     const [events, setEvents] = useState([]);
@@ -49,26 +50,28 @@ export default function EventsPage() {
         <main>
             <Navbar />
             <Container maxWidth={false} style={{ padding: '20px' }}>
-                <h1>Events</h1>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                    <h1>Events</h1>
+                    {(userRole === 'Staff' || userRole === 'Head') && (
+                        <Button
+                            onClick={() => push('/time_tracking/events/create_new_event')}
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AddIcon />}
+                        >
+                            Create New Event
+                        </Button>
+                    )}
+                </Box>
                 <div style={{ height: 600, width: '100%' }}>
                     <DataGrid
                         rows={events}
                         columns={columns}
                         pageSize={10}
                         autoHeight
-                        getRowId={(row) => row.event_id} // Specify event_id as the unique identifier
+                        getRowId={(row) => row.event_id}
                     />
                 </div>
-                {(userRole === 'Staff' || userRole === 'Head') && (
-                    <Button
-                        onClick={() => push('/time_tracking/events/create_new_event')}
-                        variant="contained"
-                        color="primary"
-                        style={{ marginTop: '20px' }}
-                    >
-                        Create New Event
-                    </Button>
-                )}
             </Container>
         </main>
     );
