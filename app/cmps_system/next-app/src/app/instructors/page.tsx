@@ -140,7 +140,6 @@ const Instructor = () => {
       });
       return;
     }
-    console.log(nameParts);
     const { error } = await supabase
       .from('instructor')
       .update({
@@ -151,7 +150,6 @@ const Instructor = () => {
         hire_date: newRow.hire_date,
       })
       .eq('instructor_id', newRow.id);
-    console.log("error", error);
 
     if (error) {
       console.error('Error updating instructor:', error);
@@ -174,19 +172,23 @@ const Instructor = () => {
 
   const { push } = useRouter();
   const EditToolbar = useCallback((props) => {
-    console.log(props);
     const { setInstructors, setRowModesModel, selectedRows } = props;
 
     const handleClick = () => {
       push("/instructors/create_new_instructor");
     };
 
-    const handleDeleteClick = () => async () => {
-      if (confirm("Are you sure you want to delete these rows? This action is not recoverable!")) {
-        const response = await supabase
+    const handleDeleteClick = async () => {
+      if (confirm("Are you sure you want to delete these instructors? All evaluations, course assignments, and service role assignments involving this instructor will be deleted as well. This action is not recoverable!")) {
+        const { error } = await supabase
           .from('instructor')
           .delete()
           .in("instructor_id", selectedRows);
+        if (error) {
+          console.error('Error deleting instructors:', error);
+          setError(error.message);
+          return;
+        }
         setInstructors(instructors.filter((row) => !selectedRows.includes(row.id)));
       }
     };
@@ -248,7 +250,6 @@ const Instructor = () => {
         </Button>
 
         <Button onClick={useCallback(() => {
-          console.log(instructors);
           setDefaultCSV(json2csv(instructors));
           setCsvShow(true);
         }, [instructors])}>
@@ -350,8 +351,6 @@ const Instructor = () => {
                 }
 
                 if (!snapshot.map(row => row.id).includes(newRow.id)) {
-                  // check for create
-                  console.log("create");
                   snapshot.push(newRow);
                   // do corresponding database operation
                   const error = (await supabase
@@ -369,8 +368,6 @@ const Instructor = () => {
                     return;
                   }
                 } else if (snapshot.map(row => row.id).includes(newRow.id)) {
-                  // check for update
-                  console.log("update");
                   snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow;
                   // do corresponding database operation 
                   const error = (await supabase
@@ -390,13 +387,10 @@ const Instructor = () => {
               }
               for (const oldRow of oldJSON) {
                 if (!newJSON.map(row => row.id).includes(oldRow.id)) {
-                  console.log("delete");
                   // check for delete
                   snapshot.splice(snapshot.map(row => row.id).indexOf(oldRow.id), 1);
                   // do corresponding database operation 
-                  console.log((await supabase
-                    .from("instructor")
-                    .delete().eq("instructor_id", oldRow.id)).error);
+                  await supabase.from("instructor").delete().eq("instructor_id", oldRow.id);
                 }
               }
 
