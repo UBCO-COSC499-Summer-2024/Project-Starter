@@ -75,9 +75,19 @@ export default function Evaluations() {
     };
 
     const handleSelect = (selectedItem) => {
-        const newRow = { ...currentEditRow, [`${modalType}_id`]: selectedItem.id, [`${modalType}_full_name`]: selectedItem.name };
+        let newRow = { ...currentEditRow };
+
+        if (modalType === 'instructor') {
+            newRow = { ...newRow, instructor_id: selectedItem.id, instructor_full_name: selectedItem.name };
+        } else if (modalType === 'course') {
+            newRow = { ...newRow, course_id: selectedItem.id, course: selectedItem.name };
+        } else if (modalType === 'service_role') {
+            newRow = { ...newRow, service_role_id: selectedItem.id, service_role: selectedItem.name };
+        }
+
         const newRows = TimeData.map(row => row.id === currentEditRow.id ? newRow : row);
         setTimeData(newRows);
+        setModalOpen(false);
     };
 
     const tableColumns = [
