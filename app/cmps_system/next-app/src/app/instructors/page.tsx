@@ -5,8 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from '@/app/components/NavBar';
 import { DataGrid, GridRowModes, GridSlots, GridToolbarContainer, GridRowEditStopReasons } from '@mui/x-data-grid';
 import Link from 'next/link';
-import Image from 'next/image';
-import { createClient } from '@supabase/supabase-js';
 import { csv2json, json2csv } from 'json-2-csv';
 import { Box, Button, Modal, styled, Typography } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
@@ -40,7 +38,7 @@ const Instructor = () => {
   const [error, setError] = useState(null);
   const [rowModesModel, setRowModesModel] = useState({});
   const [defaultCSV, setDefaultCSV] = useState("");
-  const [id, setId] = useState(0);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [csvShow, setCsvShow] = useState(false);
   const handleCSVClose = () => setCsvShow(false);
 
@@ -123,7 +121,7 @@ const Instructor = () => {
 
   const handleProcessRowUpdate = async (newRow) => {
     const updatedRow = { ...newRow };
-    const nameParts = newRow.name.split(', ');
+    const nameParts = newRow.name.split(',').map((part) => part.trim());
     try {
       if (nameParts.length != 2) {
         alert("Please follow the name format: Last Name, First Name.");
@@ -168,71 +166,84 @@ const Instructor = () => {
   const { push } = useRouter();
   const EditToolbar = useCallback((props) => {
     console.log(props);
-    const { setInstructors, setRowModesModel, id } = props;
+    const { setInstructors, setRowModesModel, selectedRows } = props;
 
     const handleClick = () => {
       push("/instructors/create_new_instructor");
     };
 
-    const handleSaveClick = (id) => () => {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    const handleSaveClick = () => {
+      selectedRows.forEach((id) => {
+        setRowModesModel((prev) => ({
+          ...prev,
+          [id]: { mode: GridRowModes.View }
+        }));
+      });
     };
 
-    const handleDeleteClick = (id) => async () => {
-      setInstructors(instructors.filter((row) => row.id !== id));
-      if (confirm("Are you sure you want to delete this row? This action is not recoverable!")) {
+    const handleDeleteClick = () => async () => {
+      if (confirm("Are you sure you want to delete these rows? This action is not recoverable!")) {
         const response = await supabase
           .from('instructor')
           .delete()
-          .eq("instructor_id", id);
+          .in("instructor_id", selectedRows);
+        setInstructors(instructors.filter((row) => !selectedRows.includes(row.id)));
       }
     };
 
-    const handleCancelClick = (id) => () => {
-      setRowModesModel({
-        ...rowModesModel,
-        [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    const handleCancelClick = () => {
+      setRowModesModel((prev) => {
+        const newModel = { ...prev };
+        selectedRows.forEach((id) => {
+          newModel[id] = { mode: GridRowModes.View, ignoreModifications: true };
+        });
+        return newModel;
       });
     };
-    const handleEditClick = (id) => () => {
-      try {
-        if (!instructors.map(row => row.id).includes(id)) {
-          alert("Please select a valid row.");
-          return;
-        }
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-      }
-      catch { }
+
+    const handleEditClick = () => {
+      setRowModesModel((prev) => {
+        const newModel = { ...prev };
+        selectedRows.forEach((id) => {
+          newModel[id] = { mode: GridRowModes.Edit };
+        });
+        return newModel;
+      });
     };
 
-    const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-    var buttons = (<>
-      <Button
-        className="textPrimary"
-        onClick={handleEditClick(id)}
-        color="inherit"
-      >✏️Edit</Button>
-      <Button
-        onClick={handleDeleteClick(id)}
-        color="inherit"
-      >🗑️ Delete</Button></>);
-
-    if (isInEditMode) {
-      buttons = (<>
-        <Button
-          onClick={handleSaveClick(id)}>
-          💾 Save
-        </Button>
+    const isInEditMode = selectedRows.some((id) => rowModesModel[id]?.mode === GridRowModes.Edit);
+    var buttons = (
+      <>
         <Button
           className="textPrimary"
-          onClick={handleCancelClick(id)}
-          color="inherit">❌ Cancel</Button>
-      </>);
+          onClick={handleEditClick}
+          color="inherit"
+        >✏️Edit</Button>
+        <Button
+          onClick={handleDeleteClick}
+          color="inherit"
+        >🗑️ Delete</Button>
+      </>
+    );
+
+    if (isInEditMode) {
+      buttons = (
+        <>
+          <Button
+            onClick={handleSaveClick}>
+            💾 Save
+          </Button>
+          <Button
+            className="textPrimary"
+            onClick={handleCancelClick}
+            color="inherit">❌ Cancel</Button>
+        </>
+      );
     }
 
     return (
       <GridToolbarContainer>
-        <Button onClick={() => { handleClick(); }}>
+        <Button onClick={handleClick}>
           ➕ Add record
         </Button>
 
@@ -246,7 +257,7 @@ const Instructor = () => {
         {buttons}
       </GridToolbarContainer>
     );
-  }, [rowModesModel, instructors]);
+  }, [rowModesModel, instructors, selectedRows]);
 
   const renderTable = () => {
     if (loading) {
@@ -274,13 +285,11 @@ const Instructor = () => {
           slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
           rowModesModel={rowModesModel}
           slotProps={{
-            toolbar: { setInstructors, setRowModesModel, id },
+            toolbar: { setInstructors, setRowModesModel, selectedRows },
           }}
           checkboxSelection={true}
-          disableMultipleRowSelection={true}
           onRowSelectionModelChange={(newSelection) => {
-            console.log(newSelection[0]);
-            setId(newSelection[0]);
+            setSelectedRows(newSelection);
           }}
         />
       </div>
