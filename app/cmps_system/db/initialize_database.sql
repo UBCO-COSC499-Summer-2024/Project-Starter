@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
         "num_students" INTEGER NULL DEFAULT 0,
         "num_tas" INTEGER NULL DEFAULT 0,
-        "average_grade" DECIMAL(5, 3) NULL,
+        "average_grade" DECIMAL(5, 2) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
         "registration_status" VARCHAR(255) NULL,
@@ -64,6 +64,16 @@ CREATE TABLE IF NOT EXISTS
 
 ALTER TABLE "course"
 ADD PRIMARY KEY ("course_id");
+
+ALTER TABLE "course"
+ADD CONSTRAINT "course_unique" UNIQUE (
+    "academic_year",
+    "session",
+    "term",
+    "subject_code",
+    "course_num",
+    "section_num"
+);
 
 CREATE TABLE IF NOT EXISTS
     "course_assign" (
@@ -352,6 +362,7 @@ SELECT
     academic_year,
     term,
     course_num,
+    course_title,
     num_students,
     subject_code,
     section_num,
