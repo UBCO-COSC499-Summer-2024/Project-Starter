@@ -19,7 +19,7 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-
+import supabase from "@/app/components/supabaseClient";
 export default function EvaluationTypes() {
     const [evaluationTypeData, setEvaluationTypeData] = useState([]);
     const { push } = useRouter();
@@ -30,7 +30,6 @@ export default function EvaluationTypes() {
     useEffect(() => {
         (async () => {
             try {
-                const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
                 const { data, error } = await supabase.from("v_evaluation_type_info").select();
                 if (error) throw error;
                 setEvaluationTypeData(data);
@@ -59,7 +58,7 @@ export default function EvaluationTypes() {
 
     const processRowUpdate = async (newRow, oldRow) => {
         try {
-            const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
+            // const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
             const { error } = await supabase
                 .from('evaluation_type')
                 .update({

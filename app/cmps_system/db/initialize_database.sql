@@ -304,7 +304,7 @@ ALTER TABLE "evaluation_entry"
 ADD CONSTRAINT "evaluation_entry_metric_num_foreign" FOREIGN KEY ("metric_num", "evaluation_type_id") REFERENCES "evaluation_metric" ("metric_num", "evaluation_type_id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE "evaluation_entry"
-ADD CONSTRAINT "evaluation_entry_course_id_foreign" FOREIGN KEY ("course_id") REFERENCES "course" ("course_id") ON DELETE SET NULL;
+ADD CONSTRAINT "evaluation_entry_course_id_foreign" FOREIGN KEY ("course_id") REFERENCES "course" ("course_id") ON DELETE CASCADE;
 
 ALTER TABLE "service_hours_entry"
 ADD CONSTRAINT "service_hours_entry_instructor_id_foreign" FOREIGN KEY ("instructor_id") REFERENCES "instructor" ("instructor_id") ON DELETE CASCADE;
@@ -349,13 +349,16 @@ CREATE OR REPLACE VIEW
     v_courses_with_instructors AS
 SELECT
     course.course_id as id,
-    subject_code,
-    course_num,
-    section_num,
-    course_title,
     academic_year,
-    session,
     term,
+    course_num,
+    num_students,
+    subject_code,
+    section_num,
+    num_TAs,
+    average_grade,
+    year_level,
+    session,
     COALESCE(
         STRING_AGG(
             CONCAT(
@@ -382,15 +385,12 @@ SELECT
         ),
         ''
     ) as instructor_ids,
-    num_students,
-    num_tas,
-    average_grade,
     CONCAT(building, ' ', room_num) as location
 FROM
     course
     LEFT JOIN course_assign ON course.course_id = course_assign.course_id
     LEFT JOIN instructor ON instructor.instructor_id = course_assign.instructor_id
-GROUP BY
+  GROUP BY
     course.course_id,
     subject_code,
     course_num,
