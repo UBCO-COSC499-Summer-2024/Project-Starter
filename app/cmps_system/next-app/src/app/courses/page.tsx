@@ -277,18 +277,13 @@ export default function Home() {
         const { setCourseData, setRowModesModel } = props;
 
         const handleClick = () => {
-            const newId = courseData.length ? Math.max(...courseData.map(row => row.id)) + 1 : 1;
-            setCourseData((oldRows) => [...oldRows, { id: newId, name: '', year: '', hours: '' }]);
-            setRowModesModel((oldModel) => ({
-                ...oldModel,
-                [newId]: { mode: GridRowModes.Edit, fieldToFocus: 'instructor_name' },
-            }));
+            push('/courses/create_new_course');
         };
 
         return (
             <GridToolbarContainer>
                 <Button onClick={handleClick}>
-                    ➕ Add record
+                    ➕ Create New Course
                 </Button>
 
                 <Button onClick={useCallback(async () => {
