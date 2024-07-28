@@ -4,9 +4,21 @@ import Image from 'next/image';
 import styles from './NavBar.module.css';
 import { useEffect, useState } from 'react';
 import supabase from "@/app/components/supabaseClient";
-
-
+import getUserType from "@/app/components/getUserType";
 const NavBar = () => {
+    const [isInstructor, setIsInstructor] = useState(true);
+
+    useEffect(() => {
+        (async () => {
+            const usertype = await getUserType()
+            if (usertype === 'instructor') {
+                setIsInstructor(true)
+            }
+            else {
+                setIsInstructor(false)
+            }
+        })()
+    }, [])
     const [userName, setUserName] = useState('Username');
 
     useEffect(() => {
@@ -23,8 +35,14 @@ const NavBar = () => {
             }
         })();
     }, [supabase]);
-    const [Page, setPage] = useState('');
-    const tabs = ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "TOOLS"];
+    const [page, setPage] = useState('');
+    useEffect(() => {
+        const currentPath = window.location.pathname;
+        // console.log(currentPath);
+        setPage(currentPath.substring(1).toUpperCase().replace("_", " "));
+    })
+    const tabs = isInstructor ? ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING"]
+        : ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "TOOLS"];
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -37,13 +55,15 @@ const NavBar = () => {
                     <span>{userName}</span>
                 </Link>
             </div>
-            <ul className={styles.navbarButtonsList} style={{fontSize: "small"}}>
-                <li className={styles.navbarButton}>
-                    <Link href="/dashboard" className={styles.navbarButtonText}>
-                        
-                    </Link>
-                </li>
-               
+            <ul className={styles.navbarButtonsList} style={{ fontSize: "small" }}>
+                {tabs.map((tab, index) => (
+                    <li key={index} className={styles.navbarButton}>
+                        <Link href={"/"+tab.toLowerCase().replace(" ","_")} onClick={()=>{setPage(tab)}}className={styles.navbarButtonText}>
+                            {tab==page ? <b style={{color:"#97D4E9"}}>{tab}</b> : tab}
+                        </Link>
+                    </li>
+                ))}
+
             </ul>
         </nav>
     );
