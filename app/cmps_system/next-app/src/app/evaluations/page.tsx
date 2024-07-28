@@ -276,7 +276,6 @@ export default function Evaluations() {
         <main style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
             <h1 style={{ marginRight: "10px" }}>Evaluations</h1>
-            <Button onClick={() => push("/evaluations/enter_evaluation")}>Enter Evaluation</Button>
 
             <Container fluid style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Row style={{ flex: 1 }}>
