@@ -478,6 +478,7 @@ CREATE OR REPLACE VIEW
 SELECT
     evaluation_entry_id as id,
     evaluation_type_name as evaluation_type,
+    evaluation_type.evaluation_type_id,
     requires_course,
     requires_instructor,
     requires_service_role,
@@ -498,7 +499,9 @@ SELECT
         )
         ELSE ''
     END AS course,
+    course.course_id as course_id,
     service_role.title as service_role,
+    service_role.service_role_id as service_role_id,
     evaluation_entry.metric_num as question_num,
     metric_description as question,
     answer,

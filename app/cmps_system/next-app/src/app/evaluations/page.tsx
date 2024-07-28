@@ -17,6 +17,7 @@ import {
 } from 'chart.js';
 import { useState, useEffect, useRef } from "react";
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
+import Link from 'next/link';
 import React from "react";
 import SearchModal from '@/app/components/SearchModal';
 
@@ -127,7 +128,22 @@ export default function Evaluations() {
 
     const tableColumns = [
         { field: 'id', headerName: 'ID', width: 10, editable: false },
-        { field: 'evaluation_type', headerName: 'Evaluation Type', width: 200, editable: false },
+        {
+            field: 'evaluation_type',
+            headerName: 'Evaluation Type',
+            width: 200,
+            editable: false,
+            renderCell: (params) => {
+                const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
+                return isInEditMode ? (
+                    <span>{params.row.evaluation_type}</span>
+                ) : (
+                    <Link href={`/evaluations/evaluation_type_info?id=${params.row.evaluation_type_id}`} passHref>
+                        {params.row.evaluation_type}
+                    </Link>
+                );
+            }
+        },
         {
             field: 'instructor_full_name',
             headerName: 'Instructor',
@@ -138,7 +154,9 @@ export default function Evaluations() {
                 return isInEditMode && canEdit ? (
                     <StyledButton onClick={() => handleOpenModal('instructor', params.row)}>{params.row.instructor_full_name}</StyledButton>
                 ) : (
-                    <span>{params.row.instructor_full_name}</span>
+                    <Link href={`/instructors/instructor_info?id=${params.row.instructor_id}`} passHref>
+                        {params.row.instructor_full_name}
+                    </Link>
                 );
             }
         },
@@ -152,7 +170,9 @@ export default function Evaluations() {
                 return isInEditMode && canEdit ? (
                     <StyledButton onClick={() => handleOpenModal('course', params.row)}>{params.row.course}</StyledButton>
                 ) : (
-                    <span>{params.row.course}</span>
+                    <Link href={`/courses/course_info?id=${params.row.course_id}`} passHref>
+                        {params.row.course}
+                    </Link>
                 );
             }
         },
@@ -166,7 +186,9 @@ export default function Evaluations() {
                 return isInEditMode && canEdit ? (
                     <StyledButton onClick={() => handleOpenModal('service_role', params.row)}>{params.row.service_role}</StyledButton>
                 ) : (
-                    <span>{params.row.service_role}</span>
+                    <Link href={`/service_roles/service_role_info?id=${params.row.service_role_id}`} passHref>
+                        {params.row.service_role}
+                    </Link>
                 );
             }
         },
@@ -265,15 +287,48 @@ export default function Evaluations() {
                             columns={tableColumns.map(column => ({
                                 ...column,
                                 renderCell: (params) => {
-                                    if (params.field === 'instructor_full_name' || params.field === 'course' || params.field === 'service_role') {
+                                    if (params.field === 'evaluation_type') {
                                         const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
-                                        const canEdit = (params.field === 'instructor_full_name' && params.row.requires_instructor !== false) ||
-                                            (params.field === 'course' && params.row.requires_course !== false) ||
-                                            (params.field === 'service_role' && params.row.requires_service_role !== false);
-
-                                        if (isInEditMode && canEdit) {
-                                            return <StyledButton onClick={() => handleOpenModal(params.field.replace('_full_name', ''), params.row)}>{params.value}</StyledButton>;
-                                        }
+                                        return isInEditMode ? (
+                                            <span>{params.row.evaluation_type}</span>
+                                        ) : (
+                                            <Link href={`/evaluations/evaluation_type_info?id=${params.row.evaluation_type_id}`} passHref>
+                                                {params.row.evaluation_type}
+                                            </Link>
+                                        );
+                                    }
+                                    if (params.field === 'instructor_full_name') {
+                                        const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
+                                        const canEdit = params.row.requires_instructor !== false;
+                                        return isInEditMode && canEdit ? (
+                                            <StyledButton onClick={() => handleOpenModal('instructor', params.row)}>{params.row.instructor_full_name}</StyledButton>
+                                        ) : (
+                                            <Link href={`/instructors/instructor_info?id=${params.row.instructor_id}`} passHref>
+                                                {params.row.instructor_full_name}
+                                            </Link>
+                                        );
+                                    }
+                                    if (params.field === 'course') {
+                                        const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
+                                        const canEdit = params.row.requires_course !== false;
+                                        return isInEditMode && canEdit ? (
+                                            <StyledButton onClick={() => handleOpenModal('course', params.row)}>{params.row.course}</StyledButton>
+                                        ) : (
+                                            <Link href={`/courses/course_info?id=${params.row.course_id}`} passHref>
+                                                {params.row.course}
+                                            </Link>
+                                        );
+                                    }
+                                    if (params.field === 'service_role') {
+                                        const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
+                                        const canEdit = params.row.requires_service_role !== false;
+                                        return isInEditMode && canEdit ? (
+                                            <StyledButton onClick={() => handleOpenModal('service_role', params.row)}>{params.row.service_role}</StyledButton>
+                                        ) : (
+                                            <Link href={`/service_roles/service_role_info?id=${params.row.service_role_id}`} passHref>
+                                                {params.row.service_role}
+                                            </Link>
+                                        );
                                     }
                                     return <span>{params.value}</span>;
                                 }
