@@ -44,6 +44,20 @@ export default function EventsPage() {
         { field: 'event_datetime', headerName: 'Time and Date', width: 200 },
         { field: 'duration', headerName: 'Duration', width: 150 },
         { field: 'is_meeting', headerName: 'Is Meeting?', width: 150, type: 'boolean' },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => push(`/time_tracking/events/event_info?id=${params.row.event_id}`)}
+                >
+                    View Details
+                </Button>
+            ),
+        },
     ];
 
     return (
