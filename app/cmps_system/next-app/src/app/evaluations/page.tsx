@@ -51,7 +51,7 @@ export default function Evaluations() {
     const [defaultCSV, setDefaultCSV] = useState("");
     const { push } = useRouter();
     const csv = useRef(null);
-    const [id, setId] = useState(0);
+    const [selectedRows, setSelectedRows] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalType, setModalType] = useState('');
     const [currentEditRow, setCurrentEditRow] = useState(null);
@@ -75,19 +75,54 @@ export default function Evaluations() {
     };
 
     const handleSelect = (selectedItem) => {
-        let newRow = { ...currentEditRow };
+        const updatedRows = TimeData.map(row => {
+            if (selectedRows.includes(row.id)) {
+                let updatedRow = { ...row };
+                if (modalType === 'instructor' && row.requires_instructor !== false) {
+                    updatedRow = { ...updatedRow, instructor_id: selectedItem.id, instructor_full_name: selectedItem.name };
+                } else if (modalType === 'course' && row.requires_course !== false) {
+                    updatedRow = { ...updatedRow, course_id: selectedItem.id, course: selectedItem.name };
+                } else if (modalType === 'service_role' && row.requires_service_role !== false) {
+                    updatedRow = { ...updatedRow, service_role_id: selectedItem.id, service_role: selectedItem.name };
+                }
+                return updatedRow;
+            }
+            return row;
+        });
 
-        if (modalType === 'instructor') {
-            newRow = { ...newRow, instructor_id: selectedItem.id, instructor_full_name: selectedItem.name };
-        } else if (modalType === 'course') {
-            newRow = { ...newRow, course_id: selectedItem.id, course: selectedItem.name };
-        } else if (modalType === 'service_role') {
-            newRow = { ...newRow, service_role_id: selectedItem.id, service_role: selectedItem.name };
+        setTimeData(updatedRows);
+        setModalOpen(false);
+    };
+
+    const handleSaveClick = async () => {
+        const rowsToUpdate = TimeData.filter(row => selectedRows.includes(row.id));
+
+        for (const row of rowsToUpdate) {
+            const { error } = await supabase
+                .from('evaluation_entry')
+                .update({
+                    evaluation_type_id: row.evaluation_type_id,
+                    metric_num: row.metric_num,
+                    course_id: row.course_id,
+                    instructor_id: row.instructor_id,
+                    service_role_id: row.service_role_id,
+                    evaluation_date: row.evaluation_date,
+                    answer: row.answer
+                })
+                .eq('evaluation_entry_id', row.id);
+
+            if (error) {
+                console.error("Error updating record:", error);
+            }
         }
 
-        const newRows = TimeData.map(row => row.id === currentEditRow.id ? newRow : row);
-        setTimeData(newRows);
-        setModalOpen(false);
+        setRowModesModel(prev => {
+            const updated = { ...prev };
+            selectedRows.forEach(id => {
+                updated[id] = { mode: GridRowModes.View };
+            });
+            return updated;
+        });
     };
 
     const tableColumns = [
@@ -142,13 +177,13 @@ export default function Evaluations() {
     ];
 
     const EditToolbar = (props) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        const isInEditMode = selectedRows.some(id => rowModesModel[id]?.mode === GridRowModes.Edit);
 
         if (isInEditMode) {
             return (
                 <GridToolbarContainer>
-                    <Button onClick={handleSaveClick(id)}>💾 Save</Button>
-                    <Button className="textPrimary" onClick={handleCancelClick(id)} color="inherit">❌ Cancel</Button>
+                    <Button onClick={handleSaveClick}>💾 Save</Button>
+                    <Button className="textPrimary" onClick={handleCancelClick} color="inherit">❌ Cancel</Button>
                 </GridToolbarContainer>
             );
         }
@@ -160,35 +195,43 @@ export default function Evaluations() {
                     setDefaultCSV(json2csv(TimeData));
                     setCsvShow(true);
                 }}>📝 Edit As CSV</Button>
-                <Button className="textPrimary" onClick={handleEditClick(id)} color="inherit">✏️ Edit</Button>
-                <Button onClick={handleDeleteClick(id)} color="inherit">🗑️ Delete</Button>
+                <Button className="textPrimary" onClick={handleEditClick} color="inherit">✏️ Edit</Button>
+                <Button onClick={handleDeleteClick} color="inherit">🗑️ Delete</Button>
             </GridToolbarContainer>
         );
-    }
-
-    const handleSaveClick = (id) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
-    const handleDeleteClick = (id) => async () => {
-        if (!confirm("Are you sure you want to delete this record?")) return;
-        const error = (await supabase.from("evaluation_entry").delete().eq("evaluation_entry_id", id)).error;
-        if (error) {
-            console.error("Error deleting record:", error);
-            return;
+    const handleDeleteClick = async () => {
+        if (!confirm("Are you sure you want to delete the selected records?")) return;
+        for (const id of selectedRows) {
+            const error = (await supabase.from("evaluation_entry").delete().eq("evaluation_entry_id", id)).error;
+            if (error) {
+                console.error("Error deleting record:", error);
+                return;
+            }
         }
-        setTimeData(TimeData.filter((row) => row.id !== id));
+        setTimeData(TimeData.filter((row) => !selectedRows.includes(row.id)));
+        setSelectedRows([]);
     };
 
-    const handleCancelClick = (id) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    const handleCancelClick = () => {
+        setRowModesModel(prev => {
+            const updated = { ...prev };
+            selectedRows.forEach(id => {
+                updated[id] = { mode: GridRowModes.View, ignoreModifications: true };
+            });
+            return updated;
         });
-    }
+    };
 
-    const handleEditClick = (id) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    const handleEditClick = () => {
+        setRowModesModel(prev => {
+            const updated = { ...prev };
+            selectedRows.forEach(id => {
+                updated[id] = { mode: GridRowModes.Edit };
+            });
+            return updated;
+        });
     };
 
     const handleCSVClose = () => setCsvShow(false);
@@ -242,9 +285,8 @@ export default function Evaluations() {
                                 toolbar: { setTimeData, setRowModesModel },
                             }}
                             checkboxSelection
-                            disableMultipleRowSelection
                             onRowSelectionModelChange={(newSelection) => {
-                                setId(newSelection[0]);
+                                setSelectedRows(newSelection);
                             }}
                             autoHeight
                             onCellClick={handleCellClick}
