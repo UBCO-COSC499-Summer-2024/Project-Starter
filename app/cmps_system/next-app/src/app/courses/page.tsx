@@ -4,13 +4,13 @@ import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { csv2json, json2csv } from 'json-2-csv';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Button, Modal, Typography, Box, styled, Select, MenuItem } from '@mui/material';
-import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import { Button, Modal, Typography, Box, styled, Select, MenuItem, TextField } from '@mui/material';
 import { Row } from "react-bootstrap";
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes, GridRowEditStopReasons } from '@mui/x-data-grid';
 import React from "react";
 import Navbar from "@/app/components/NavBar";
 import Container from 'react-bootstrap/Container';
+import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 
 ChartJS.register(
     CategoryScale,
@@ -25,8 +25,8 @@ export default function Home() {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
     const [courseData, setCourseData] = useState([]);
     const { push } = useRouter();
-    const [defaultCSV, setDefaultCSV] = useState("");
     const [csvShow, setCsvShow] = useState(false);
+    const [csvData, setCsvData] = useState("");
     const [rowModesModel, setRowModesModel] = useState({});
     const [selectedRows, setSelectedRows] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
@@ -291,10 +291,16 @@ export default function Home() {
                     ➕ Add record
                 </Button>
 
-                <Button onClick={useCallback(() => {
-                    setDefaultCSV(json2csv(courseData));
+                <Button onClick={useCallback(async () => {
+                    const { data, error } = await supabase.from("course").select();
+                    if (error) {
+                        console.error("Error fetching course data:", error);
+                        return;
+                    }
+                    const csvString = await json2csv(data);
+                    setCsvData(csvString);
                     setCsvShow(true);
-                }, [courseData])}>
+                }, [])}>
                     📝 Edit As CSV
                 </Button>
 
@@ -330,6 +336,51 @@ export default function Home() {
     }, [rowModesModel, courseData, selectedRows, isEditing]);
 
     const handleCSVClose = () => setCsvShow(false);
+
+    const handleCSVApply = async () => {
+        try {
+            const newJsonData = await csv2json(csv.current.value);
+
+            // Fetch current data from the database
+            const { data: currentData, error: fetchError } = await supabase.from("course").select();
+            if (fetchError) {
+                alert(`Error fetching current data: ${fetchError.message}`);
+                return;
+            }
+
+            // Find IDs to delete
+            const currentIds = currentData.map(row => row.course_id);
+            const newIds = newJsonData.map(row => row.course_id);
+            const idsToDelete = currentIds.filter(id => !newIds.includes(id));
+
+            // Delete removed rows
+            if (idsToDelete.length > 0) {
+                const { error: deleteError } = await supabase.from("course").delete().in("course_id", idsToDelete);
+                if (deleteError) {
+                    alert(`Error deleting rows: ${deleteError.message}`);
+                    return;
+                }
+            }
+
+            // Upsert new and updated rows
+            for (const newRow of newJsonData) {
+                const { error: upsertError } = await supabase.from("course").upsert(newRow);
+                if (upsertError) {
+                    alert(`Error on row ${newRow.course_id}: ${upsertError.message}`);
+                    return;
+                }
+            }
+
+            // Refresh the data in the table
+            const { data: updatedData, error: refreshError } = await supabase.from("v_courses_with_instructors").select();
+            if (refreshError) throw refreshError;
+            setCourseData(updatedData);
+
+            handleCSVClose();
+        } catch (error) {
+            alert(`Error parsing CSV: ${error.message}`);
+        }
+    };
 
     const blue = {
         100: '#DAECFF',
@@ -431,92 +482,17 @@ export default function Home() {
                         Batch Editing
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
+                        <TextField
+                            multiline
+                            rows={15}
+                            fullWidth
+                            defaultValue={csvData}
+                            inputRef={csv}
+                        />
                     </Typography>
 
-                    <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button className="!tw-m-2" variant="contained" onClick={async () => {
-                        const csvText = csv.current.value;
-                        const newJSON = csv2json(csvText);
-                        const oldJSON = courseData;
-                        var snapshot = JSON.parse(JSON.stringify(oldJSON))
-                        for (const newRow of newJSON) {
-                            try {
-                                if (newRow.location.split(" ").length != 2) {
-                                    alert("Location should be in format of 'building room_num'")
-                                    return
-                                }
-                            }
-                            catch (error) {
-                                alert("Location should be in format of 'building room_num'")
-                                return
-                            }
-                            if (!snapshot.map(row => row.id).includes(newRow.id)) {
-                                snapshot.push(newRow)
-                                const error = ((await supabase
-                                    .from("course")
-                                    .insert({
-                                        course_id: newRow.id ? newRow.id : undefined,
-                                        course_title: newRow.course_title,
-                                        building: newRow.location.split(" ")[0],
-                                        room_num: newRow.location.split(" ")[1],
-                                        num_students: newRow.num_students,
-                                        num_tas: newRow.num_tas,
-                                        term: newRow.term,
-                                        academic_year: newRow.academic_year,
-                                        subject_code: newRow.subject_code,
-                                        course_num: newRow.course_num,
-                                        section_num: newRow.section_num,
-                                        average_grade: newRow.average_grade,
-                                        year_level: newRow.year_level,
-                                        session: newRow.session
-                                    })).error)
-                                if (error) {
-                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
-                                    return
-                                }
-
-                            }
-                            else if (snapshot.map(row => row.id).includes(newRow.id)) {
-                                snapshot[snapshot.map(row => row.id).indexOf(newRow.id)] = newRow
-                                const error = ((await supabase
-                                    .from("course")
-                                    .update({
-                                        course_id: newRow.id,
-                                        course_title: newRow.course_title,
-                                        building: newRow.location.split(" ")[0],
-                                        room_num: newRow.location.split(" ")[1],
-                                        num_students: newRow.num_students,
-                                        num_tas: newRow.num_tas,
-                                        term: newRow.term,
-                                        academic_year: newRow.academic_year,
-                                        subject_code: newRow.subject_code,
-                                        course_num: newRow.course_num,
-                                        section_num: newRow.section_num,
-                                        average_grade: newRow.average_grade,
-                                        year_level: newRow.year_level,
-                                        session: newRow.session
-                                    }).eq("course_id", newRow.id)).error)
-                                if (error) {
-                                    alert(`Error On Row ${newRow.id}: ${error.message}`)
-                                    return
-
-                                }
-
-                            }
-                        }
-                        for (const oldRow of oldJSON) {
-                            if (!newJSON.map(row => row.id).includes(oldRow.id)) {
-                                snapshot.splice(snapshot.map(row => row.id).indexOf(oldRow.id), 1)
-                                await supabase.from("course").delete().eq("course_id", oldRow.id)
-                            }
-                        }
-
-                        setCourseData(snapshot)
-                        handleCSVClose()
-                    }}
-
-                    >Apply</Button>
+                    <Button className="!tw-m-2" variant="outlined" onClick={handleCSVClose}>Cancel</Button>
+                    <Button className="!tw-m-2" variant="contained" onClick={handleCSVApply}>Apply</Button>
                 </Box>
             </Modal>
         </main>
