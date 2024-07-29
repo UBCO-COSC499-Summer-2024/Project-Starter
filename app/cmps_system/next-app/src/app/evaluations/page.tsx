@@ -67,9 +67,10 @@ export default function Evaluations() {
             .eq('evaluation_entry_id', row.id);
 
         if (error) {
-            console.error("Error updating record:", error);
+            return { error }; // Ensure error is returned here
         }
     };
+
 
     return (
         <>
@@ -81,6 +82,7 @@ export default function Evaluations() {
                 initialSortModel={initialSortModel}
                 tableName={tableName}
                 rowUpdateHandler={rowUpdateHandler}
+                deleteWarningMessage="Are you sure you want to delete this evaluation?"
                 idColumn="evaluation_entry_id"
                 newRecordURL="/evaluations/enter_evaluation"
             />
