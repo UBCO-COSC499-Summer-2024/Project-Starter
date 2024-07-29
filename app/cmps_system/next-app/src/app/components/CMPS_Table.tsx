@@ -54,7 +54,7 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
         ...column,
         renderCell: (params) => {
             const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
-            const canEdit = column.editConfig?.canEdit !== false;
+            const canEdit = column.editable !== false && column.editConfig?.canEdit !== false;
 
             if (isInEditMode && canEdit) {
                 if (column.editConfig?.type === 'searchModal') {
@@ -190,7 +190,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
         const columnConfig = columnsConfig.find(column => column.field === params.field);
         if (columnConfig && columnConfig.editConfig?.type === 'searchModal') {
             const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
-            const canEdit = columnConfig.editConfig?.canEdit !== false;
+            const canEdit = columnConfig.editable !== false && columnConfig.editConfig?.canEdit !== false;
             if (isInEditMode && canEdit) {
                 event.stopPropagation();
                 handleOpenModal(columnConfig.editConfig.modalType, params.row);

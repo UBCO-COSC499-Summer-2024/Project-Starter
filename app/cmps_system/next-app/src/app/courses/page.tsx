@@ -42,7 +42,23 @@ export default function Courses() {
             field: 'instructor_names',
             headerName: 'Instructors',
             flex: 2,
-            linkConfig: { prefix: '/instructors/instructor_info?id=', idField: 'instructor_ids' }
+            editable: false,
+            renderCell: (params) => {
+                const names = params.row.instructor_names.split(', ');
+                const ids = params.row.instructor_ids.split(', ');
+                return (
+                    <div>
+                        {names.map((name, index) => (
+                            <React.Fragment key={ids[index]}>
+                                <Link href={`/instructors/instructor_info?id=${ids[index]}`} passHref>
+                                    {name}
+                                </Link>
+                                {index < names.length - 1 && <span>, </span>}
+                            </React.Fragment>
+                        ))}
+                    </div>
+                );
+            }
         },
         { field: 'num_students', headerName: 'Students', flex: 1, editable: true },
         { field: 'num_tas', headerName: 'TAs', flex: 1, editable: true },
