@@ -87,6 +87,7 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
 export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, idColumn, newRecordURL }) {
     const router = useRouter();
     const [tableData, setTableData] = useState([]);
+    const [initialTableData, setInitialTableData] = useState([]);
     const [rowModesModel, setRowModesModel] = useState({});
     const [selectedRows, setSelectedRows] = useState([]);
     const [csvShow, setCsvShow] = useState(false);
@@ -101,6 +102,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                 const { data, error } = await supabase.from(fetchUrl).select();
                 if (error) throw error;
                 setTableData(data);
+                setInitialTableData(data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -151,6 +153,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
     };
 
     const handleCancelClick = () => {
+        setTableData(initialTableData);
         setRowModesModel(prev => {
             const updated = { ...prev };
             selectedRows.forEach(id => {
