@@ -82,6 +82,7 @@ export default function Evaluations() {
                 tableName={tableName}
                 rowUpdateHandler={rowUpdateHandler}
                 idColumn="evaluation_entry_id"
+                newRecordURL="/evaluations/enter_evaluation"
             />
         </>
     );

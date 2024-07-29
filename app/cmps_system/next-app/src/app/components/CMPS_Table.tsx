@@ -4,6 +4,7 @@ import { Button, Modal, Typography, Box, styled, TextField } from '@mui/material
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
 import { csv2json, json2csv } from 'json-2-csv';
+import { useRouter } from 'next/navigation';
 import supabase from '@/app/components/supabaseClient';
 import SearchModal from '@/app/components/SearchModal';
 
@@ -63,7 +64,11 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
                         </StyledButton>
                     );
                 }
-                return <span>{params.value}</span>;
+                return <TextField
+                    value={params.value}
+                    onChange={(event) => params.api.setEditCellValue({ id: params.id, field: params.field, value: event.target.value })}
+                    size="small"
+                />;
             }
 
             if (column.linkConfig) {
@@ -79,7 +84,8 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
     }));
 };
 
-export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, idColumn }) {
+export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, idColumn, newRecordURL }) {
+    const router = useRouter();
     const [tableData, setTableData] = useState([]);
     const [rowModesModel, setRowModesModel] = useState({});
     const [selectedRows, setSelectedRows] = useState([]);
@@ -231,6 +237,21 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
         }
     };
 
+    const handleAddRecordClick = () => {
+        if (newRecordURL) {
+            router.push(newRecordURL);
+        } else {
+            const newId = Math.max(...tableData.map(row => row.id)) + 1;
+            const newRow = { id: newId, isNew: true };
+            setTableData([newRow, ...tableData]);
+            setRowModesModel(prev => ({
+                ...prev,
+                [newId]: { mode: GridRowModes.Edit }
+            }));
+            setSelectedRows([newId]);
+        }
+    };
+
     const EditToolbar = () => {
         const isInEditMode = selectedRows.some(id => rowModesModel[id]?.mode === GridRowModes.Edit);
 
@@ -243,7 +264,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                     </>
                 ) : (
                     <>
-                        <Button color="primary" onClick={() => console.log("Add record")}>➕ Add record</Button>
+                        <Button color="primary" onClick={handleAddRecordClick}>➕ Add Record</Button>
                         <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
                         <Button className="textPrimary" onClick={handleEditClick} color="inherit">✏️ Edit</Button>
                         <Button onClick={handleDeleteClick} color="inherit">🗑️ Delete</Button>
