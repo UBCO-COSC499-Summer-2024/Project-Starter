@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
-import { Button, Modal, Typography, Box, styled, TextField } from '@mui/material';
+import { Button, Modal, Typography, Box, styled, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
 import { csv2json, json2csv } from 'json-2-csv';
@@ -95,6 +95,8 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     const [searchModalType, setSearchModalType] = useState('');
     const csv = useRef(null);
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -147,7 +149,12 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
     const handleProcessRowUpdate = async (row) => {
         setTableData(tableData.map((oldRow) => (oldRow.id === row.id ? row : oldRow)));
         if (selectedRows.includes(row.id)) {
-            await rowUpdateHandler(row);
+            const { error } = await rowUpdateHandler(row);
+            // Show an error modal if there is an error
+            if (error) {
+                setErrorMessage(error.message.charAt(0).toUpperCase() + error.message.slice(1) || 'An error occurred');
+                setErrorOpen(true);
+            }
         }
         return row;
     };
@@ -335,6 +342,18 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                 handleSelect={handleSearchModalSelect}
                 type={searchModalType}
             />
+
+            <Dialog open={errorOpen} onClose={() => setErrorOpen(false)}>
+                <DialogTitle>Error</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>{errorMessage}</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setErrorOpen(false)} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }

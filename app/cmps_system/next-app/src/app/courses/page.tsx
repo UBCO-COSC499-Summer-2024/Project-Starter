@@ -86,7 +86,7 @@ export default function Courses() {
         }).eq("course_id", row.id);
 
         if (error) {
-            console.error("Error On Row:", error.message);
+            return { error };
         }
     };
 
