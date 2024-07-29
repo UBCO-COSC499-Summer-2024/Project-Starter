@@ -8,17 +8,17 @@ import getUserType from "@/app/components/getUserType";
 const NavBar = () => {
     const [isInstructor, setIsInstructor] = useState(true);
 
-    useEffect(()=>{
-            (async () => {
-        const usertype = await getUserType()
-        if (usertype === 'instructor') {
-            setIsInstructor(true)
-        }
-        else {
-            setIsInstructor(false)
-        }
-    })()
-    },[])
+    useEffect(() => {
+        (async () => {
+            const usertype = await getUserType()
+            if (usertype === 'instructor') {
+                setIsInstructor(true)
+            }
+            else {
+                setIsInstructor(false)
+            }
+        })()
+    }, [])
     const [userName, setUserName] = useState('Username');
 
     useEffect(() => {
@@ -35,7 +35,14 @@ const NavBar = () => {
             }
         })();
     }, [supabase]);
-
+    const [page, setPage] = useState('');
+    useEffect(() => {
+        const currentPath = window.location.pathname;
+        // console.log(currentPath);
+        setPage(currentPath.substring(1).toUpperCase().replace("_", " "));
+    })
+    const tabs = isInstructor ? ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING"]
+        : ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "TOOLS"];
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -48,42 +55,15 @@ const NavBar = () => {
                     <span>{userName}</span>
                 </Link>
             </div>
-            <ul className={styles.navbarButtonsList}>
-                <li className={styles.navbarButton}>
-                    <Link href="/dashboard" className={styles.navbarButtonText}>
-                        DASHBOARD
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/instructors" className={styles.navbarButtonText}>
-                        INSTRUCTORS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/courses" className={styles.navbarButtonText}>
-                        COURSES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/service_roles" className={styles.navbarButtonText}>
-                        SERVICE ROLES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/evaluations" className={styles.navbarButtonText}>
-                        EVALUATIONS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/time_tracking" className={styles.navbarButtonText}>
-                        TIME TRACKING
-                    </Link>
-                </li>
-               {!isInstructor && <li className={styles.navbarButton}>
-                    <Link href="/tools" className={styles.navbarButtonText}>
-                        TOOLS
-                    </Link>
-                </li>}
+            <ul className={styles.navbarButtonsList} style={{ fontSize: "small" }}>
+                {tabs.map((tab, index) => (
+                    <li key={index} className={styles.navbarButton}>
+                        <Link href={"/"+tab.toLowerCase().replace(" ","_")} onClick={()=>{setPage(tab)}}className={styles.navbarButtonText}>
+                            {tab==page ? <b style={{color:"#97D4E9"}}>{tab}</b> : tab}
+                        </Link>
+                    </li>
+                ))}
+
             </ul>
         </nav>
     );
