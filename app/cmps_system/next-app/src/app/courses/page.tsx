@@ -3,6 +3,7 @@ import React from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
+import Link from 'next/link';
 
 export default function Courses() {
     const fetchUrl = "v_courses_with_instructors";
