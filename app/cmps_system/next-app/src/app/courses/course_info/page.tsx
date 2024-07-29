@@ -15,47 +15,69 @@ const CourseInfo = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get('id');
-  const [course, setCourses] = useState([]);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
   const [startDate, setStartDate] = useState([]);
   const [endDate, setEndDate] = useState([]);
-
   useEffect(() => {
-    const fetchCourses = async () => {
-      const { data, error } = await supabase.from('course').select('*');
-      if (error) {
-        console.error('Error fetching courses:', error);
+    const fetchCourse = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.from('course').select('*').eq('course_id', id).single();
+        if (error) {
+          console.error('Error fetching course:', error);
+          setError(error.message);
+        } else {
+          setCourse(data);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
         setError(error.message);
-      } else {
-        const transformedData = data.map((course) => ({
-          id: course.course_id,
-          academic_year: course.academic_year,
-          session: course.session,
-          term: course.term,
-          subject_code: course.subject_code,
-          course_num: course.course_num,
-          section_num: course.section_num,
-          course_title: course.course_title,
-          mode_of_delivery: course.mode_of_delivery,
-          building: course.building,
-          room_num: course.room_num,
-          num_students: course.num_students,
-          num_tas: course.num_tas,
-          credits: course.credits,
-          year_level: course.year_level,
-          registration_status: course.registration_status,
-          status: course.status
-        }));
-        console.log("Fetched course data:", transformedData); // Log the transformed course data
-        setCourses(transformedData);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+  
+    if (id) {
+      fetchCourse();
+    }
+  }, [id]);
+  // useEffect(() => {
+  //   const fetchCourses = async () => {
+  //     const { data, error } = await supabase.from('course').select('*');
+  //     if (error) {
+  //       console.error('Error fetching courses:', error);
+  //       setError(error.message);
+  //     } else {
+  //       const transformedData = data.map((course) => ({
+  //         id: course.course_id,
+  //         academic_year: course.academic_year,
+  //         session: course.session,
+  //         term: course.term,
+  //         subject_code: course.subject_code,
+  //         course_num: course.course_num,
+  //         section_num: course.section_num,
+  //         course_title: course.course_title,
+  //         mode_of_delivery: course.mode_of_delivery,
+  //         building: course.building,
+  //         room_num: course.room_num,
+  //         num_students: course.num_students,
+  //         num_tas: course.num_tas,
+  //         credits: course.credits,
+  //         year_level: course.year_level,
+  //         registration_status: course.registration_status,
+  //         status: course.status
+  //       }));
+  //       console.log("Fetched course data:", transformedData); // Log the transformed course data
+  //       setCourse(transformedData);
+  //     }
+  //     setLoading(false);
+  //   };
 
-    fetchCourses();
-  }, []);
+  //   fetchCourses();
+  // }, []);
   const handleDelete = async () => {
     setModalShow(true);
   };
@@ -143,49 +165,110 @@ const CourseInfo = () => {
     <div>
       <NavBar />
       <Container fluid className="banner">
-        <h2>Instructor Info</h2>
+        <h2>Courses Info</h2>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
           <p>Error fetching courses: {error}</p>
         ) : course  ? (
           <>
-            <table className="table table-bordered">
-              <tbody>
-                <tr>
-                  <td>Academic Year</td>
-                  <td>{course.academic_year}</td>
-                </tr>
-                <tr>
-                  <td>Session</td>
-                  <td>{course.session}</td>
-                </tr>
-                <tr>
-                  <td>Term</td>
-                  <td>{course.term}</td>
-                </tr>
-                <tr>
-                  <td>Subject Code</td>
-                  <td>{course.subject_code}</td>
-                </tr>
-                <tr>
-                  <td>Course Number</td>
-                  <td>{course.course_num}</td>
-                </tr>
-                <tr>
-                  <td>Section Number</td>
-                  <td>{course.section_num}</td>
-                </tr>
-                <tr>
-                  <td>Course Title</td>
-                  <td>{course.course_title}</td>
-                </tr>
-                <tr>
-                  <td>Mode of Delivery</td>
-                  <td>{course.mode_of_delivery}</td>
-                </tr>
-              </tbody>
-            </table>
+           
+           <table className="table table-bordered">
+  <tbody>
+    <tr>
+      <td>Academic Year</td>
+      <td>{course.academic_year}</td>
+    </tr>
+    <tr>
+      <td>Session</td>
+      <td>{course.session}</td>
+    </tr>
+    <tr>
+      <td>Term</td>
+      <td>{course.term}</td>
+    </tr>
+    <tr>
+      <td>Subject Code</td>
+      <td>{course.subject_code}</td>
+    </tr>
+    <tr>
+      <td>Course Number</td>
+      <td>{course.course_num}</td>
+    </tr>
+    <tr>
+      <td>Section Number</td>
+      <td>{course.section_num}</td>
+    </tr>
+    <tr>
+      <td>Course Title</td>
+      <td>{course.course_title}</td>
+    </tr>
+    <tr>
+      <td>Mode of Delivery</td>
+      <td>{course.mode_of_delivery}</td>
+    </tr>
+    <tr>
+      <td>Required In-Person Attendance</td>
+      <td>{course.req_in_person_attendance ? "Yes" : "No"}</td>
+    </tr>
+    <tr>
+      <td>Building</td>
+      <td>{course.building}</td>
+    </tr>
+    <tr>
+      <td>Room Number</td>
+      <td>{course.room_num}</td>
+    </tr>
+    <tr>
+      <td>Section Comments</td>
+      <td>{course.section_comments}</td>
+    </tr>
+    <tr>
+      <td>Activity</td>
+      <td>{course.activity}</td>
+    </tr>
+    <tr>
+      <td>Days</td>
+      <td>{course.days}</td>
+    </tr>
+    <tr>
+      <td>Start Time</td>
+      <td>{course.start_time}</td>
+    </tr>
+    <tr>
+      <td>End Time</td>
+      <td>{course.end_time}</td>
+    </tr>
+    <tr>
+      <td>Number of Students</td>
+      <td>{course.num_students}</td>
+    </tr>
+    <tr>
+      <td>Number of TAs</td>
+      <td>{course.num_tas}</td>
+    </tr>
+    <tr>
+      <td>Average Grade</td>
+      <td>{course.average_grade}</td>
+    </tr>
+    <tr>
+      <td>Credits</td>
+      <td>{course.credits}</td>
+    </tr>
+    <tr>
+      <td>Year Level</td>
+      <td>{course.year_level}</td>
+    </tr>
+    <tr>
+      <td>Registration Status</td>
+      <td>{course.registration_status}</td>
+    </tr>
+    <tr>
+      <td>Status</td>
+      <td>{course.status}</td>
+    </tr>
+  </tbody>
+</table>
             <div className="instructor-info-footer">
               <button className="btn btn-danger" onClick={handleDelete}>Remove this course</button>
               <button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</button>
