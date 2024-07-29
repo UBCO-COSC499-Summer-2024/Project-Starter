@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
-import { Button, Modal, Typography, Box, styled } from '@mui/material';
+import { Button, Modal, Typography, Box, styled, TextField } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
+import { csv2json, json2csv } from 'json-2-csv';
 import supabase from '@/app/components/supabaseClient';
 import SearchModal from '@/app/components/SearchModal';
 
@@ -78,7 +79,7 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
     }));
 };
 
-export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, deleteColumn }) {
+export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, idColumn }) {
     const [tableData, setTableData] = useState([]);
     const [rowModesModel, setRowModesModel] = useState({});
     const [selectedRows, setSelectedRows] = useState([]);
@@ -166,7 +167,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
     const handleDeleteClick = async () => {
         if (!confirm(deleteWarningMessage || "Are you sure you want to delete the selected records? This action is not recoverable!")) return;
         for (const id of selectedRows) {
-            const { error } = await supabase.from(tableName).delete().eq(deleteColumn || "id", id);
+            const { error } = await supabase.from(tableName).delete().eq(idColumn || "id", id);
             if (error) {
                 console.error("Error deleting record:", error);
                 return;
@@ -188,6 +189,48 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
         }
     };
 
+    const handleEditAsCSV = async () => {
+        const { data, error } = await supabase.from(tableName).select();
+        if (error) {
+            console.error("Error fetching data for CSV:", error);
+            return;
+        }
+        const csvData = await json2csv(data);
+        setDefaultCSV(csvData);
+        setCsvShow(true);
+    };
+
+    const handleApplyCSV = async () => {
+        try {
+            const csvText = csv.current.value;
+            const jsonData = await csv2json(csvText);
+
+            for (const row of jsonData) {
+                if (!row[idColumn]) {
+                    delete row[idColumn];
+                    const { error } = await supabase.from(tableName).insert(row);
+                    if (error) {
+                        console.error("Error inserting row:", error);
+                        return;
+                    }
+                } else {
+                    const { error } = await supabase.from(tableName).upsert(row);
+                    if (error) {
+                        console.error("Error updating row:", error);
+                        return;
+                    }
+                }
+            }
+
+            const { data, error } = await supabase.from(fetchUrl).select();
+            if (error) throw error;
+            setTableData(data);
+            setCsvShow(false);
+        } catch (error) {
+            console.error("Error processing CSV data:", error);
+        }
+    };
+
     const EditToolbar = () => {
         const isInEditMode = selectedRows.some(id => rowModesModel[id]?.mode === GridRowModes.Edit);
 
@@ -201,10 +244,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                 ) : (
                     <>
                         <Button color="primary" onClick={() => console.log("Add record")}>➕ Add record</Button>
-                        <Button color="primary" onClick={() => {
-                            setDefaultCSV(json2csv(tableData));
-                            setCsvShow(true);
-                        }}>📝 Edit As CSV</Button>
+                        <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
                         <Button className="textPrimary" onClick={handleEditClick} color="inherit">✏️ Edit</Button>
                         <Button onClick={handleDeleteClick} color="inherit">🗑️ Delete</Button>
                     </>
@@ -252,14 +292,16 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                         Batch Editing
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <TextareaAutosize defaultValue={defaultCSV} ref={csv}></TextareaAutosize>
+                        <TextField
+                            multiline
+                            rows={20}
+                            fullWidth
+                            defaultValue={defaultCSV}
+                            inputRef={csv}
+                        />
                     </Typography>
                     <Button variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button variant="contained" onClick={() => {
-                        const csvText = csv.current.value;
-                        setTableData(csv2json(csvText));
-                        handleCSVClose();
-                    }}>Add</Button>
+                    <Button variant="contained" onClick={handleApplyCSV}>Apply</Button>
                 </Box>
             </Modal>
 

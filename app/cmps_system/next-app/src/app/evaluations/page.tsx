@@ -81,7 +81,7 @@ export default function Evaluations() {
                 initialSortModel={initialSortModel}
                 tableName={tableName}
                 rowUpdateHandler={rowUpdateHandler}
-                deleteColumn="evaluation_entry_id"
+                idColumn="evaluation_entry_id"
             />
         </>
     );

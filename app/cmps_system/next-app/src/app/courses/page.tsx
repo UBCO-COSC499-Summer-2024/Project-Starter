@@ -83,8 +83,8 @@ export default function Courses() {
                 initialSortModel={initialSortModel}
                 tableName={tableName}
                 rowUpdateHandler={rowUpdateHandler}
+                idColumn="course_id"
                 deleteWarningMessage="Are you sure you want to delete the selected courses? All related teaching assignments and evaluation entries will be deleted as well. This action is not recoverable!"
-                deleteColumn="course_id"
             />
         </>
     );
