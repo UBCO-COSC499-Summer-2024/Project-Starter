@@ -84,7 +84,29 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
     }));
 };
 
-export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, idColumn, uniqueColumns, newRecordURL }) {
+interface CMPS_TableProps {
+    fetchUrl: string;
+    columnsConfig: any[];
+    initialSortModel: any[];
+    tableName: string;
+    rowUpdateHandler: (row: any) => Promise<any>;
+    deleteWarningMessage: string;
+    idColumn: string;
+    uniqueColumns?: string[]; // Optional
+    newRecordURL?: string; // Optional
+}
+
+const CMPS_Table: React.FC<CMPS_TableProps> = ({
+    fetchUrl,
+    columnsConfig,
+    initialSortModel,
+    tableName,
+    rowUpdateHandler,
+    deleteWarningMessage,
+    idColumn,
+    uniqueColumns,
+    newRecordURL
+}) => {
     const router = useRouter();
     const [tableData, setTableData] = useState([]);
     const [initialTableData, setInitialTableData] = useState([]);
@@ -239,6 +261,25 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
         try {
             const csvText = csv.current.value;
             const jsonData = await csv2json(csvText);
+            const originalData = await csv2json(defaultCSV);
+
+            // Create a set of primary keys from the original CSV
+            const originalIds = new Set(originalData.map(row => row[idColumn]));
+
+            // Create a set of primary keys from the current CSV
+            const currentIds = new Set(jsonData.map(row => row[idColumn]));
+
+            // Determine which rows have been deleted
+            const deletedIds = [...originalIds].filter(id => !currentIds.has(id));
+
+            // Perform deletions
+            for (const id of deletedIds) {
+                const { error } = await supabase.from(tableName).delete().eq(idColumn, id);
+                if (error) {
+                    console.error("Error deleting row:", error);
+                    return;
+                }
+            }
 
             for (const row of jsonData) {
                 if (!row[idColumn]) {
@@ -376,3 +417,5 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
         </div>
     );
 }
+
+export default CMPS_Table;

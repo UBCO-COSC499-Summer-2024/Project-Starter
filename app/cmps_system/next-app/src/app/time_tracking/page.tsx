@@ -6,7 +6,7 @@ import Navbar from "@/app/components/NavBar";
 import { Button } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
-export default function Evaluations() {
+export default function TimeTracking() {
     const router = useRouter();
     const fetchUrl = "v_timetracking";
     const tableName = "service_hours_entry";
