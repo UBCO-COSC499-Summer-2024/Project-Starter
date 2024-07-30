@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 const testData = {
-  assignment_id: 101,  
+  assignment_id: 101,
   instructor_id: 1, //must exist in the instructor table
   course_id: 2, //must exist in the course table
   position: 'TA',
@@ -14,14 +14,11 @@ test('read_from_supabase_course_assign', async () => {
   const { data, error } = await supabase.from("course_assign").select();
   expect(data).not.toBeNull()
   expect(error).toBeNull()
-  console.log(data)
-
 })
 test('read_from_no_exsist_supabase_table', async () => {
   const { data, error } = await supabase.from("no_exsist_table").select();
   expect(error).not.toBeNull()
   expect(data).toBeNull()
-
 })
 
 test('add a row', async () => {
