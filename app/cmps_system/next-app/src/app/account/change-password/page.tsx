@@ -180,10 +180,21 @@ const ChangePassword = () => {
               </div>
             )}
             {message && (
-              <div>
-                <p className="mt-3" style={{ color: message.includes('Error') || message.includes('incorrect') ? 'red' : 'green' }}>{message}</p>
-              </div>
-            )}
+  <div>
+    <p
+      className="mt-3"
+      style={{
+        color:
+          message.includes('Error') || message.includes('incorrect') || message === 'New passwords do not match!'
+            ? 'red'
+            : 'green',
+      }}
+    >
+      {message}
+    </p>
+  </div>
+)}
+
           </Card.Body>
         </Card>
       </Container>
