@@ -7,6 +7,10 @@ import Container from 'react-bootstrap/Container';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Tools() {
+    /**
+     * This page is the tools page. It contains buttons that allow the user to access the tools. The user can access the course assign page, create a new account page, 
+     * delete an account page, and change the password of an account page. The user can click on the buttons to navigate to the corresponding page.
+     */ 
     return (
         <main>
             <Navbar />
