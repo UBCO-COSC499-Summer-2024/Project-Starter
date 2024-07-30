@@ -22,8 +22,6 @@ const ChangePassword = () => {
   useEffect(() => {
     const checkUser = async () => {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      console.log('Session Data:', sessionData);
-      console.log('Session Error:', sessionError);
 
       if (sessionError || !sessionData.session) {
         setMessage('No user is currently logged in!');
@@ -53,17 +51,13 @@ const ChangePassword = () => {
     }
 
     try {
+      // Get the current session
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Session Data on Submit:', sessionData);
-
       const user = sessionData?.session?.user;
-
       if (!user) {
         setMessage('No user is currently logged in!');
         return;
       }
-
-      console.log('User:', user);
 
       // Reauthenticate the user with the current password using email
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -71,9 +65,9 @@ const ChangePassword = () => {
         password: currentPassword,
       });
 
-      console.log('Sign In Error:', signInError);
-
       if (signInError) {
+        // Restore the previous session if sign in fails
+        await supabase.auth.setSession(sessionData.session);
         setMessage('Current password is incorrect!');
         return;
       }
@@ -83,13 +77,10 @@ const ChangePassword = () => {
         password: newPassword,
       });
 
-      console.log('Update Error:', updateError);
-
       if (updateError) throw updateError;
 
       setMessage('Password updated successfully!');
     } catch (error) {
-      console.log('Catch Error:', error);
       setMessage(`Error updating password: ${error.message}`);
     }
   };
@@ -179,20 +170,20 @@ const ChangePassword = () => {
               </div>
             )}
             {message && (
-  <div>
-    <p
-      className="mt-3"
-      style={{
-        color:
-          message.includes('Error') || message.includes('incorrect') || message === 'New passwords do not match!'
-            ? 'red'
-            : 'green',
-      }}
-    >
-      {message}
-    </p>
-  </div>
-)}
+              <div>
+                <p
+                  className="mt-3"
+                  style={{
+                    color:
+                      message.includes('Error') || message.includes('incorrect') || message === 'New passwords do not match!'
+                        ? 'red'
+                        : 'green',
+                  }}
+                >
+                  {message}
+                </p>
+              </div>
+            )}
 
           </Card.Body>
         </Card>
