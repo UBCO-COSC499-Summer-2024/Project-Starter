@@ -478,10 +478,17 @@ CREATE OR REPLACE VIEW
 SELECT
     evaluation_entry_id as id,
     evaluation_type_name as evaluation_type,
+    evaluation_type.evaluation_type_id,
+    requires_course,
+    requires_instructor,
+    requires_service_role,
+    instructor.instructor_id as instructor_id,
+    instructor.first_name as instructor_first_name,
+    instructor.last_name as instructor_last_name,
     CASE
         WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name)
         ELSE ''
-    END AS instructor,
+    END AS instructor_full_name,
     CASE
         WHEN course.course_id IS NOT NULL THEN CONCAT(
             course.subject_code,
@@ -492,7 +499,9 @@ SELECT
         )
         ELSE ''
     END AS course,
+    course.course_id as course_id,
     service_role.title as service_role,
+    service_role.service_role_id as service_role_id,
     evaluation_entry.metric_num as question_num,
     metric_description as question,
     answer,
