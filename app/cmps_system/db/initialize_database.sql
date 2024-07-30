@@ -373,6 +373,29 @@ FROM
     instructor;
 
 CREATE OR REPLACE VIEW
+    v_service_roles_page AS
+SELECT
+    service_role.service_role_id as id,
+    title,
+    description,
+    default_expected_hours,
+    building,
+    room_num,
+    COUNT(*) as assignees
+FROM
+    service_role
+    JOIN
+    service_role_assign
+    ON service_role.service_role_id = service_role_assign.service_role_id
+GROUP BY
+    service_role.service_role_id,
+    title,
+    description,
+    default_expected_hours,
+    building,
+    room_num;
+
+CREATE OR REPLACE VIEW
     v_courses_with_instructors AS
 SELECT
     course.course_id as id,
