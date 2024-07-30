@@ -54,7 +54,7 @@ CREATE POLICY "delete_instructors" ON public.instructor FOR DELETE TO authentica
         WHERE
             user_id = auth.uid ()
     ) IN ('head', 'staff')
-)
+);
 
 -- service_role table
 ALTER TABLE public.service_role ENABLE ROW LEVEL SECURITY;
@@ -112,4 +112,4 @@ CREATE POLICY "delete_service_roles" ON public.service_role FOR DELETE TO authen
         WHERE
             user_id = auth.uid ()
     ) IN ('head', 'staff')
-)
+);
