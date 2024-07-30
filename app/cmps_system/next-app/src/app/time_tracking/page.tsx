@@ -52,7 +52,6 @@ export default function Evaluations() {
         }
     };
 
-
     return (
         <>
             <Navbar />
@@ -75,6 +74,7 @@ export default function Evaluations() {
                 rowUpdateHandler={rowUpdateHandler}
                 deleteWarningMessage="Are you sure you want to delete this evaluation?"
                 idColumn="service_hours_entry_id"
+                uniqueColumns={["instructor_id", "service_role_id", "year", "month"]}
             />
         </>
     );

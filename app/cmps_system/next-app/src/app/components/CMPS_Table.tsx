@@ -84,7 +84,7 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
     }));
 };
 
-export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, idColumn, newRecordURL }) {
+export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, tableName, rowUpdateHandler, deleteWarningMessage, idColumn, uniqueColumns, newRecordURL }) {
     const router = useRouter();
     const [tableData, setTableData] = useState([]);
     const [initialTableData, setInitialTableData] = useState([]);
@@ -249,7 +249,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                         return;
                     }
                 } else {
-                    const { error } = await supabase.from(tableName).upsert(row);
+                    const { error } = await supabase.from(tableName).upsert(row, uniqueColumns ? { onConflict: uniqueColumns } : {});
                     if (error) {
                         console.error("Error updating row:", error);
                         return;
