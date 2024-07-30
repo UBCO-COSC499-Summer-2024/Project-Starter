@@ -3,8 +3,11 @@ import React from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
+import { Button } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 export default function Evaluations() {
+    const router = useRouter();
     const fetchUrl = "v_evaluations_page";
     const tableName = "evaluation_entry";
     const initialSortModel = [
@@ -75,7 +78,14 @@ export default function Evaluations() {
     return (
         <>
             <Navbar />
-            <h1>Evaluations</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', flexWrap: 'nowrap' }}>
+                <h1 style={{ marginRight: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}>Evaluations</h1>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                    <Button onClick={() => { router.push("/evaluations/evaluation_types") }} variant="contained" color="primary">
+                        View Evaluation Types
+                    </Button>
+                </div>
+            </div>
             <CMPS_Table
                 fetchUrl={fetchUrl}
                 columnsConfig={columnsConfig}
