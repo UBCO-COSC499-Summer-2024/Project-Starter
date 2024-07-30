@@ -97,6 +97,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
     const csv = useRef(null);
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [userRole, setUserRole] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -110,6 +111,24 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
             }
         })();
     }, [fetchUrl]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+                const user = sessionData?.session?.user;
+                const { data, error } = await supabase
+                    .from('user_role')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .single();
+                if (error) throw error;
+                setUserRole(data.role);
+            } catch (error) {
+                console.error("Error fetching user role:", error);
+            }
+        })();
+    }, []);
 
     const handleOpenModal = (type, row) => {
         setSearchModalType(type);
@@ -298,7 +317,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                     processRowUpdate={handleProcessRowUpdate}
                     pageSizeOptions={[10000]}
                     initialState={{ sorting: { sortModel: initialSortModel } }}
-                    slots={{ toolbar: EditToolbar as GridSlots['toolbar'] }}
+                    slots={{ toolbar: userRole === 'head' || userRole === 'staff' ? EditToolbar : null as GridSlots['toolbar'] }}
                     rowModesModel={rowModesModel}
                     slotProps={{ toolbar: { setTableData, setRowModesModel } }}
                     checkboxSelection
