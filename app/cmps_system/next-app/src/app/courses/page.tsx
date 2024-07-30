@@ -14,8 +14,8 @@ export default function Courses() {
 
     const columnsConfig = [
         { field: 'id', headerName: 'ID', width: 50, editable: false },
-        { field: 'subject_code', headerName: 'Subject', flex: 1, editable: true },
-        { field: 'course_num', headerName: 'Course No.', flex: 1, editable: true },
+        { field: 'subject_code', headerName: 'Subject', flex: 1, editable: userType != "instructor" },
+        { field: 'course_num', headerName: 'Course No.', flex: 1, editable: userType != "instructor" },
         {
             field: 'section_num',
             headerName: 'Section',
@@ -23,8 +23,8 @@ export default function Courses() {
             editable: true,
             linkConfig: { prefix: '/courses/course_info?id=', idField: 'id' }
         },
-        { field: 'course_title', headerName: 'Course Title', flex: 2, editable: true },
-        { field: 'academic_year', headerName: 'Academic Year', flex: 1, editable: true },
+        { field: 'course_title', headerName: 'Course Title', flex: 2, editable: userType != "instructor" },
+        { field: 'academic_year', headerName: 'Academic Year', flex: 1, editable: userType != "instructor" },
         {
             field: 'session',
             headerName: 'Session',
@@ -61,10 +61,10 @@ export default function Courses() {
                 );
             }
         },
-        { field: 'num_students', headerName: 'Students', flex: 1, editable: true },
-        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: true },
-        { field: 'average_grade', headerName: 'Avg. Grade', flex: 1, editable: true },
-        { field: 'location', headerName: 'Location', flex: 1, editable: true },
+        { field: 'num_students', headerName: 'Students', flex: 1, editable: userType != "instructor" },
+        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: userType != "instructor" },
+        { field: 'average_grade', headerName: 'Avg. Grade', flex: 1, editable: userType != "instructor" },
+        { field: 'location', headerName: 'Location', flex: 1, editable: userType != "instructor" },
     ];
 
     const rowUpdateHandler = async (row) => {

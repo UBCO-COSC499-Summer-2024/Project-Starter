@@ -486,7 +486,7 @@ SELECT
     instructor.first_name as instructor_first_name,
     instructor.last_name as instructor_last_name,
     CASE
-        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name)
         ELSE ''
     END AS instructor_full_name,
     CASE
