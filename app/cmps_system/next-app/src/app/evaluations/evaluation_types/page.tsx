@@ -74,7 +74,8 @@ export default function EvaluationTypes() {
             .from('evaluation_type')
             .update({
                 evaluation_type_name: row.name,
-                description: row.description
+                description: row.description,
+                date_added: row.date_added
             })
             .eq('evaluation_type_id', row.id);
 
