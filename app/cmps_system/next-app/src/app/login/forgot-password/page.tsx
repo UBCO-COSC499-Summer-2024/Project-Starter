@@ -21,8 +21,11 @@ export default function ForgotPassword() {
             setErrorMessage('Please enter your email.');
             return;
         }
-    
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login/update-password`
+        });
+
         if (error) {
             setErrorMessage('Error sending verification code.');
         } else {
@@ -85,7 +88,7 @@ export default function ForgotPassword() {
                 <b className="tw-text-2xl">Forgot Password</b>
                 {errorMessage && <Alert variant="danger" className="tw-mt-4">{errorMessage}</Alert>}
                 {successMessage && <Alert variant="success" className="tw-mt-4">{successMessage}</Alert>}
-                
+
                 {step === 1 && (
                     <div>
                         <Form.Control
