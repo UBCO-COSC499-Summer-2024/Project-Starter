@@ -152,6 +152,36 @@ export default function Home() {
     ];
 
     const handleSaveClick = async () => {
+        const updates = selectedRows.map(async (id) => {
+            const row = courseData.find(row => row.id === id);
+            if (!row) return null;
+
+            const { error } = await supabase.from("course").update({
+                course_id: row.id,
+                course_title: row.course_title,
+                building: row.location.split(" ")[0],
+                room_num: row.location.split(" ")[1],
+                num_students: row.num_students,
+                num_tas: row.num_tas,
+                term: row.term,
+                academic_year: row.academic_year,
+                subject_code: row.subject_code,
+                course_num: row.course_num,
+                section_num: row.section_num,
+                average_grade: row.average_grade,
+                year_level: row.year_level,
+                session: row.session
+            }).eq("course_id", row.id);
+
+            if (error) {
+                alert(`Error On Row ${row.id}: ${error.message}`);
+                return null;
+            }
+
+            return row;
+        });
+
+        await Promise.all(updates);
         setRowModesModel({});
         setIsEditing(false);
     };
