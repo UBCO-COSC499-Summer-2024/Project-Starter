@@ -460,18 +460,14 @@ CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
     service_hours_entry_id as id,
+    service_hours_entry.instructor_id,
     CONCAT(
-        instructor.instructor_id,
-        ' - ',
         instructor.last_name,
         ', ',
         instructor.first_name
     ) as instructor_name,
-    CONCAT(
-        service_role.service_role_id,
-        ' - ',
-        service_role.title
-    ) as service_role_name,
+    service_role.service_role_id as service_role_id,
+    service_role.title as service_role_name,
     year,
     month,
     hours
