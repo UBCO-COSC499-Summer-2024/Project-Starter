@@ -34,7 +34,9 @@
 }
 
 .navbarButton:hover {
-    background-color: #0680A6;
+    /* background-color: #0680A6; */
+    font-weight: bold;
+    text-decoration: underline white;
 }
 
 .navbarButtonText {

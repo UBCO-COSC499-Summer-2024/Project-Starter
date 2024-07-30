@@ -12,6 +12,7 @@ import Navbar from "@/app/components/NavBar";
 import Container from 'react-bootstrap/Container';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import supabase from "@/app/components/supabaseClient";
+import getUserType from "../components/getUserType";
 
 ChartJS.register(
     CategoryScale,
@@ -30,6 +31,7 @@ export default function Home() {
     const [rowModesModel, setRowModesModel] = useState({});
     const [selectedRows, setSelectedRows] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [userType, setUserType] = useState(null);
     const csv = useRef(null);
 
     useEffect(() => {
@@ -41,6 +43,7 @@ export default function Home() {
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
+            setUserType(await getUserType());
         })();
     }, []);
 
@@ -111,29 +114,29 @@ export default function Home() {
 
     const tableColumns = [
         { field: 'id', headerName: 'ID', width: 50, editable: false },
-        { field: 'subject_code', headerName: 'Subject', flex: 1, editable: true },
-        { field: 'course_num', headerName: 'Course No.', flex: 1, editable: true },
+        { field: 'subject_code', headerName: 'Subject', flex: 1, editable: userType!="instructor" },
+        { field: 'course_num', headerName: 'Course No.', flex: 1, editable: userType!="instructor" },
         {
             field: 'section_num',
             headerName: 'Section',
             flex: 1,
-            editable: true,
+            editable: userType!="instructor",
             renderCell: renderSectionNumber
         },
-        { field: 'course_title', headerName: 'Course Title', flex: 2, editable: true },
-        { field: 'academic_year', headerName: 'Academic Year', flex: 1, editable: true },
+        { field: 'course_title', headerName: 'Course Title', flex: 2, editable: userType!="instructor" },
+        { field: 'academic_year', headerName: 'Academic Year', flex: 1, editable: userType!="instructor" },
         {
             field: 'session',
             headerName: 'Session',
             flex: 1,
-            editable: true,
+            editable: userType!="instructor",
             renderEditCell: renderSessionSelector
         },
         {
             field: 'term',
             headerName: 'Term',
             flex: 1,
-            editable: true,
+            editable: userType!="instructor",
             renderEditCell: renderTermSelector
         },
         {
@@ -142,10 +145,10 @@ export default function Home() {
             flex: 2,
             renderCell: renderInstructorNames
         },
-        { field: 'num_students', headerName: 'Students', flex: 1, editable: true },
-        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: true },
-        { field: 'average_grade', headerName: 'Avg. Grade', flex: 1, editable: true },
-        { field: 'location', headerName: 'Location', flex: 1, editable: true },
+        { field: 'num_students', headerName: 'Students', flex: 1, editable: userType!="instructor" },
+        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: userType!="instructor" },
+        { field: 'average_grade', headerName: 'Avg. Grade', flex: 1, editable: userType!="instructor" },
+        { field: 'location', headerName: 'Location', flex: 1, editable: userType!="instructor" },
     ];
 
     const handleSaveClick = async () => {
@@ -245,6 +248,7 @@ export default function Home() {
     }, [isEditing]);
 
     const EditToolbar = useCallback((props) => {
+        if(userType=="instructor") return <></>;
         const { setCourseData, setRowModesModel } = props;
 
         const handleClick = () => {
