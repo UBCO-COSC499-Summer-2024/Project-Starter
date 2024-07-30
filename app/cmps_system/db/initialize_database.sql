@@ -344,15 +344,32 @@ ALTER TABLE "course_assign"
 ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY ("instructor_id") REFERENCES "instructor" ("instructor_id") ON DELETE CASCADE;
 
 CREATE OR REPLACE VIEW
-    v_instructor_instructor AS
+    v_instructors_page AS
 SELECT
-    instructor_id,
-    prefix,
+    instructor_id as id,
     first_name,
     last_name,
-    suffix,
-    title
-from
+    CONCAT(
+        COALESCE(prefix, ''),
+        CASE
+            WHEN prefix IS NOT NULL
+            AND prefix != '' THEN ' '
+            ELSE ''
+        END,
+        first_name,
+        ' ',
+        last_name,
+        CASE
+            WHEN suffix IS NOT NULL
+            AND suffix != '' THEN ' '
+            ELSE ''
+        END,
+        COALESCE(suffix, '')
+    ) as full_name,
+    ubc_employee_num,
+    title,
+    hire_date
+FROM
     instructor;
 
 CREATE OR REPLACE VIEW
@@ -401,7 +418,7 @@ FROM
     course
     LEFT JOIN course_assign ON course.course_id = course_assign.course_id
     LEFT JOIN instructor ON instructor.instructor_id = course_assign.instructor_id
-  GROUP BY
+GROUP BY
     course.course_id,
     subject_code,
     course_num,
@@ -470,8 +487,13 @@ SELECT
 from
     service_hours_benchmark
     JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
-    
-CREATE OR REPLACE VIEW list_of_course_sections AS SELECT CONCAT(subject_code, ' ', course_num, ' ', section_num) FROM course;
+
+CREATE OR REPLACE VIEW
+    list_of_course_sections AS
+SELECT
+    CONCAT(subject_code, ' ', course_num, ' ', section_num)
+FROM
+    course;
 
 CREATE OR REPLACE VIEW
     v_evaluations_page AS
@@ -486,7 +508,13 @@ SELECT
     instructor.first_name as instructor_first_name,
     instructor.last_name as instructor_last_name,
     CASE
-        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name)
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(
+            instructor.instructor_id,
+            ' - ',
+            instructor.last_name,
+            ', ',
+            instructor.first_name
+        )
         ELSE ''
     END AS instructor_full_name,
     CASE
