@@ -1,11 +1,12 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Modal, Typography, Box, styled, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button } from '@mui/material';
 import Navbar from "@/app/components/NavBar";
 import supabase from "@/app/components/supabaseClient";
 import CMPS_Table from '@/app/components/CMPS_Table';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
+import { styled } from '@mui/material/styles';
 
 const TextareaAutosize = styled(BaseTextareaAutosize)(
     ({ theme }) => `
@@ -91,7 +92,7 @@ export default function TimeTracking() {
                 year: row.year,
                 hours: row.hours,
                 month: row.month,
-                service_role_id: row.service_role_
+                service_role_id: row.service_role_id
             });
 
         if (error) {
