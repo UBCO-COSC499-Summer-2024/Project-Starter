@@ -55,8 +55,8 @@ export default function TimeTracking() {
     return (
         <>
             <Navbar />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
-                <h1 style={{ marginRight: "10px" }}>Time Tracking</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', flexWrap: 'nowrap' }}>
+                <h1 style={{ marginRight: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}>Time Tracking</h1>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                     <Button onClick={() => { router.push("/time_tracking/benchmarks") }} variant="contained" color="primary">
                         Service Hours Benchmarks
