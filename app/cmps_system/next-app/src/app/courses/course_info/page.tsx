@@ -17,57 +17,103 @@ const CourseInfo = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const courseId = searchParams.get('id');
   const router = useRouter();
+  const [instructorId, setInstructorId] = useState([]);
+
   useEffect(() => {
     const fetchCourse = async () => {
-      if (!courseId) {
-        setError('No course ID provided');
-        setLoading(false);
-        return;
-      }
+      if (!courseId) return;
       setLoading(true);
       try {
-        const { data, error } = await supabase.from('course').select('*').eq('course_id', courseId).single();
-        if (error) {
-          setError(error.message);
-          console.error('Error fetching course:', error);
-        } else {
-          const filteredData = Object.entries(data).reduce((acc, [key, value]) => {
-            if (key !== 'course_id') { 
-              acc.push({
-                id: key,
-                field: key,
-                label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                value: value
-              });
-            }
-            return acc;
-          }, []);
-          setCourse(filteredData);
+        const { data: courseData, error: courseError } = await supabase
+          .from('course')
+          .select('*')
+          .eq('course_id', courseId)
+          .single();
+        
+        const { data: assignData, error: assignError } = await supabase
+          .from('course_assign')
+          .select('start_date, end_date','instructor_id')
+          .eq('course_id', courseId)
+          .single();
+        
+        if (courseError) {
+          throw courseError;
         }
+  
+        if (assignError) {
+          console.error('Error fetching assignment dates:', assignError);
+          setError(assignError.message);
+        }
+  
+        
+        const filteredCourse = Object.entries(courseData).reduce((acc, [key, value]) => {
+          if (key !== 'course_id') {
+            let formattedValue = value;
+            if (key === 'req_in_person_attendance') {
+              formattedValue = value ? 'Yes' : 'No';
+            }
+            acc.push({
+              id: key,
+              field: key,
+              label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              value: formattedValue
+            });
+          }
+          return acc;
+        }, []);
+  
+        if (assignData) {
+          filteredCourse.push({
+            id: 'start_date',
+            field: 'start_date',
+            label: 'Start Date',
+            value: assignData.start_date
+          }, {
+            id: 'end_date',
+            field: 'end_date',
+            label: 'End Date',
+            value: assignData.end_date
+          });
+        }
+  
+        setCourse(filteredCourse);
       } catch (err) {
-        setError(err.message);
         console.error('Fetch error:', err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchCourse();
   }, [courseId]);
+  
 
   const handleProcessRowUpdate = async (newRow) => {
     try {
-      const updatedCourseData = { ...course.find(row => row.id === newRow.id), ...newRow };
-      const { error } = await supabase
-        .from('course')
-        .update({ [newRow.field]: newRow.value })
-        .eq('course_id', courseId);
-
+      let error;
+  
+      if (newRow.field === 'start_date' || newRow.field === 'end_date') {
+        const { error: updateError } = await supabase
+          .from('course_assign')
+          .update({ [newRow.field]: newRow.value })
+          .eq('course_id', courseId);
+  
+        error = updateError;
+      } else {
+        const { error: updateError } = await supabase
+          .from('course')
+          .update({ [newRow.field]: newRow.value })
+          .eq('course_id', courseId);
+  
+        error = updateError;
+      }
+  
       if (error) {
         throw new Error(error.message);
       }
-
-      setCourse(course.map(row => (row.id === newRow.id ? updatedCourseData : row)));
+  
+      setCourse(course.map(row => (row.id === newRow.id ? { ...row, value: newRow.value } : row)));
       return newRow;
     } catch (error) {
       setError(error.message);
@@ -75,6 +121,8 @@ const CourseInfo = () => {
       throw error;
     }
   };
+  
+
   const handleDelete = async () => {
     try {
       const { error } = await supabase
@@ -83,7 +131,7 @@ const CourseInfo = () => {
         .eq('course_id', courseId);
       if (error) throw error;
       alert('Course removed successfully');
-      router.push('/courses'); 
+      router.push('/courses');
       setModalShow(false);
     } catch (error) {
       setError(error.message);
@@ -93,7 +141,7 @@ const CourseInfo = () => {
 
   const columns: GridColDef[] = [
     { field: 'label', headerName: 'Attribute', width: 200, editable: false },
-    { field: 'value', headerName: 'Value', width: 500, editable: true }
+    { field: 'value', headerName: 'Value', width: 300, editable: true }
   ];
 
   return (
@@ -104,7 +152,7 @@ const CourseInfo = () => {
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
-          <p>Error: {error}</p>
+          <p>Error fetching courses: {error}</p>
         ) : (
           <DataGrid
             rows={course}
