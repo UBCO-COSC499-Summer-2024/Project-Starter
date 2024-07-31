@@ -362,3 +362,30 @@ CREATE POLICY "delete_evaluation_entrys" ON public.evaluation_entry FOR DELETE T
             user_id = auth.uid ()
     ) IN ('head', 'staff')
 );
+
+-- event table
+ALTER TABLE public.event ENABLE ROW LEVEL SECURITY;
+
+-- Read access for relevant instructor, staff, and head
+CREATE POLICY "select_relevant_events" ON public.event FOR
+SELECT
+    TO authenticated USING (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR EXISTS (
+            SELECT
+                1
+            FROM
+                public.event_attendance
+                JOIN public.instructor ON public.event_attendance.instructor_id = public.instructor.instructor_id
+            WHERE
+                public.event_attendance.event_id = public.event.event_id
+                AND public.instructor.email = auth.email ()
+        )
+    );
