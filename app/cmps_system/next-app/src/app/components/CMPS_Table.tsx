@@ -435,3 +435,4 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     );
 }
 
+export default CMPS_Table;
