@@ -390,29 +390,35 @@ SELECT
     COUNT(*) as assignees,
     CASE
         WHEN (
-            SELECT email
-            FROM instructor
-            WHERE instructor.instructor_id = service_role_assign.instructor_id
-        ) = auth.email()
-        THEN start_date
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN start_date
         ELSE NULL
     END AS start_date,
     CASE
         WHEN (
-            SELECT email
-            FROM instructor
-            WHERE instructor.instructor_id = service_role_assign.instructor_id
-        ) = auth.email()
-        THEN end_date
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN end_date
         ELSE NULL
     END AS end_date,
     CASE
         WHEN (
-            SELECT email
-            FROM instructor
-            WHERE instructor.instructor_id = service_role_assign.instructor_id
-        ) = auth.email()
-        THEN expected_hours
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN expected_hours
         ELSE NULL
     END AS expected_hours
 FROM
@@ -685,3 +691,69 @@ $$;
 CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users FOR EACH ROW
 EXECUTE PROCEDURE public.handle_new_user ();
+
+CREATE OR REPLACE VIEW
+    v_service_role_assign AS
+SELECT
+    service_role_assign_id,
+    instructor_id,
+    service_role_id,
+    CASE
+        WHEN (
+            SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN start_date
+        ELSE NULL
+    END AS start_date,
+    CASE
+        WHEN (
+            SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN end_date
+        ELSE NULL
+    END AS end_date,
+    CASE
+        WHEN (
+            SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN expected_hours
+        ELSE NULL
+    END AS expected_hours
+FROM
+    service_role_assign;
