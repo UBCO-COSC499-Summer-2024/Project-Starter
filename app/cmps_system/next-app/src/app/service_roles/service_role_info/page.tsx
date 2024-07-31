@@ -30,7 +30,7 @@ export default function ServiceRoleInfo() {
                     .select('*')
                     .eq('service_role_id', serviceRoleId)
                     .single();
-                
+
                 if (error) throw error;
 
                 setServiceRole(data);
@@ -43,10 +43,10 @@ export default function ServiceRoleInfo() {
         const fetchAssignments = async () => {
             try {
                 const { data, error } = await supabase
-                    .from('service_role_assign')
+                    .from('v_service_role_assign')
                     .select('*, instructor (first_name, last_name)')
                     .eq('service_role_id', serviceRoleId);
-                
+
                 if (error) throw error;
 
                 setAssignments(data);
@@ -60,7 +60,7 @@ export default function ServiceRoleInfo() {
                 const { data, error } = await supabase
                     .from('instructor')
                     .select('*');
-                
+
                 if (error) throw error;
 
                 setInstructors(data);
@@ -86,7 +86,7 @@ export default function ServiceRoleInfo() {
                 .from('service_role')
                 .update(serviceRole)
                 .eq('service_role_id', serviceRoleId);
-            
+
             if (error) throw error;
 
             setSnackbarMessage('Service role updated successfully.');
@@ -123,11 +123,11 @@ export default function ServiceRoleInfo() {
 
             const { data, error } = await supabase
                 .from('service_role_assign')
-                .insert([{ 
-                    instructor_id: newAssignment.instructor_id, 
+                .insert([{
+                    instructor_id: newAssignment.instructor_id,
                     service_role_id: serviceRoleId,
-                    start_date: newAssignment.start_date, 
-                    end_date: newAssignment.end_date, 
+                    start_date: newAssignment.start_date,
+                    end_date: newAssignment.end_date,
                     expected_hours: newAssignment.expected_hours
                 }])
                 .select();
@@ -153,7 +153,7 @@ export default function ServiceRoleInfo() {
                 .from('service_role_assign')
                 .delete()
                 .eq('service_role_assign_id', id);
-            
+
             if (error) throw error;
 
             setAssignments(prev => prev.filter(a => a.service_role_assign_id !== id));
@@ -173,10 +173,12 @@ export default function ServiceRoleInfo() {
     };
 
     const columns = [
-        { field: 'instructor_id', headerName: 'Assignee', width: 200, renderCell: (params) => {
-            const instructor = instructors.find(inst => inst.instructor_id === params.value);
-            return instructor ? `${instructor.first_name} ${instructor.last_name}` : '';
-        }},
+        {
+            field: 'instructor_id', headerName: 'Assignee', width: 200, renderCell: (params) => {
+                const instructor = instructors.find(inst => inst.instructor_id === params.value);
+                return instructor ? `${instructor.first_name} ${instructor.last_name}` : '';
+            }
+        },
         { field: 'start_date', headerName: 'Start Date', width: 150, editable: true },
         { field: 'end_date', headerName: 'End Date', width: 150, editable: true },
         { field: 'expected_hours', headerName: 'Expected Hours', width: 150, editable: true },
@@ -203,8 +205,8 @@ export default function ServiceRoleInfo() {
                     <Typography variant="h4" component="h1" gutterBottom>
                         Service Role Info
                     </Typography>
-                    <Button 
-                        variant="outlined" 
+                    <Button
+                        variant="outlined"
                         onClick={() => router.push('/service_roles')} // Go back to service roles page
                     >
                         Go Back
@@ -266,8 +268,8 @@ export default function ServiceRoleInfo() {
                     <Typography variant="h5" component="h2">
                         Assignees
                     </Typography>
-                    <Button 
-                        variant="contained" 
+                    <Button
+                        variant="contained"
                         color="primary"
                         onClick={() => setIsModalOpen(true)}
                     >
@@ -335,10 +337,10 @@ export default function ServiceRoleInfo() {
                             margin="normal"
                             required
                         />
-                        <Button 
-                            variant="contained" 
-                            color="primary" 
-                            onClick={handleAddAssignment} 
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleAddAssignment}
                             style={{ marginTop: '20px' }}
                         >
                             Add Assignment
@@ -346,9 +348,9 @@ export default function ServiceRoleInfo() {
                     </Box>
                 </Modal>
 
-                <Snackbar 
-                    open={snackbarOpen} 
-                    autoHideDuration={6000} 
+                <Snackbar
+                    open={snackbarOpen}
+                    autoHideDuration={6000}
                     onClose={handleSnackbarClose}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
