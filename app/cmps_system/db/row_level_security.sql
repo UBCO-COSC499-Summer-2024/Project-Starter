@@ -171,3 +171,61 @@ CREATE POLICY "delete_service_roles" ON public.service_role FOR DELETE TO authen
             user_id = auth.uid ()
     ) IN ('head', 'staff')
 );
+
+-- evaluation_type table
+ALTER TABLE public.evaluation_type ENABLE ROW LEVEL SECURITY;
+
+-- Read access for everyone
+CREATE POLICY "select_all_evaluation_types" ON public.evaluation_type FOR
+SELECT
+    TO authenticated USING (true);
+
+-- Insert access for staff and head
+CREATE POLICY "insert_evaluation_types" ON public.evaluation_type FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_evaluation_types" ON public.evaluation_type FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_evaluation_types" ON public.evaluation_type FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
