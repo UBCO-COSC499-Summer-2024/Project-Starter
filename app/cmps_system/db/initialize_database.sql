@@ -129,7 +129,10 @@ CREATE TABLE IF NOT EXISTS
         "instructor_id" INTEGER NOT NULL,
         "service_role_id" INTEGER NOT NULL,
         "year" INTEGER NOT NULL,
-        "month" INTEGER NOT NULL,
+        "month" INTEGER CHECK (
+            "month" >= 1
+            AND "month" <= 12
+        ) NOT NULL,
         "hours" INTEGER NOT NULL
     );
 
@@ -385,9 +388,7 @@ SELECT
     COUNT(*) as assignees
 FROM
     service_role
-    JOIN
-    service_role_assign
-    ON service_role.service_role_id = service_role_assign.service_role_id
+    JOIN service_role_assign ON service_role.service_role_id = service_role_assign.service_role_id
 GROUP BY
     service_role.service_role_id,
     title,
@@ -461,18 +462,10 @@ CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
     service_hours_entry_id as id,
-    CONCAT(
-        instructor.instructor_id,
-        ' - ',
-        instructor.last_name,
-        ', ',
-        instructor.first_name
-    ) as instructor_name,
-    CONCAT(
-        service_role.service_role_id,
-        ' - ',
-        service_role.title
-    ) as service_role_name,
+    service_hours_entry.instructor_id,
+    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_full_name,
+    service_role.service_role_id as service_role_id,
+    service_role.title as service_role,
     year,
     month,
     hours
