@@ -54,7 +54,8 @@ CREATE POLICY "delete_instructors" ON public.instructor FOR DELETE TO authentica
         WHERE
             user_id = auth.uid ()
     ) IN ('head', 'staff')
-)
+);
+
 -- course table
 ALTER TABLE public.course ENABLE ROW LEVEL SECURITY;
 
