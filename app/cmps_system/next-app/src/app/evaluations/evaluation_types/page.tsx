@@ -94,9 +94,10 @@ export default function EvaluationTypes() {
                 fetchUrl={fetchUrl}
                 columnsConfig={columnsConfig}
                 initialSortModel={initialSortModel}
+                newRecordURL="/evaluations/create_new_evaluation_type"
                 tableName={tableName}
                 rowUpdateHandler={rowUpdateHandler}
-                deleteWarningMessage="Are you sure you want to delete this evaluation type?"
+                deleteWarningMessage="Are you sure you want to delete this evaluation type? All associated questions AND evaluation entries will also be deleted. This action is not recoverable!"
                 idColumn="evaluation_type_id"
             />
         </>

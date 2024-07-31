@@ -521,7 +521,7 @@ SELECT
     evaluation_type.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
-    COUNT(*) as num_entries,
+    COUNT(evaluation_metric.*) as num_entries,
     date_added,
     requires_course,
     requires_instructor,
