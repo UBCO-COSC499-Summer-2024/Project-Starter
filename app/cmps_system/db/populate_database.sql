@@ -47,15 +47,15 @@ INSERT INTO "course" ("academic_year", "session", "term", "subject_code", "cours
 (2023, 'Summer', 'Term 1', 'PHYS', '150', '001', 'Introduction to Fizzicks', 'Hybrid', FALSE, 'EME', '101', 'Introductory course', 'Lecture', 'Tue, Thu', '08:00', '09:30', 120, 4, 75.0, 3, 1, 'Open', 'Active');
 
 -- Teaching assignments
-INSERT INTO "course_assign" ("instructor_id", "course_id", "position", "start_date", "end_date") VALUES
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789), 1, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 987654321), 2, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789), 3, 'Instructor', '2023-05-01', '2023-06-30'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 987654321), 4, 'Instructor', '2023-07-01', '2023-08-30'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 112233445), 4, 'TA', '2023-07-01', '2023-08-30'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 223344556), 5, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 334455667), 6, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 445566778), 7, 'Instructor', '2023-05-01', '2023-06-30');
+INSERT INTO "course_assign" ("instructor_id", "course_id", "position") VALUES
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789), 1, 'Instructor'),
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 987654321), 2, 'Instructor'),
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789), 3, 'Instructor'),
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 987654321), 4, 'Instructor'),
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 112233445), 4, 'TA'),
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 223344556), 5, 'Instructor'),
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 334455667), 6, 'Instructor'),
+((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 445566778), 7, 'Instructor');
 
 -- Service roles
 INSERT INTO "service_role" ("title", "description", "default_expected_hours", "building", "room_num") VALUES

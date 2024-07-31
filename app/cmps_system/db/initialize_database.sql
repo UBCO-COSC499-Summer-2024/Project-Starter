@@ -80,9 +80,7 @@ CREATE TABLE IF NOT EXISTS
         "assignment_id" SERIAL NOT NULL,
         "instructor_id" INTEGER NOT NULL,
         "course_id" INTEGER NOT NULL,
-        "position" VARCHAR(255) NOT NULL,
-        "start_date" DATE NULL,
-        "end_date" DATE NULL
+        "position" VARCHAR(255) NOT NULL
     );
 
 ALTER TABLE "course_assign"
