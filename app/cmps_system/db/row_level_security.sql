@@ -519,3 +519,61 @@ CREATE POLICY "delete_event_attendance" ON public.event_attendance FOR DELETE TO
             user_id = auth.uid ()
     ) IN ('head', 'staff')
 );
+
+-- course_assign table
+ALTER TABLE public.course_assign ENABLE ROW LEVEL SECURITY;
+
+-- Read access for everyone
+CREATE POLICY "select_all_course_assigns" ON public.course_assign FOR
+SELECT
+    TO authenticated USING (true);
+
+-- Insert access for staff and head
+CREATE POLICY "insert_course_assigns" ON public.course_assign FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_course_assigns" ON public.course_assign FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_course_assigns" ON public.course_assign FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
