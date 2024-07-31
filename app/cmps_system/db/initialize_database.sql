@@ -129,7 +129,10 @@ CREATE TABLE IF NOT EXISTS
         "instructor_id" INTEGER NOT NULL,
         "service_role_id" INTEGER NOT NULL,
         "year" INTEGER NOT NULL,
-        "month" INTEGER NOT NULL,
+        "month" INTEGER CHECK (
+            "month" >= 1
+            AND "month" <= 12
+        ) NOT NULL,
         "hours" INTEGER NOT NULL
     );
 
@@ -173,6 +176,7 @@ ADD PRIMARY KEY ("evaluation_type_id");
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
+        "evaluation_metric_id" SERIAL NOT NULL,
         "evaluation_type_id" INTEGER NOT NULL,
         "metric_num" INTEGER NOT NULL,
         "metric_description" TEXT NOT NULL,
@@ -181,7 +185,7 @@ CREATE TABLE IF NOT EXISTS
     );
 
 ALTER TABLE "evaluation_metric"
-ADD PRIMARY KEY ("evaluation_type_id", "metric_num");
+ADD CONSTRAINT "evaluation_type_metric_num_unique" UNIQUE ("evaluation_type_id", "metric_num");
 
 ALTER TABLE "evaluation_type"
 ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
@@ -344,16 +348,54 @@ ALTER TABLE "course_assign"
 ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY ("instructor_id") REFERENCES "instructor" ("instructor_id") ON DELETE CASCADE;
 
 CREATE OR REPLACE VIEW
-    v_instructor_instructor AS
+    v_instructors_page AS
 SELECT
-    instructor_id,
-    prefix,
+    instructor_id as id,
     first_name,
     last_name,
-    suffix,
-    title
-from
+    CONCAT(
+        COALESCE(prefix, ''),
+        CASE
+            WHEN prefix IS NOT NULL
+            AND prefix != '' THEN ' '
+            ELSE ''
+        END,
+        first_name,
+        ' ',
+        last_name,
+        CASE
+            WHEN suffix IS NOT NULL
+            AND suffix != '' THEN ' '
+            ELSE ''
+        END,
+        COALESCE(suffix, '')
+    ) as full_name,
+    ubc_employee_num,
+    title,
+    hire_date
+FROM
     instructor;
+
+CREATE OR REPLACE VIEW
+    v_service_roles_page AS
+SELECT
+    service_role.service_role_id as id,
+    title,
+    description,
+    default_expected_hours,
+    building,
+    room_num,
+    COUNT(*) as assignees
+FROM
+    service_role
+    JOIN service_role_assign ON service_role.service_role_id = service_role_assign.service_role_id
+GROUP BY
+    service_role.service_role_id,
+    title,
+    description,
+    default_expected_hours,
+    building,
+    room_num;
 
 CREATE OR REPLACE VIEW
     v_courses_with_instructors AS
@@ -401,7 +443,7 @@ FROM
     course
     LEFT JOIN course_assign ON course.course_id = course_assign.course_id
     LEFT JOIN instructor ON instructor.instructor_id = course_assign.instructor_id
-  GROUP BY
+GROUP BY
     course.course_id,
     subject_code,
     course_num,
@@ -420,18 +462,10 @@ CREATE OR REPLACE VIEW
     v_timetracking AS
 SELECT
     service_hours_entry_id as id,
-    CONCAT(
-        instructor.instructor_id,
-        ' - ',
-        instructor.last_name,
-        ', ',
-        instructor.first_name
-    ) as instructor_name,
-    CONCAT(
-        service_role.service_role_id,
-        ' - ',
-        service_role.title
-    ) as service_role_name,
+    service_hours_entry.instructor_id,
+    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_full_name,
+    service_role.service_role_id as service_role_id,
+    service_role.title as service_role,
     year,
     month,
     hours
@@ -470,8 +504,13 @@ SELECT
 from
     service_hours_benchmark
     JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
-    
-CREATE OR REPLACE VIEW list_of_course_sections AS SELECT CONCAT(subject_code, ' ', course_num, ' ', section_num) FROM course;
+
+CREATE OR REPLACE VIEW
+    list_of_course_sections AS
+SELECT
+    CONCAT(subject_code, ' ', course_num, ' ', section_num)
+FROM
+    course;
 
 CREATE OR REPLACE VIEW
     v_evaluations_page AS
@@ -486,7 +525,13 @@ SELECT
     instructor.first_name as instructor_first_name,
     instructor.last_name as instructor_last_name,
     CASE
-        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.instructor_id, ' - ', instructor.last_name, ', ', instructor.first_name)
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(
+            instructor.instructor_id,
+            ' - ',
+            instructor.last_name,
+            ', ',
+            instructor.first_name
+        )
         ELSE ''
     END AS instructor_full_name,
     CASE
