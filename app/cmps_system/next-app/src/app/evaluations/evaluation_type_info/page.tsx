@@ -230,11 +230,17 @@ const EvaluationTypeInfo = () => {
         setDeleteEvaluationTypeConfirmOpen(false);
     };
 
+    const toTitleCase = (str) => {
+        return str.replace(/\w\S*/g, (txt) => {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    };
+
     return (
         <div>
             <NavBar />
             <Container maxWidth="lg" style={{ marginTop: '20px' }}>
-                <h1>Evaluation Type Info</h1>
+                <h1>Evaluation Type Info: {toTitleCase(evaluationType.evaluation_type_name)}</h1>
                 {loading ? (
                     <p>Loading...</p>
                 ) : error ? (
