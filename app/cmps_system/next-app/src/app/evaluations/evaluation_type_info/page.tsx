@@ -184,6 +184,12 @@ const EvaluationTypeInfo = () => {
     };
 
     const openAddMetric = () => {
+        setNewMetric({
+            metric_num: metrics.length + 1, // Set default metric number
+            metric_description: '',
+            min_value: '',
+            max_value: ''
+        });
         setAddMetricOpen(true);
     };
 
@@ -452,9 +458,11 @@ const EvaluationTypeInfo = () => {
                     <TextField
                         label="Metric Number"
                         value={newMetric.metric_num}
+                        type="number" // Ensure this field is of type number
                         onChange={(e) => handleNewMetricChange('metric_num', e.target.value)}
                         fullWidth
                         margin="normal"
+                        inputProps={{ min: 1 }} // Set the minimum value to 1
                     />
                     <TextField
                         label="Metric Description"
