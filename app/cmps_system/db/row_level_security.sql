@@ -287,3 +287,78 @@ CREATE POLICY "delete_evaluation_metrics" ON public.evaluation_metric FOR DELETE
             user_id = auth.uid ()
     ) IN ('head', 'staff')
 );
+
+-- evaluation_entry table
+ALTER TABLE public.evaluation_entry ENABLE ROW LEVEL SECURITY;
+
+-- Read access for relevant instructor, staff, and head
+CREATE POLICY "select_relevant_evaluation_entrys" ON public.evaluation_entry FOR
+SELECT
+    TO authenticated USING (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                public.instructor
+            WHERE
+                instructor.instructor_id = evaluation_entry.instructor_id
+        ) = auth.email ()
+    );
+
+-- Insert access for staff and head
+CREATE POLICY "insert_evaluation_entrys" ON public.evaluation_entry FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_evaluation_entrys" ON public.evaluation_entry FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_evaluation_entrys" ON public.evaluation_entry FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);

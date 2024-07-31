@@ -348,7 +348,9 @@ ALTER TABLE "course_assign"
 ADD CONSTRAINT "course_assign_instructor_id_foreign" FOREIGN KEY ("instructor_id") REFERENCES "instructor" ("instructor_id") ON DELETE CASCADE;
 
 CREATE OR REPLACE VIEW
-    v_instructors_page AS
+    v_instructors_page
+WITH
+    (security_invoker) AS
 SELECT
     instructor_id as id,
     first_name,
@@ -377,7 +379,9 @@ FROM
     instructor;
 
 CREATE OR REPLACE VIEW
-    v_service_roles_page AS
+    v_service_roles_page
+WITH
+    (security_invoker) AS
 SELECT
     service_role.service_role_id as id,
     title,
@@ -398,7 +402,9 @@ GROUP BY
     room_num;
 
 CREATE OR REPLACE VIEW
-    v_courses_with_instructors AS
+    v_courses_with_instructors
+WITH
+    (security_invoker) AS
 SELECT
     course.course_id as id,
     academic_year,
@@ -459,7 +465,9 @@ GROUP BY
     room_num;
 
 CREATE OR REPLACE VIEW
-    v_timetracking AS
+    v_timetracking
+WITH
+    (security_invoker) AS
 SELECT
     service_hours_entry_id as id,
     service_hours_entry.instructor_id,
@@ -475,7 +483,9 @@ from
     JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
 
 CREATE OR REPLACE VIEW
-    list_of_instructors AS
+    list_of_instructors
+WITH
+    (security_invoker) AS
 SELECT
     instructor_id,
     CONCAT(
@@ -489,7 +499,9 @@ FROM
     instructor;
 
 CREATE OR REPLACE VIEW
-    v_benchmark AS
+    v_benchmark
+WITH
+    (security_invoker) AS
 SELECT
     benchmark_id as id,
     CONCAT(
@@ -506,14 +518,18 @@ from
     JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
 
 CREATE OR REPLACE VIEW
-    list_of_course_sections AS
+    list_of_course_sections
+WITH
+    (security_invoker) AS
 SELECT
     CONCAT(subject_code, ' ', course_num, ' ', section_num)
 FROM
     course;
 
 CREATE OR REPLACE VIEW
-    v_evaluations_page AS
+    v_evaluations_page
+WITH
+    (security_invoker) AS
 SELECT
     evaluation_entry_id as id,
     evaluation_type_name as evaluation_type,
@@ -561,7 +577,9 @@ FROM
     LEFT JOIN service_role ON service_role.service_role_id = evaluation_entry.service_role_id;
 
 CREATE OR REPLACE VIEW
-    v_evaluation_type_info AS
+    v_evaluation_type_info
+WITH
+    (security_invoker) AS
 SELECT
     evaluation_metric.evaluation_type_id as id,
     evaluation_type_name as name,
@@ -584,7 +602,9 @@ GROUP BY
     requires_service_role;
 
 CREATE VIEW
-    list_all_service_roles as
+    list_all_service_roles
+WITH
+    (security_invoker) AS
 SELECT
     service_role.service_role_id,
     CONCAT(
