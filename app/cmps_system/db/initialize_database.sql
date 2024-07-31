@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS
         "metric_num" INTEGER NOT NULL,
         "metric_description" TEXT NOT NULL,
         "min_value" INTEGER NULL,
-        "max_value" INTEGER NULL
+        "max_value" INTEGER CHECK ("max_value" >= "min_value") NULL
     );
 
 ALTER TABLE "evaluation_metric"

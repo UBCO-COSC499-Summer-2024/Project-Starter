@@ -242,6 +242,13 @@ const EvaluationTypeInfo = () => {
         });
     };
 
+    const handleKeyDown = (event, saveAction) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            saveAction();
+        }
+    };
+
     return (
         <div>
             <NavBar />
@@ -263,6 +270,7 @@ const EvaluationTypeInfo = () => {
                                                 <TextField
                                                     value={evaluationType.evaluation_type_name}
                                                     onChange={(e) => handleEvaluationTypeChange('evaluation_type_name', e.target.value)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('evaluation_type_name'))}
                                                 />
                                             ) : (
                                                 evaluationType.evaluation_type_name
@@ -281,6 +289,7 @@ const EvaluationTypeInfo = () => {
                                                 <TextField
                                                     value={evaluationType.description}
                                                     onChange={(e) => handleEvaluationTypeChange('description', e.target.value)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('description'))}
                                                 />
                                             ) : (
                                                 evaluationType.description
@@ -299,6 +308,7 @@ const EvaluationTypeInfo = () => {
                                                 <Checkbox
                                                     checked={evaluationType.requires_course}
                                                     onChange={(e) => handleEvaluationTypeChange('requires_course', e.target.checked)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_course'))}
                                                 />
                                             ) : (
                                                 evaluationType.requires_course ? 'Yes' : 'No'
@@ -317,6 +327,7 @@ const EvaluationTypeInfo = () => {
                                                 <Checkbox
                                                     checked={evaluationType.requires_instructor}
                                                     onChange={(e) => handleEvaluationTypeChange('requires_instructor', e.target.checked)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_instructor'))}
                                                 />
                                             ) : (
                                                 evaluationType.requires_instructor ? 'Yes' : 'No'
@@ -335,6 +346,7 @@ const EvaluationTypeInfo = () => {
                                                 <Checkbox
                                                     checked={evaluationType.requires_service_role}
                                                     onChange={(e) => handleEvaluationTypeChange('requires_service_role', e.target.checked)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_service_role'))}
                                                 />
                                             ) : (
                                                 evaluationType.requires_service_role ? 'Yes' : 'No'
@@ -370,6 +382,7 @@ const EvaluationTypeInfo = () => {
                                                     <TextField
                                                         value={metric.metric_description}
                                                         onChange={(e) => handleChange(metric.metric_num, 'metric_description', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleSave(metric))}
                                                     />
                                                 ) : (
                                                     metric.metric_description
@@ -381,6 +394,7 @@ const EvaluationTypeInfo = () => {
                                                         value={metric.min_value}
                                                         type="number"
                                                         onChange={(e) => handleChange(metric.metric_num, 'min_value', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleSave(metric))}
                                                     />
                                                 ) : (
                                                     metric.min_value !== null ? metric.min_value : 'N/A'
@@ -392,6 +406,7 @@ const EvaluationTypeInfo = () => {
                                                         value={metric.max_value}
                                                         type="number"
                                                         onChange={(e) => handleChange(metric.metric_num, 'max_value', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleSave(metric))}
                                                     />
                                                 ) : (
                                                     metric.max_value !== null ? metric.max_value : 'N/A'
@@ -463,6 +478,7 @@ const EvaluationTypeInfo = () => {
                         fullWidth
                         margin="normal"
                         inputProps={{ min: 1 }} // Set the minimum value to 1
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     <TextField
                         label="Metric Description"
@@ -470,6 +486,7 @@ const EvaluationTypeInfo = () => {
                         onChange={(e) => handleNewMetricChange('metric_description', e.target.value)}
                         fullWidth
                         margin="normal"
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     <TextField
                         label="Min Value"
@@ -478,6 +495,7 @@ const EvaluationTypeInfo = () => {
                         onChange={(e) => handleNewMetricChange('min_value', e.target.value)}
                         fullWidth
                         margin="normal"
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     <TextField
                         label="Max Value"
@@ -486,6 +504,7 @@ const EvaluationTypeInfo = () => {
                         onChange={(e) => handleNewMetricChange('max_value', e.target.value)}
                         fullWidth
                         margin="normal"
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     {addMetricError && <p style={{ color: 'red' }}>{addMetricError}</p>}
                     <div style={{ marginTop: '20px' }}>
