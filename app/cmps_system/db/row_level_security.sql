@@ -734,7 +734,16 @@ ALTER TABLE public.service_role_assign ENABLE ROW LEVEL SECURITY;
 -- Everyone can read all rows
 CREATE POLICY "select_all_service_role_assigns" ON public.service_role_assign FOR
 SELECT
-    TO authenticated USING (true);
+    TO authenticated USING (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
 
 -- Insert access for staff and head
 CREATE POLICY "insert_service_role_assigns" ON public.service_role_assign FOR INSERT TO authenticated
