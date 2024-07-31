@@ -652,3 +652,78 @@ CREATE POLICY "delete_service_hours_benchmarks" ON public.service_hours_benchmar
             user_id = auth.uid ()
     ) IN ('head', 'staff')
 );
+
+-- service_hours_entry table
+ALTER TABLE public.service_hours_entry ENABLE ROW LEVEL SECURITY;
+
+-- Read access for only relevant instructor, staff, and head
+CREATE POLICY "select_all_service_hours_entrys" ON public.service_hours_entry FOR
+SELECT
+    TO authenticated USING (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = public.service_hours_entry.instructor_id
+        ) = auth.email ()
+    );
+
+-- Insert access for staff and head
+CREATE POLICY "insert_service_hours_entrys" ON public.service_hours_entry FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_service_hours_entrys" ON public.service_hours_entry FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_service_hours_entrys" ON public.service_hours_entry FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
