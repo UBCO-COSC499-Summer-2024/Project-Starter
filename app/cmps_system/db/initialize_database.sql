@@ -387,17 +387,48 @@ SELECT
     default_expected_hours,
     building,
     room_num,
-    COUNT(*) as assignees
+    COUNT(*) as assignees,
+    CASE
+        WHEN (
+            SELECT email
+            FROM instructor
+            WHERE instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email()
+        THEN start_date
+        ELSE NULL
+    END AS start_date,
+    CASE
+        WHEN (
+            SELECT email
+            FROM instructor
+            WHERE instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email()
+        THEN end_date
+        ELSE NULL
+    END AS end_date,
+    CASE
+        WHEN (
+            SELECT email
+            FROM instructor
+            WHERE instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email()
+        THEN expected_hours
+        ELSE NULL
+    END AS expected_hours
 FROM
     service_role
     JOIN service_role_assign ON service_role.service_role_id = service_role_assign.service_role_id
 GROUP BY
     service_role.service_role_id,
+    service_role_assign.instructor_id,
     title,
     description,
     default_expected_hours,
     building,
-    room_num;
+    room_num,
+    start_date,
+    end_date,
+    expected_hours;
 
 CREATE OR REPLACE VIEW
     v_courses_with_instructors

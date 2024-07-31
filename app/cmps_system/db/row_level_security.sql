@@ -727,3 +727,61 @@ CREATE POLICY "delete_service_hours_entrys" ON public.service_hours_entry FOR DE
             user_id = auth.uid ()
     ) IN ('head', 'staff')
 );
+
+-- service_role_assign table
+ALTER TABLE public.service_role_assign ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can read all rows
+CREATE POLICY "select_all_service_role_assigns" ON public.service_role_assign FOR
+SELECT
+    TO authenticated USING (true);
+
+-- Insert access for staff and head
+CREATE POLICY "insert_service_role_assigns" ON public.service_role_assign FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_service_role_assigns" ON public.service_role_assign FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_service_role_assigns" ON public.service_role_assign FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
