@@ -518,7 +518,7 @@ FROM
 CREATE OR REPLACE VIEW
     v_evaluation_type_info AS
 SELECT
-    evaluation_metric.evaluation_type_id as id,
+    evaluation_type.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
     COUNT(*) as num_entries,
@@ -530,8 +530,8 @@ FROM
     evaluation_type
     LEFT JOIN evaluation_metric ON evaluation_metric.evaluation_type_id = evaluation_type.evaluation_type_id
 GROUP BY
-    evaluation_metric.evaluation_type_id,
-    evaluation_type_name,
+    id,
+    name,
     description,
     date_added,
     requires_course,

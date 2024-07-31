@@ -11,7 +11,7 @@ export default function EvaluationTypes() {
     const fetchUrl = "v_evaluation_type_info";
     const tableName = "evaluation_type";
     const initialSortModel = [
-        { field: 'evaluation_type_id', sort: 'desc' },
+        { field: 'evaluation_type_id', sort: 'desc' }
     ];
 
     const columnsConfig = [
