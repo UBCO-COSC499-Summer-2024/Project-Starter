@@ -173,6 +173,7 @@ ADD PRIMARY KEY ("evaluation_type_id");
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
+        "evaluation_metric_id" SERIAL NOT NULL,
         "evaluation_type_id" INTEGER NOT NULL,
         "metric_num" INTEGER NOT NULL,
         "metric_description" TEXT NOT NULL,
@@ -181,7 +182,7 @@ CREATE TABLE IF NOT EXISTS
     );
 
 ALTER TABLE "evaluation_metric"
-ADD PRIMARY KEY ("evaluation_type_id", "metric_num");
+ADD CONSTRAINT "evaluation_type_metric_num_unique" UNIQUE ("evaluation_type_id", "metric_num");
 
 ALTER TABLE "evaluation_type"
 ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");

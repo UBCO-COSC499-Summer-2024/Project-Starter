@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { DataGrid } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import { createClient } from '@supabase/supabase-js';
 import Navbar from '@/app/components/NavBar';
 import AddIcon from '@mui/icons-material/Add';
 import Box from '@mui/material/Box';
+import DeleteIcon from '@mui/icons-material/Delete';
 import supabase from "@/app/components/supabaseClient";
 
 export default function EventsPage() {
@@ -38,6 +38,26 @@ export default function EventsPage() {
         fetchEvents();
     }, []);
 
+    const handleDelete = async (id) => {
+        if (confirm('Are you sure you want to delete this event?')) {
+            try {
+                const { error } = await supabase
+                    .from('event')
+                    .delete()
+                    .eq('event_id', id);
+                
+                if (error) throw error;
+
+                // Update the local state to remove the deleted event
+                setEvents(events.filter(event => event.event_id !== id));
+                alert('Event deleted successfully.');
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                alert('Failed to delete event.');
+            }
+        }
+    };
+
     const columns = [
         { field: 'description', headerName: 'Description', width: 300 },
         { field: 'location', headerName: 'Location', width: 200 },
@@ -47,15 +67,27 @@ export default function EventsPage() {
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 150,
+            width: 220,
             renderCell: (params) => (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => push(`/time_tracking/events/event_info?id=${params.row.event_id}`)}
-                >
-                    View Details
-                </Button>
+                <Box display="flex" justifyContent="space-between" width="100%">
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => push(`/time_tracking/events/event_info?id=${params.row.event_id}`)}
+                        sx={{ marginRight: 1, fontSize: '0.8rem', padding: '5px 10px' }}
+                    >
+                        View Details
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<DeleteIcon />}
+                        onClick={() => handleDelete(params.row.event_id)}
+                        sx={{ fontSize: '0.8rem', padding: '5px 10px' }}
+                    >
+                        Delete
+                    </Button>
+                </Box>
             ),
         },
     ];
