@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Create a Supabase client instance using environment variables for security
-const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.ANON_KEY);
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
 
 // Describe a set of tests related to Supabase data fetching
 describe('Supabase Data Fetching', () => {

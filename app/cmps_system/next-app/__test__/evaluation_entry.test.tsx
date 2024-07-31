@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 const testData = {
-  evaluation_entry_id: 201, 
-  evaluation_type_id: 3, 
+  evaluation_entry_id: 201,
+  evaluation_type_id: 3,
   metric_num: 2,
   course_id: 2,
   instructor_id: 1,
@@ -11,7 +11,7 @@ const testData = {
 };
 
 
-const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.ANON_KEY);
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
 test('read_from_supabase_evaluation_entry', async () => {
   const { data, error } = await supabase.from("evaluation_entry").select();
   expect(data).not.toBeNull()

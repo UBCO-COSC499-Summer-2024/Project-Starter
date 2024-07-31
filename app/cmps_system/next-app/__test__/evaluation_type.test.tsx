@@ -1,15 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 const testData = {
-    evaluation_type_id: 401, 
-    evaluation_type_name: 'Course Feedback',
-    description: 'Collects feedback from students about the course content, structure, and delivery.',
-    requires_course: true,
-    requires_instructor: true,
-    requires_service_role: false
-  };
-  
+  evaluation_type_id: 401,
+  evaluation_type_name: 'Course Feedback',
+  description: 'Collects feedback from students about the course content, structure, and delivery.',
+  requires_course: true,
+  requires_instructor: true,
+  requires_service_role: false
+};
 
-const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.ANON_KEY);
+
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
 test('read_from_supabase_evaluation_type', async () => {
   const { data, error } = await supabase.from("evaluation_type").select();
   expect(data).not.toBeNull()
