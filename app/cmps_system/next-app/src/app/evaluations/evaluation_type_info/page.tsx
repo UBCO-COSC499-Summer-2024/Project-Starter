@@ -18,24 +18,19 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Checkbox from '@mui/material/Checkbox';
-import { createClient } from '@supabase/supabase-js';
 import supabase from "@/app/components/supabaseClient";
+
 const EvaluationTypeInfo = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const id = searchParams.get('id');
-    const evaluationTypeName = searchParams.get('name');
-    const description = searchParams.get('description');
-    const requiresCourse = searchParams.get('requiresCourse') === 'true';
-    const requiresInstructor = searchParams.get('requiresInstructor') === 'true';
-    const requiresServiceRole = searchParams.get('requiresServiceRole') === 'true';
 
     const [evaluationType, setEvaluationType] = useState({
-        evaluation_type_name: evaluationTypeName,
-        description,
-        requires_course: requiresCourse,
-        requires_instructor: requiresInstructor,
-        requires_service_role: requiresServiceRole,
+        evaluation_type_name: '',
+        description: '',
+        requires_course: false,
+        requires_instructor: false,
+        requires_service_role: false,
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -93,7 +88,6 @@ const EvaluationTypeInfo = () => {
                 .delete()
                 .eq('evaluation_type_id', id);
             if (error) throw error;
-            alert('Evaluation type removed successfully');
             router.push('/evaluations/evaluation_types');
         } catch (error) {
             setError(error.message);
@@ -119,7 +113,6 @@ const EvaluationTypeInfo = () => {
             return;
         }
 
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_metric')
@@ -132,22 +125,13 @@ const EvaluationTypeInfo = () => {
                 .eq('metric_num', metric.metric_num);
 
             if (error) throw error;
-            alert('Metric updated successfully');
             setEditMode((prevState) => ({ ...prevState, [metric.metric_num]: false }));
         } catch (error) {
             setError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
     const handleEvaluationTypeSave = async (field) => {
-        if (evaluationType[field] === originalEvaluationType[field]) {
-            setEditEvaluationTypeMode((prevState) => ({ ...prevState, [field]: false }));
-            return;
-        }
-
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_type')
@@ -155,12 +139,9 @@ const EvaluationTypeInfo = () => {
                 .eq('evaluation_type_id', id);
 
             if (error) throw error;
-            alert('Evaluation type updated successfully');
             setEditEvaluationTypeMode((prevState) => ({ ...prevState, [field]: false }));
         } catch (error) {
             setError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -187,7 +168,6 @@ const EvaluationTypeInfo = () => {
     };
 
     const handleDeleteMetric = async () => {
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_metric')
@@ -196,13 +176,10 @@ const EvaluationTypeInfo = () => {
                 .eq('metric_num', metricToDelete.metric_num);
 
             if (error) throw error;
-            alert('Metric deleted successfully');
             setMetrics((prevMetrics) => prevMetrics.filter((metric) => metric.metric_num !== metricToDelete.metric_num));
             closeDeleteConfirm();
         } catch (error) {
             setError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -222,7 +199,6 @@ const EvaluationTypeInfo = () => {
     };
 
     const handleAddMetric = async () => {
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_metric')
@@ -235,13 +211,10 @@ const EvaluationTypeInfo = () => {
                 }]);
 
             if (error) throw error;
-            alert('Metric added successfully');
             setMetrics([...metrics, { ...newMetric, evaluation_type_id: id }]);
             closeAddMetric();
         } catch (error) {
             setAddMetricError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -257,19 +230,11 @@ const EvaluationTypeInfo = () => {
         setDeleteEvaluationTypeConfirmOpen(false);
     };
 
-    const originalEvaluationType = {
-        evaluation_type_name: evaluationTypeName,
-        description,
-        requires_course: requiresCourse,
-        requires_instructor: requiresInstructor,
-        requires_service_role: requiresServiceRole,
-    };
-
     return (
         <div>
             <NavBar />
             <Container maxWidth="lg" style={{ marginTop: '20px' }}>
-                <h2>Evaluation Type Info</h2>
+                <h1>Evaluation Type Info</h1>
                 {loading ? (
                     <p>Loading...</p>
                 ) : error ? (
