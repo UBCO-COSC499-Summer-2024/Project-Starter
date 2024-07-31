@@ -419,17 +419,11 @@ FROM
     instructor;
 
 CREATE OR REPLACE VIEW
-    v_service_roles_page
-WITH
-    (security_invoker) AS
+    v_service_role_assign AS
 SELECT
-    service_role.service_role_id as id,
-    title,
-    description,
-    default_expected_hours,
-    building,
-    room_num,
-    COUNT(*) as assignees,
+    service_role_assign_id,
+    instructor_id,
+    service_role_id,
     CASE
         WHEN (
             SELECT
@@ -488,19 +482,32 @@ SELECT
         ELSE NULL
     END AS expected_hours
 FROM
+    service_role_assign;
+
+REVOKE INSERT, UPDATE, DELETE ON v_service_role_assign FROM PUBLIC, authenticated;
+
+CREATE OR REPLACE VIEW
+    v_service_roles_page
+WITH
+    (security_invoker) AS
+SELECT
+    service_role.service_role_id as id,
+    title,
+    description,
+    default_expected_hours,
+    COUNT(*) as assignees,
+    building,
+    room_num
+FROM
     service_role
-    JOIN service_role_assign ON service_role.service_role_id = service_role_assign.service_role_id
+    JOIN v_service_role_assign ON service_role.service_role_id = v_service_role_assign.service_role_id
 GROUP BY
     service_role.service_role_id,
-    service_role_assign.instructor_id,
     title,
     description,
     default_expected_hours,
     building,
-    room_num,
-    start_date,
-    end_date,
-    expected_hours;
+    room_num;
 
 CREATE OR REPLACE VIEW
     v_courses_with_instructors
@@ -715,69 +722,3 @@ SELECT
     ) AS service_role_name
 FROM
     service_role;
-
-CREATE OR REPLACE VIEW
-    v_service_role_assign AS
-SELECT
-    service_role_assign_id,
-    instructor_id,
-    service_role_id,
-    CASE
-        WHEN (
-            SELECT
-                role
-            FROM
-                user_role
-            WHERE
-                user_id = auth.uid ()
-        ) IN ('head', 'staff')
-        OR (
-            SELECT
-                email
-            FROM
-                instructor
-            WHERE
-                instructor.instructor_id = service_role_assign.instructor_id
-        ) = auth.email () THEN start_date
-        ELSE NULL
-    END AS start_date,
-    CASE
-        WHEN (
-            SELECT
-                role
-            FROM
-                user_role
-            WHERE
-                user_id = auth.uid ()
-        ) IN ('head', 'staff')
-        OR (
-            SELECT
-                email
-            FROM
-                instructor
-            WHERE
-                instructor.instructor_id = service_role_assign.instructor_id
-        ) = auth.email () THEN end_date
-        ELSE NULL
-    END AS end_date,
-    CASE
-        WHEN (
-            SELECT
-                role
-            FROM
-                user_role
-            WHERE
-                user_id = auth.uid ()
-        ) IN ('head', 'staff')
-        OR (
-            SELECT
-                email
-            FROM
-                instructor
-            WHERE
-                instructor.instructor_id = service_role_assign.instructor_id
-        ) = auth.email () THEN expected_hours
-        ELSE NULL
-    END AS expected_hours
-FROM
-    service_role_assign;
