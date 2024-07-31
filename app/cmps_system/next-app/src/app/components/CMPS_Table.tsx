@@ -320,7 +320,7 @@ export default function CMPS_Table({ fetchUrl, columnsConfig, initialSortModel, 
                     slots={{ toolbar: userRole === 'head' || userRole === 'staff' ? EditToolbar : null as GridSlots['toolbar'] }}
                     rowModesModel={rowModesModel}
                     slotProps={{ toolbar: { setTableData, setRowModesModel } }}
-                    checkboxSelection
+                    checkboxSelection={userRole === 'head' || userRole === 'staff'}
                     onRowSelectionModelChange={(newSelection) => setSelectedRows(newSelection)}
                     autoHeight
                     onCellClick={handleCellClick}
