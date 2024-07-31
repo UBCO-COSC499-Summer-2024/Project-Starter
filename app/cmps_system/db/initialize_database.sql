@@ -391,6 +391,14 @@ SELECT
     CASE
         WHEN (
             SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
                 email
             FROM
                 instructor
@@ -402,6 +410,14 @@ SELECT
     CASE
         WHEN (
             SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
                 email
             FROM
                 instructor
@@ -412,6 +428,14 @@ SELECT
     END AS end_date,
     CASE
         WHEN (
+            SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
             SELECT
                 email
             FROM
