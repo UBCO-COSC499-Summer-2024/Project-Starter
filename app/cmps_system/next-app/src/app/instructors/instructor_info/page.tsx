@@ -9,7 +9,6 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
-import { createClient } from '@supabase/supabase-js'
 import supabase from "@/app/components/supabaseClient";
 const InstructorInfo = () => {
   const searchParams = useSearchParams();
@@ -57,7 +56,7 @@ const InstructorInfo = () => {
           setServiceRoles(serviceRoleData);
 
           const { data: assignedRoleData, error: assignedRoleError } = await supabase
-            .from('service_role_assign')
+            .from('v_service_role_assign')
             .select('service_role_id')
             .eq('instructor_id', id)
             .single();
@@ -115,7 +114,7 @@ const InstructorInfo = () => {
 
     try {
       const { data: existingAssignment, error: fetchError } = await supabase
-        .from('service_role_assign')
+        .from('v_service_role_assign')
         .select('*')
         .eq('instructor_id', id)
         .single();
