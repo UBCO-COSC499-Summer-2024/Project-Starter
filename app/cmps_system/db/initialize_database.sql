@@ -1,5 +1,47 @@
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
+CREATE TABLE
+    public.user_role (
+        user_id UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE,
+        email TEXT,
+        role TEXT,
+        PRIMARY KEY (user_id)
+    );
+
+ALTER TABLE public.user_role enable row level security;
+
+-- Only allow users to see their own role
+-- This needs to exist so that the policies are
+-- able to check user roles, whilst preventing
+-- users from seeing other users' roles
+CREATE POLICY "select_own_role" ON public.user_role FOR
+SELECT
+    TO authenticated USING (user_id = auth.uid ());
+
+-- Inserts a row into public.user_role every time a new user is created
+-- The default role is 'instructor'
+-- There are currently preset roles for two predefined emails:
+-- 'head@ubc.ca' and 'staff@ubc.ca'. We need to remember
+-- to get rid of these special cases when we're finished the project
+CREATE FUNCTION public.handle_new_user () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET
+    search_path = '' AS $$
+BEGIN
+  INSERT INTO public.user_role (user_id, email, role)
+  VALUES (new.id, new.email, CASE 
+            WHEN NEW.email = 'head@email.com' THEN 'head'
+            WHEN NEW.email = 'staff@email.com' THEN 'staff'
+            ELSE 'instructor'  -- Default role  
+        END);
+  RETURN new;
+END;
+$$;
+
+-- Trigger the function every time a user is created
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users FOR EACH ROW
+EXECUTE PROCEDURE public.handle_new_user ();
+
 CREATE TABLE IF NOT EXISTS
     "instructor" (
         "instructor_id" SERIAL NOT NULL,
@@ -80,9 +122,7 @@ CREATE TABLE IF NOT EXISTS
         "assignment_id" SERIAL NOT NULL,
         "instructor_id" INTEGER NOT NULL,
         "course_id" INTEGER NOT NULL,
-        "position" VARCHAR(255) NOT NULL,
-        "start_date" DATE NULL,
-        "end_date" DATE NULL
+        "position" VARCHAR(255) NOT NULL
     );
 
 ALTER TABLE "course_assign"
@@ -379,6 +419,74 @@ FROM
     instructor;
 
 CREATE OR REPLACE VIEW
+    v_service_role_assign AS
+SELECT
+    service_role_assign_id,
+    instructor_id,
+    service_role_id,
+    CASE
+        WHEN (
+            SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN start_date
+        ELSE NULL
+    END AS start_date,
+    CASE
+        WHEN (
+            SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN end_date
+        ELSE NULL
+    END AS end_date,
+    CASE
+        WHEN (
+            SELECT
+                role
+            FROM
+                user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = service_role_assign.instructor_id
+        ) = auth.email () THEN expected_hours
+        ELSE NULL
+    END AS expected_hours
+FROM
+    service_role_assign;
+
+REVOKE INSERT, UPDATE, DELETE ON v_service_role_assign FROM PUBLIC, authenticated;
+
+CREATE OR REPLACE VIEW
     v_service_roles_page
 WITH
     (security_invoker) AS
@@ -387,12 +495,12 @@ SELECT
     title,
     description,
     default_expected_hours,
+    COUNT(*) as assignees,
     building,
-    room_num,
-    COUNT(*) as assignees
+    room_num
 FROM
     service_role
-    JOIN service_role_assign ON service_role.service_role_id = service_role_assign.service_role_id
+    JOIN v_service_role_assign ON service_role.service_role_id = v_service_role_assign.service_role_id
 GROUP BY
     service_role.service_role_id,
     title,
@@ -614,45 +722,3 @@ SELECT
     ) AS service_role_name
 FROM
     service_role;
-
-CREATE TABLE
-    public.user_role (
-        user_id UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE,
-        email TEXT,
-        role TEXT,
-        PRIMARY KEY (user_id)
-    );
-
-ALTER TABLE public.user_role enable row level security;
-
--- Only allow users to see their own role
--- This needs to exist so that the policies are
--- able to check user roles, whilst preventing
--- users from seeing other users' roles
-CREATE POLICY "select_own_role" ON public.user_role FOR
-SELECT
-    TO authenticated USING (user_id = auth.uid ());
-
--- Inserts a row into public.user_role every time a new user is created
--- The default role is 'instructor'
--- There are currently preset roles for two predefined emails:
--- 'head@ubc.ca' and 'staff@ubc.ca'. We need to remember
--- to get rid of these special cases when we're finished the project
-CREATE FUNCTION public.handle_new_user () RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
-SET
-    search_path = '' AS $$
-BEGIN
-  INSERT INTO public.user_role (user_id, email, role)
-  VALUES (new.id, new.email, CASE 
-            WHEN NEW.email = 'head@email.com' THEN 'head'
-            WHEN NEW.email = 'staff@email.com' THEN 'staff'
-            ELSE 'instructor'  -- Default role  
-        END);
-  RETURN new;
-END;
-$$;
-
--- Trigger the function every time a user is created
-CREATE TRIGGER on_auth_user_created
-AFTER INSERT ON auth.users FOR EACH ROW
-EXECUTE PROCEDURE public.handle_new_user ();

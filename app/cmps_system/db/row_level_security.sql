@@ -519,3 +519,278 @@ CREATE POLICY "delete_event_attendance" ON public.event_attendance FOR DELETE TO
             user_id = auth.uid ()
     ) IN ('head', 'staff')
 );
+
+-- course_assign table
+ALTER TABLE public.course_assign ENABLE ROW LEVEL SECURITY;
+
+-- Read access for everyone
+CREATE POLICY "select_all_course_assigns" ON public.course_assign FOR
+SELECT
+    TO authenticated USING (true);
+
+-- Insert access for staff and head
+CREATE POLICY "insert_course_assigns" ON public.course_assign FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_course_assigns" ON public.course_assign FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_course_assigns" ON public.course_assign FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
+
+-- service_hours_benchmark table
+ALTER TABLE public.service_hours_benchmark ENABLE ROW LEVEL SECURITY;
+
+-- Read access for only relevant instructor, staff, and head
+CREATE POLICY "select_all_service_hours_benchmarks" ON public.service_hours_benchmark FOR
+SELECT
+    TO authenticated USING (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = public.service_hours_benchmark.instructor_id
+        ) = auth.email ()
+    );
+
+-- Insert access for staff and head
+CREATE POLICY "insert_service_hours_benchmarks" ON public.service_hours_benchmark FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_service_hours_benchmarks" ON public.service_hours_benchmark FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_service_hours_benchmarks" ON public.service_hours_benchmark FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
+
+-- service_hours_entry table
+ALTER TABLE public.service_hours_entry ENABLE ROW LEVEL SECURITY;
+
+-- Read access for only relevant instructor, staff, and head
+CREATE POLICY "select_all_service_hours_entrys" ON public.service_hours_entry FOR
+SELECT
+    TO authenticated USING (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+        OR (
+            SELECT
+                email
+            FROM
+                instructor
+            WHERE
+                instructor.instructor_id = public.service_hours_entry.instructor_id
+        ) = auth.email ()
+    );
+
+-- Insert access for staff and head
+CREATE POLICY "insert_service_hours_entrys" ON public.service_hours_entry FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_service_hours_entrys" ON public.service_hours_entry FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_service_hours_entrys" ON public.service_hours_entry FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
+
+-- service_role_assign table
+ALTER TABLE public.service_role_assign ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can read all rows
+CREATE POLICY "select_all_service_role_assigns" ON public.service_role_assign FOR
+SELECT
+    TO authenticated USING (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Insert access for staff and head
+CREATE POLICY "insert_service_role_assigns" ON public.service_role_assign FOR INSERT TO authenticated
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Update access for staff and head
+CREATE POLICY "update_service_role_assigns" ON public.service_role_assign FOR
+UPDATE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+)
+WITH
+    CHECK (
+        (
+            SELECT
+                role
+            FROM
+                public.user_role
+            WHERE
+                user_id = auth.uid ()
+        ) IN ('head', 'staff')
+    );
+
+-- Delete access for staff and head
+CREATE POLICY "delete_service_role_assigns" ON public.service_role_assign FOR DELETE TO authenticated USING (
+    (
+        SELECT
+            role
+        FROM
+            public.user_role
+        WHERE
+            user_id = auth.uid ()
+    ) IN ('head', 'staff')
+);
