@@ -27,6 +27,10 @@ export default function Tools() {
                 <Link href="/tools/change-account-password" passHref>
                     <Button variant="warning" className="mt-2">Change the Password of an account</Button>
                 </Link>
+                <br />
+                <Link href="/tools/export" passHref>
+                    <Button variant="success" className="mt-2">Export as Excel</Button>
+                </Link>
 
             </Container>
         </main>
