@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import Navbar from '@/app/components/NavBar';
 import Button from 'react-bootstrap/Button';
@@ -15,11 +13,7 @@ export default function Tools() {
         <main>
             <Navbar />
             <Container>
-                <h1>Tools Page</h1>
-                <Link href="/course-assign" passHref>
-                    <Button variant="secondary" className="mt-2">Course Assign</Button>
-                </Link>
-                <br />
+                <h1>Tools Page For Head and Staff</h1>
                 <Link href="/tools/create-new-account" passHref>
                     <Button variant="secondary" className="mt-2">Create a new account</Button>
                 </Link>
@@ -31,7 +25,6 @@ export default function Tools() {
                 <Link href="/tools/change-account-password" passHref>
                     <Button variant="warning" className="mt-2">Change the Password of an account</Button>
                 </Link>
-
             </Container>
         </main>
     );
