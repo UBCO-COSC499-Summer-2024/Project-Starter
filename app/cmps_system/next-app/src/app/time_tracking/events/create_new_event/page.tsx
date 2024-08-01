@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { TextField, Button, Container, Typography, FormControlLabel, Checkbox } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
 
+// Initialize Supabase client
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
 export default function CreateNewEvent() {
+    // State hooks to manage form data
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
     const [eventDatetime, setEventDatetime] = useState('');
@@ -15,10 +17,12 @@ export default function CreateNewEvent() {
     const [isMeeting, setIsMeeting] = useState(false);
     const { push } = useRouter();
 
+    // Function to handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Form validation logic here if needed
 
+        // Insert new event into Supabase
         const { data, error } = await supabase
             .from('event')
             .insert([
