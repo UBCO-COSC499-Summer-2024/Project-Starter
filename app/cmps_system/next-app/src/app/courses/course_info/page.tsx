@@ -20,35 +20,49 @@ const CourseInfo = () => {
 
   useEffect(() => {
     const fetchCourse = async () => {
-      if (!courseId) return;
+      if (!courseId) {
+        setError('Course ID not found');
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
 
-      const { data: user, error: userError } = await supabase.auth.getUser();
-      if (userError) {
-        console.error('Error fetching user:', userError);
-        setError(userError.message);
-        setLoading(false);
-        return;
-      }
-
-      if (!user) {
-        setError('User not authenticated');
-        setLoading(false);
-        return;
-      }
-
       try {
+        // Fetch course details
         const { data: courseData, error: courseError } = await supabase
           .from('course')
           .select('*')
           .eq('course_id', courseId)
           .single();
-        
+
         if (courseError) {
           throw courseError;
         }
 
-        const filteredCourse = Object.entries(courseData).reduce((acc, [key, value]) => {
+        // Fetch assigned instructors with positions
+        const { data: assignData, error: assignError } = await supabase
+          .from('course_assign')
+          .select('instructor_id, position')
+          .eq('course_id', courseId);
+
+        if (assignError) {
+          throw assignError;
+        }
+
+        // Fetch instructor details
+        const instructorIds = assignData.map(assign => assign.instructor_id);
+        const { data: instructorData, error: instructorError } = await supabase
+          .from('instructor')
+          .select('instructor_id, first_name, last_name')
+          .in('instructor_id', instructorIds);
+
+        if (instructorError) {
+          throw instructorError;
+        }
+
+        // Format course data
+        const formattedCourseData = Object.entries(courseData).reduce((acc, [key, value]) => {
           if (key !== 'course_id') {
             let formattedValue = value;
             if (key === 'req_in_person_attendance') {
@@ -64,7 +78,21 @@ const CourseInfo = () => {
           return acc;
         }, []);
 
-        setCourse(filteredCourse);
+        // Add instructor names with positions to course data
+        assignData.forEach((assign, index) => {
+          const instructor = instructorData.find(inst => inst.instructor_id === assign.instructor_id);
+          if (instructor) {
+            formattedCourseData.push({
+              id: `instructor_${index}`,
+              field: `instructor_${index}`,
+              label: `${assign.position}`,
+              value: `${instructor.first_name} ${instructor.last_name}`
+            });
+          }
+        });
+
+        setCourse(formattedCourseData);
+        setError(null);  // Clear any previous errors
       } catch (err) {
         console.error('Fetch error:', err);
         setError(err.message);
@@ -125,7 +153,7 @@ const CourseInfo = () => {
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
-          <p>Error fetching courses: {error}</p>
+          <p>Error fetching course: {error}</p>
         ) : (
           <DataGrid
             rows={course}
@@ -136,6 +164,8 @@ const CourseInfo = () => {
           />
         )}
         <Button variant="danger" onClick={() => setModalShow(true)}>Remove this course</Button>
+        <button className="btn btn-secondary" onClick={() => router.push('/courses')}>Back</button>
+        <button className="btn btn-primary" onClick={() => router.push('/instructors')}>Assign a new insturctor/TA</button>
       </Container>
 
       <Modal show={modalShow} onHide={() => setModalShow(false)}>
