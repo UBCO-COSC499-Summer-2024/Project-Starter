@@ -12,11 +12,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import supabase from "@/app/components/supabaseClient";
 
 export default function EventsPage() {
+    // State to store events data
     const [events, setEvents] = useState([]);
+    // Router for navigation
     const { push } = useRouter();
-    const [userRole, setUserRole] = useState(''); // Initialize userRole state
+    // State to store user role
+    const [userRole, setUserRole] = useState('');
 
+    // useEffect to fetch user role and events on component mount
     useEffect(() => {
+        // Fetch user role from Supabase
         async function fetchUserRole() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
@@ -28,16 +33,18 @@ export default function EventsPage() {
                 if (error) {
                     console.error('Error fetching user role:', error);
                 } else {
-                    setUserRole(data.role); // Set userRole state
+                    setUserRole(data.role);
                 }
             }
         }
 
+        // Fetch events from Supabase
         async function fetchEvents() {
             const { data, error } = await supabase.from('event').select();
             if (error) {
                 console.error('Error fetching events:', error);
             } else {
+                // Format event datetime for better readability
                 const formattedData = data.map(event => ({
                     ...event,
                     event_datetime: new Date(event.event_datetime).toLocaleString('en-US', {
@@ -52,10 +59,12 @@ export default function EventsPage() {
             }
         }
 
-        fetchUserRole(); // Fetch user role when component mounts
+        // Call the fetch functions when component mounts
+        fetchUserRole();
         fetchEvents();
     }, []);
 
+    // Function to handle event deletion
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this event?')) {
             try {
@@ -76,6 +85,7 @@ export default function EventsPage() {
         }
     };
 
+    // Define columns for DataGrid
     const columns = [
         { field: 'description', headerName: 'Description', width: 300 },
         { field: 'location', headerName: 'Location', width: 200 },
@@ -116,6 +126,7 @@ export default function EventsPage() {
             <Container maxWidth={false} style={{ padding: '20px' }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <h1>Events</h1>
+                    {/* Show 'Create New Event' button only for staff and head roles */}
                     {['staff', 'head'].includes(userRole.toLowerCase()) && (
                         <Button
                             onClick={() => push('/time_tracking/events/create_new_event')}
