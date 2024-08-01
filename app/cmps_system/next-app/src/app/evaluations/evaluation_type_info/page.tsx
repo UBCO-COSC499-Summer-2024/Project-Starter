@@ -18,24 +18,19 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Checkbox from '@mui/material/Checkbox';
-import { createClient } from '@supabase/supabase-js';
 import supabase from "@/app/components/supabaseClient";
+
 const EvaluationTypeInfo = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const id = searchParams.get('id');
-    const evaluationTypeName = searchParams.get('name');
-    const description = searchParams.get('description');
-    const requiresCourse = searchParams.get('requiresCourse') === 'true';
-    const requiresInstructor = searchParams.get('requiresInstructor') === 'true';
-    const requiresServiceRole = searchParams.get('requiresServiceRole') === 'true';
 
     const [evaluationType, setEvaluationType] = useState({
-        evaluation_type_name: evaluationTypeName,
-        description,
-        requires_course: requiresCourse,
-        requires_instructor: requiresInstructor,
-        requires_service_role: requiresServiceRole,
+        evaluation_type_name: '',
+        description: '',
+        requires_course: false,
+        requires_instructor: false,
+        requires_service_role: false,
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -93,7 +88,6 @@ const EvaluationTypeInfo = () => {
                 .delete()
                 .eq('evaluation_type_id', id);
             if (error) throw error;
-            alert('Evaluation type removed successfully');
             router.push('/evaluations/evaluation_types');
         } catch (error) {
             setError(error.message);
@@ -119,7 +113,6 @@ const EvaluationTypeInfo = () => {
             return;
         }
 
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_metric')
@@ -132,22 +125,13 @@ const EvaluationTypeInfo = () => {
                 .eq('metric_num', metric.metric_num);
 
             if (error) throw error;
-            alert('Metric updated successfully');
             setEditMode((prevState) => ({ ...prevState, [metric.metric_num]: false }));
         } catch (error) {
             setError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
     const handleEvaluationTypeSave = async (field) => {
-        if (evaluationType[field] === originalEvaluationType[field]) {
-            setEditEvaluationTypeMode((prevState) => ({ ...prevState, [field]: false }));
-            return;
-        }
-
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_type')
@@ -155,12 +139,9 @@ const EvaluationTypeInfo = () => {
                 .eq('evaluation_type_id', id);
 
             if (error) throw error;
-            alert('Evaluation type updated successfully');
             setEditEvaluationTypeMode((prevState) => ({ ...prevState, [field]: false }));
         } catch (error) {
             setError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -187,7 +168,6 @@ const EvaluationTypeInfo = () => {
     };
 
     const handleDeleteMetric = async () => {
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_metric')
@@ -196,17 +176,20 @@ const EvaluationTypeInfo = () => {
                 .eq('metric_num', metricToDelete.metric_num);
 
             if (error) throw error;
-            alert('Metric deleted successfully');
             setMetrics((prevMetrics) => prevMetrics.filter((metric) => metric.metric_num !== metricToDelete.metric_num));
             closeDeleteConfirm();
         } catch (error) {
             setError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
     const openAddMetric = () => {
+        setNewMetric({
+            metric_num: metrics.length + 1, // Set default metric number
+            metric_description: '',
+            min_value: '',
+            max_value: ''
+        });
         setAddMetricOpen(true);
     };
 
@@ -222,7 +205,6 @@ const EvaluationTypeInfo = () => {
     };
 
     const handleAddMetric = async () => {
-        setLoading(true);
         try {
             const { error } = await supabase
                 .from('evaluation_metric')
@@ -235,13 +217,10 @@ const EvaluationTypeInfo = () => {
                 }]);
 
             if (error) throw error;
-            alert('Metric added successfully');
             setMetrics([...metrics, { ...newMetric, evaluation_type_id: id }]);
             closeAddMetric();
         } catch (error) {
             setAddMetricError(error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -257,19 +236,24 @@ const EvaluationTypeInfo = () => {
         setDeleteEvaluationTypeConfirmOpen(false);
     };
 
-    const originalEvaluationType = {
-        evaluation_type_name: evaluationTypeName,
-        description,
-        requires_course: requiresCourse,
-        requires_instructor: requiresInstructor,
-        requires_service_role: requiresServiceRole,
+    const toTitleCase = (str) => {
+        return str.replace(/\w\S*/g, (txt) => {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    };
+
+    const handleKeyDown = (event, saveAction) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            saveAction();
+        }
     };
 
     return (
         <div>
             <NavBar />
             <Container maxWidth="lg" style={{ marginTop: '20px' }}>
-                <h2>Evaluation Type Info</h2>
+                <h1>Evaluation Type Info: {toTitleCase(evaluationType.evaluation_type_name)}</h1>
                 {loading ? (
                     <p>Loading...</p>
                 ) : error ? (
@@ -286,6 +270,7 @@ const EvaluationTypeInfo = () => {
                                                 <TextField
                                                     value={evaluationType.evaluation_type_name}
                                                     onChange={(e) => handleEvaluationTypeChange('evaluation_type_name', e.target.value)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('evaluation_type_name'))}
                                                 />
                                             ) : (
                                                 evaluationType.evaluation_type_name
@@ -304,6 +289,7 @@ const EvaluationTypeInfo = () => {
                                                 <TextField
                                                     value={evaluationType.description}
                                                     onChange={(e) => handleEvaluationTypeChange('description', e.target.value)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('description'))}
                                                 />
                                             ) : (
                                                 evaluationType.description
@@ -322,6 +308,7 @@ const EvaluationTypeInfo = () => {
                                                 <Checkbox
                                                     checked={evaluationType.requires_course}
                                                     onChange={(e) => handleEvaluationTypeChange('requires_course', e.target.checked)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_course'))}
                                                 />
                                             ) : (
                                                 evaluationType.requires_course ? 'Yes' : 'No'
@@ -340,6 +327,7 @@ const EvaluationTypeInfo = () => {
                                                 <Checkbox
                                                     checked={evaluationType.requires_instructor}
                                                     onChange={(e) => handleEvaluationTypeChange('requires_instructor', e.target.checked)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_instructor'))}
                                                 />
                                             ) : (
                                                 evaluationType.requires_instructor ? 'Yes' : 'No'
@@ -358,6 +346,7 @@ const EvaluationTypeInfo = () => {
                                                 <Checkbox
                                                     checked={evaluationType.requires_service_role}
                                                     onChange={(e) => handleEvaluationTypeChange('requires_service_role', e.target.checked)}
+                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_service_role'))}
                                                 />
                                             ) : (
                                                 evaluationType.requires_service_role ? 'Yes' : 'No'
@@ -393,6 +382,7 @@ const EvaluationTypeInfo = () => {
                                                     <TextField
                                                         value={metric.metric_description}
                                                         onChange={(e) => handleChange(metric.metric_num, 'metric_description', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleSave(metric))}
                                                     />
                                                 ) : (
                                                     metric.metric_description
@@ -404,6 +394,7 @@ const EvaluationTypeInfo = () => {
                                                         value={metric.min_value}
                                                         type="number"
                                                         onChange={(e) => handleChange(metric.metric_num, 'min_value', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleSave(metric))}
                                                     />
                                                 ) : (
                                                     metric.min_value !== null ? metric.min_value : 'N/A'
@@ -415,6 +406,7 @@ const EvaluationTypeInfo = () => {
                                                         value={metric.max_value}
                                                         type="number"
                                                         onChange={(e) => handleChange(metric.metric_num, 'max_value', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleSave(metric))}
                                                     />
                                                 ) : (
                                                     metric.max_value !== null ? metric.max_value : 'N/A'
@@ -481,9 +473,12 @@ const EvaluationTypeInfo = () => {
                     <TextField
                         label="Metric Number"
                         value={newMetric.metric_num}
+                        type="number" // Ensure this field is of type number
                         onChange={(e) => handleNewMetricChange('metric_num', e.target.value)}
                         fullWidth
                         margin="normal"
+                        inputProps={{ min: 1 }} // Set the minimum value to 1
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     <TextField
                         label="Metric Description"
@@ -491,6 +486,7 @@ const EvaluationTypeInfo = () => {
                         onChange={(e) => handleNewMetricChange('metric_description', e.target.value)}
                         fullWidth
                         margin="normal"
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     <TextField
                         label="Min Value"
@@ -499,6 +495,7 @@ const EvaluationTypeInfo = () => {
                         onChange={(e) => handleNewMetricChange('min_value', e.target.value)}
                         fullWidth
                         margin="normal"
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     <TextField
                         label="Max Value"
@@ -507,6 +504,7 @@ const EvaluationTypeInfo = () => {
                         onChange={(e) => handleNewMetricChange('max_value', e.target.value)}
                         fullWidth
                         margin="normal"
+                        onKeyDown={(e) => handleKeyDown(e, handleAddMetric)} // Add key down handler
                     />
                     {addMetricError && <p style={{ color: 'red' }}>{addMetricError}</p>}
                     <div style={{ marginTop: '20px' }}>

@@ -8,17 +8,13 @@ INSERT INTO
     course_assign (
         instructor_id,
         course_id,
-        position,
-        start_date,
-        end_date
+        position
     )
 VALUES
     (
         (SELECT instructor_id FROM instructor WHERE ubc_employee_num = 749174591),
         (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = '101' AND section_num = '001'),
-        'Instructor',
-        '2020-09-01',
-        '2020-12-31'
+        'Instructor'
     );
 
 -- Verify that the course_assign was created
@@ -34,7 +30,7 @@ SELECT
                 AND course_id = (SELECT course_id FROM course WHERE academic_year = 2023 AND session = 'Winter' AND term = 'Term 1' AND subject_code = 'MATH' AND course_num = '101' AND section_num = '001')
         ),
         1::bigint,
-        'Created course_assign with instructor_id 749174591, course_id 2023 Winter Term 1 MATH 101 001, position Instructor, start_date 2020-09-01, end_date 2020-12-31'
+        'Created course_assign with instructor_id 749174591, course_id 2023 Winter Term 1 MATH 101 001, position Instructor'
     );
 
 -- Update

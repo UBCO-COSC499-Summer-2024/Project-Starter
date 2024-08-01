@@ -3,9 +3,7 @@ const testData = {
   assignment_id: 101,
   instructor_id: 1, //must exist in the instructor table
   course_id: 2, //must exist in the course table
-  position: 'TA',
-  start_date: '2024-01-05',
-  end_date: '2024-05-15'
+  position: 'TA'
 };
 
 
