@@ -14,9 +14,25 @@ import supabase from "@/app/components/supabaseClient";
 export default function EventsPage() {
     const [events, setEvents] = useState([]);
     const { push } = useRouter();
-    const userRole = 'Staff'; // Placeholder for user role check (replace with actual role checking logic)
+    const [userRole, setUserRole] = useState(''); // Initialize userRole state
 
     useEffect(() => {
+        async function fetchUserRole() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data, error } = await supabase
+                    .from('user_role')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .single();
+                if (error) {
+                    console.error('Error fetching user role:', error);
+                } else {
+                    setUserRole(data.role); // Set userRole state
+                }
+            }
+        }
+
         async function fetchEvents() {
             const { data, error } = await supabase.from('event').select();
             if (error) {
@@ -35,6 +51,8 @@ export default function EventsPage() {
                 setEvents(formattedData);
             }
         }
+
+        fetchUserRole(); // Fetch user role when component mounts
         fetchEvents();
     }, []);
 
@@ -98,7 +116,7 @@ export default function EventsPage() {
             <Container maxWidth={false} style={{ padding: '20px' }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <h1>Events</h1>
-                    {(userRole === 'Staff' || userRole === 'Head') && (
+                    {['staff', 'head'].includes(userRole.toLowerCase()) && (
                         <Button
                             onClick={() => push('/time_tracking/events/create_new_event')}
                             variant="contained"
