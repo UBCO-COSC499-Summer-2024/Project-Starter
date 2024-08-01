@@ -6,6 +6,13 @@ import { useEffect, useState } from 'react';
 import supabase from "@/app/components/supabaseClient";
 import getUserType from "@/app/components/getUserType";
 const NavBar = () => {
+    /**
+     * This component is the navigation bar that is displayed at the top of the page. It contains the UBC logo, the title of the page, 
+     * the user's profile picture and name, and the navigation buttons. The current page will be shown based on current url matching with the tabs using 
+     * a light blue color. The hover effect is bold and underscrore. It also shows user's email. It is conditionally rendered based on the user type.
+     * When the user is an instructor, the navigation bar will hide the tool page. Note that this is only frontend validation and the backend will 
+     * need RLS to prevent instructors from accessing the tool page data. 
+     */
     const [isInstructor, setIsInstructor] = useState(true);
 
     useEffect(() => {
