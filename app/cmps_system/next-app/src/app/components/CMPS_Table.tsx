@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
-import { Button, Modal, Typography, Box, styled, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Modal, Typography, Box, styled, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
 import { csv2json, json2csv } from 'json-2-csv';
@@ -64,6 +64,14 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
                         </StyledButton>
                     );
                 }
+                if (column.type === 'boolean') {
+                    return (
+                        <Checkbox
+                            checked={!!params.value}
+                            onChange={(event) => params.api.setEditCellValue({ id: params.id, field: params.field, value: event.target.checked })}
+                        />
+                    );
+                }
                 return <TextField
                     value={params.value}
                     onChange={(event) => params.api.setEditCellValue({ id: params.id, field: params.field, value: event.target.value })}
@@ -76,6 +84,15 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
                     <Link href={`${column.linkConfig.prefix}${params.row[column.linkConfig.idField]}`} passHref>
                         {params.value}
                     </Link>
+                );
+            }
+
+            if (column.type === 'boolean') {
+                return (
+                    <Checkbox
+                        checked={!!params.value}
+                        disabled
+                    />
                 );
             }
 

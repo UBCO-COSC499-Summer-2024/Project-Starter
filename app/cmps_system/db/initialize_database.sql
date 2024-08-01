@@ -689,10 +689,10 @@ CREATE OR REPLACE VIEW
 WITH
     (security_invoker) AS
 SELECT
-    evaluation_metric.evaluation_type_id as id,
+    evaluation_type.evaluation_type_id as id,
     evaluation_type_name as name,
     description,
-    COUNT(*) as num_entries,
+    COUNT(evaluation_metric.*) as num_entries,
     date_added,
     requires_course,
     requires_instructor,
@@ -701,8 +701,8 @@ FROM
     evaluation_type
     LEFT JOIN evaluation_metric ON evaluation_metric.evaluation_type_id = evaluation_type.evaluation_type_id
 GROUP BY
-    evaluation_metric.evaluation_type_id,
-    evaluation_type_name,
+    id,
+    name,
     description,
     date_added,
     requires_course,
