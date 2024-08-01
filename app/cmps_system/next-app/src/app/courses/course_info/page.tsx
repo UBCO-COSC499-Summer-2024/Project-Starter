@@ -17,12 +17,26 @@ const CourseInfo = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const courseId = searchParams.get('id');
   const router = useRouter();
-  const [instructorId, setInstructorId] = useState([]);
 
   useEffect(() => {
     const fetchCourse = async () => {
       if (!courseId) return;
       setLoading(true);
+
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Error fetching user:', userError);
+        setError(userError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!user) {
+        setError('User not authenticated');
+        setLoading(false);
+        return;
+      }
+
       try {
         const { data: courseData, error: courseError } = await supabase
           .from('course')
@@ -30,22 +44,10 @@ const CourseInfo = () => {
           .eq('course_id', courseId)
           .single();
         
-        const { data: assignData, error: assignError } = await supabase
-          .from('course_assign')
-          .select('start_date, end_date','instructor_id')
-          .eq('course_id', courseId)
-          .single();
-        
         if (courseError) {
           throw courseError;
         }
-  
-        if (assignError) {
-          console.error('Error fetching assignment dates:', assignError);
-          setError(assignError.message);
-        }
-  
-        
+
         const filteredCourse = Object.entries(courseData).reduce((acc, [key, value]) => {
           if (key !== 'course_id') {
             let formattedValue = value;
@@ -61,21 +63,7 @@ const CourseInfo = () => {
           }
           return acc;
         }, []);
-  
-        if (assignData) {
-          filteredCourse.push({
-            id: 'start_date',
-            field: 'start_date',
-            label: 'Start Date',
-            value: assignData.start_date
-          }, {
-            id: 'end_date',
-            field: 'end_date',
-            label: 'End Date',
-            value: assignData.end_date
-          });
-        }
-  
+
         setCourse(filteredCourse);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -84,35 +72,21 @@ const CourseInfo = () => {
         setLoading(false);
       }
     };
-  
+
     fetchCourse();
   }, [courseId]);
-  
 
   const handleProcessRowUpdate = async (newRow) => {
     try {
-      let error;
-  
-      if (newRow.field === 'start_date' || newRow.field === 'end_date') {
-        const { error: updateError } = await supabase
-          .from('course_assign')
-          .update({ [newRow.field]: newRow.value })
-          .eq('course_id', courseId);
-  
-        error = updateError;
-      } else {
-        const { error: updateError } = await supabase
-          .from('course')
-          .update({ [newRow.field]: newRow.value })
-          .eq('course_id', courseId);
-  
-        error = updateError;
+      const { error: updateError } = await supabase
+        .from('course')
+        .update({ [newRow.field]: newRow.value })
+        .eq('course_id', courseId);
+
+      if (updateError) {
+        throw new Error(updateError.message);
       }
-  
-      if (error) {
-        throw new Error(error.message);
-      }
-  
+
       setCourse(course.map(row => (row.id === newRow.id ? { ...row, value: newRow.value } : row)));
       return newRow;
     } catch (error) {
@@ -121,7 +95,6 @@ const CourseInfo = () => {
       throw error;
     }
   };
-  
 
   const handleDelete = async () => {
     try {
