@@ -484,7 +484,12 @@ SELECT
 FROM
     service_role_assign;
 
-REVOKE INSERT, UPDATE, DELETE ON v_service_role_assign FROM PUBLIC, authenticated;
+REVOKE INSERT,
+UPDATE,
+DELETE ON v_service_role_assign
+FROM
+    PUBLIC,
+    authenticated;
 
 CREATE OR REPLACE VIEW
     v_service_roles_page
@@ -579,6 +584,7 @@ WITH
 SELECT
     service_hours_entry_id as id,
     service_hours_entry.instructor_id,
+    instructor.email as instructor_email,
     CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_full_name,
     service_role.service_role_id as service_role_id,
     service_role.title as service_role,
@@ -596,13 +602,7 @@ WITH
     (security_invoker) AS
 SELECT
     instructor_id,
-    CONCAT(
-        instructor.instructor_id,
-        ' - ',
-        instructor.last_name,
-        ', ',
-        instructor.first_name
-    ) AS name
+    CONCAT(instructor.last_name, ', ', instructor.first_name) AS name
 FROM
     instructor;
 
@@ -612,13 +612,7 @@ WITH
     (security_invoker) AS
 SELECT
     benchmark_id as id,
-    CONCAT(
-        instructor.instructor_id,
-        ' - ',
-        instructor.last_name,
-        ', ',
-        instructor.first_name
-    ) as instructor,
+    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
     year,
     hours
 from
@@ -649,13 +643,7 @@ SELECT
     instructor.first_name as instructor_first_name,
     instructor.last_name as instructor_last_name,
     CASE
-        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(
-            instructor.instructor_id,
-            ' - ',
-            instructor.last_name,
-            ', ',
-            instructor.first_name
-        )
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
         ELSE ''
     END AS instructor_full_name,
     CASE
@@ -715,10 +703,166 @@ WITH
     (security_invoker) AS
 SELECT
     service_role.service_role_id,
-    CONCAT(
-        service_role.service_role_id,
-        ' - ',
-        service_role.title
-    ) AS service_role_name
+    CONCAT(service_role.title) AS service_role_name
 FROM
     service_role;
+
+CREATE OR REPLACE VIEW
+    v_dashboard_progress AS
+SELECT
+    instructor.email,
+    hours.instructor_id,
+    hours.worked,
+    hours.expected
+FROM
+    (
+        SELECT
+            worked.instructor_id,
+            worked.hours AS worked,
+            expected.hours AS expected
+        FROM
+            (
+                SELECT
+                    instructor_id,
+                    hours
+                FROM
+                    service_hours_entry
+                WHERE
+                    year = EXTRACT(
+                        YEAR
+                        FROM
+                            CURRENT_DATE
+                    )
+                    AND month = EXTRACT(
+                        MONTH
+                        FROM
+                            CURRENT_DATE
+                    )
+            ) AS worked
+            JOIN (
+                SELECT
+                    instructor_id,
+                    hours / 12 AS hours
+                FROM
+                    service_hours_benchmark
+                WHERE
+                    year = EXTRACT(
+                        YEAR
+                        FROM
+                            CURRENT_DATE
+                    )
+            ) AS expected ON worked.instructor_id = expected.instructor_id
+    ) AS hours
+    JOIN instructor ON hours.instructor_id = instructor.instructor_id;
+
+CREATE OR REPLACE VIEW
+    v_dashboard_current_courses
+WITH
+    (security_invoker) AS
+SELECT
+    instructor.instructor_id AS instructor_id,
+    instructor.email AS instructor_email,
+    course.course_id,
+    course.course_title,
+    course.section_num,
+    course.num_students,
+    course.average_grade,
+    course.activity,
+    course.days,
+    course.start_time,
+    course.end_time,
+    course.registration_status,
+    CONCAT(course.building, ' ', course.room_num) AS location
+FROM
+    course
+    JOIN course_assign ON course.course_id = course_assign.course_id
+    JOIN instructor ON course_assign.instructor_id = instructor.instructor_id
+WHERE
+    (
+        (
+            course.session = 'Winter'
+            AND course.academic_year = EXTRACT(
+                YEAR
+                FROM
+                    CURRENT_DATE
+            ) - 1
+            AND EXTRACT(
+                MONTH
+                FROM
+                    CURRENT_DATE
+            ) BETWEEN 1 AND 4
+        )
+        OR (
+            course.session = 'Winter'
+            AND course.academic_year = EXTRACT(
+                YEAR
+                FROM
+                    CURRENT_DATE
+            )
+            AND EXTRACT(
+                MONTH
+                FROM
+                    CURRENT_DATE
+            ) BETWEEN 9 AND 12
+        )
+        OR (
+            course.session = 'Summer'
+            AND course.academic_year = EXTRACT(
+                YEAR
+                FROM
+                    CURRENT_DATE
+            )
+            AND EXTRACT(
+                MONTH
+                FROM
+                    CURRENT_DATE
+            ) BETWEEN 5 AND 8
+        )
+    );
+
+CREATE OR REPLACE VIEW
+    v_service_hours_entry
+WITH
+    (security_invoker) AS
+SELECT
+    service_hours_entry.service_hours_entry_id,
+    instructor.instructor_id,
+    instructor.email AS instructor_email,
+    service_hours_entry.service_role_id,
+    service_hours_entry.year,
+    service_hours_entry.month,
+    service_hours_entry.hours,
+    service_hours_benchmark.hours / 12 AS monthly_benchmark
+FROM
+    service_hours_entry
+    JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id
+    LEFT JOIN service_hours_benchmark ON service_hours_benchmark.instructor_id = service_hours_entry.instructor_id
+    AND (
+        (
+            service_hours_entry.month >= 5
+            AND service_hours_entry.year = service_hours_benchmark.year
+        )
+        OR (
+            service_hours_entry.month < 5
+            AND service_hours_entry.year = service_hours_benchmark.year + 1
+        )
+    );
+
+CREATE OR REPLACE VIEW
+    v_dashboard_upcoming_events
+WITH
+    (security_invoker) AS
+SELECT
+    event_id,
+    event_datetime,
+    is_meeting,
+    duration,
+    description,
+    location
+FROM
+    event
+WHERE
+    event_datetime > CURRENT_TIMESTAMP
+    AND event_datetime < CURRENT_TIMESTAMP + INTERVAL '2 weeks'
+ORDER BY
+    event_datetime;
