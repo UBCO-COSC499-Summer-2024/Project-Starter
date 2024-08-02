@@ -7,6 +7,7 @@ import { csv2json, json2csv } from 'json-2-csv';
 import { useRouter } from 'next/navigation';
 import supabase from '@/app/components/supabaseClient';
 import SearchModal from '@/app/components/SearchModal';
+import { saveAs } from 'file-saver';
 
 const StyledButton = styled(Button)(
     ({ theme }) => `
@@ -424,7 +425,24 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         }
     };
 
-
+    const handleDownloadCSV = async () => {
+        try {
+            const { data, error } = await supabase.from(tableName).select();
+            if (error) {
+                console.error("Error fetching data for CSV download:", error);
+                setErrorMessage(`Error fetching data for CSV download: ${error.message}`);
+                setErrorOpen(true);
+                return;
+            }
+            const csvData = await json2csv(data);
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            saveAs(blob, `${tableName}.csv`);
+        } catch (error) {
+            console.error("Error downloading CSV:", error);
+            setErrorMessage(`Error downloading CSV: ${error.message}`);
+            setErrorOpen(true);
+        }
+    };
 
     const EditToolbar = () => {
         const isInEditMode = selectedRows.some(id => rowModesModel[id]?.mode === GridRowModes.Edit);
@@ -439,9 +457,9 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 ) : (
                     <>
                         <Button color="primary" onClick={handleAddRecordClick}>➕ Add Record</Button>
-                        <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
                         <Button className="textPrimary" onClick={handleEditClick} color="inherit">✏️ Edit</Button>
                         <Button onClick={handleDeleteClick} color="inherit">🗑️ Delete</Button>
+                        <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
                         <input
                             accept=".csv"
                             style={{ display: 'none' }}
@@ -452,12 +470,12 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         <label htmlFor="upload-csv-file">
                             <Button component="span" color="primary">📤 Upload CSV</Button>
                         </label>
+                        <Button color="primary" onClick={handleDownloadCSV}>📥 Download CSV</Button>
                     </>
                 )}
             </GridToolbarContainer>
         );
     };
-
 
     const handleCSVClose = () => setCsvShow(false);
 
