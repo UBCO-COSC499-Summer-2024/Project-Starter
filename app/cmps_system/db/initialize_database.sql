@@ -754,3 +754,33 @@ FROM
             ) AS expected ON worked.instructor_id = expected.instructor_id
     ) AS hours
     JOIN instructor ON hours.instructor_id = instructor.instructor_id;
+
+CREATE OR REPLACE VIEW v_dashboard_current_courses
+WITH (security_invoker) AS
+SELECT
+    instructor.instructor_id AS instructor_id,
+    instructor.email AS instructor_email,
+    course.course_id,
+    course.course_title,
+    course.section_num,
+    course.num_students,
+    course.average_grade,
+    course.activity,
+    course.days,
+    course.start_time,
+    course.end_time,
+    course.registration_status,
+    CONCAT(course.building, ' ', course.room_num) AS location
+FROM
+    course
+    JOIN
+    course_assign ON course.course_id = course_assign.course_id
+    JOIN
+    instructor ON course_assign.instructor_id = instructor.instructor_id
+WHERE
+    (
+        (course.session = 'Winter' AND course.academic_year = EXTRACT(YEAR FROM CURRENT_DATE) - 1 AND EXTRACT(MONTH FROM CURRENT_DATE) BETWEEN 1 AND 4)
+        OR (course.session = 'Winter' AND course.academic_year = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM CURRENT_DATE) BETWEEN 9 AND 12)
+        OR (course.session = 'Summer' AND course.academic_year = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM CURRENT_DATE) BETWEEN 5 AND 8)
+    );
+

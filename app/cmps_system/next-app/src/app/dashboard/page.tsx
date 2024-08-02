@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Table, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, ProgressBar } from 'react-bootstrap';
 import supabase from "@/app/components/supabaseClient";
+import Link from 'next/link';
 import Navbar from '@/app/components/NavBar';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -47,7 +48,7 @@ const HourCard = () => {
             const res = await supabase
                 .from("v_dashboard_progress")
                 .select("*")
-                .eq("instructor_email", userRes.data.user.email);
+                .eq("email", userRes.data.user.email);
 
             if (res.data && res.data.length > 0) {
                 setPersonalHour(res.data[0].worked);
@@ -74,14 +75,14 @@ const HourCard = () => {
     return (
         <Card className="tw-mb-3">
             <div style={{ color: personalExpected === 0 || personalHour / personalExpected > 0.5 ? "green" : "orange" }}>
-                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal service hours this month</b>
+                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal Service Hours</b>
                 <h1>{personalHour}/{personalExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
                 <ProgressBar className="tw-m-3" now={personalExpected === 0 ? 0 : personalHour / personalExpected * 100} />
             </div>
 
             <div style={{ color: departmentExpected === 0 || departmentHour / departmentExpected > 0.5 ? "green" : "orange" }}>
-                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department service hours this month</b>
+                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department Service Hours</b>
                 <h1>{departmentHour}/{departmentExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
                 <ProgressBar className="tw-m-3" now={departmentExpected === 0 ? 0 : departmentHour / departmentExpected * 100} />
@@ -91,7 +92,7 @@ const HourCard = () => {
 };
 
 export default function Home() {
-    const [term, setTerm] = useState("2024");
+    const [year, setTerm] = useState("2024");
     const [workingHours, setWorkingHours] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -115,9 +116,10 @@ export default function Home() {
 
     useEffect(() => {
         const fetchAssignments = async () => {
-            const { data, error } = await supabase.from('course').select('*');
+            const userRes = await supabase.auth.getUser();
+            const { data, error } = await supabase.from('v_dashboard_current_courses').select('*').eq('instructor_email', userRes.data.user.email);
             if (error) {
-                console.error('Error fetching assignments:', error);
+                console.error('Error fetching teaching assignments:', error);
                 setAssignmentsError(error.message);
             } else {
                 setAssignments(data);
@@ -155,7 +157,7 @@ export default function Home() {
             const { data, error } = await supabase
                 .from('service_hours_entry')
                 .select('*')
-                .eq('year', term);
+                .eq('year', year);
 
             if (error) {
                 console.error('Error fetching working hours:', error);
@@ -167,13 +169,25 @@ export default function Home() {
         };
 
         fetchWorkingHours();
-    }, [term]);
+    }, [year]);
+
+    const getCurrentMonthYear = () => {
+        const date = new Date();
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+        return `${month} ${year}`;
+    };
 
     return (
         <main>
             <Navbar />
             <Container>
                 <Row className="tw-pt-3">
+                    <Col xs={12}>
+                        <h2 className="tw-mb-4 tw-text-center">{getCurrentMonthYear()}</h2>
+                    </Col>
+                </Row>
+                <Row>
                     <Col xs={8}>
                         <Card>
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Course Assignments</b>
@@ -181,29 +195,37 @@ export default function Home() {
                                 <thead>
                                     <tr>
                                         <th>Course Name</th>
-                                        <th>Term</th>
-                                        <th>Time</th>
-                                        <th>Student Counts</th>
+                                        <th>Section</th>
+                                        <th>Days/Time</th>
+                                        <th>Students</th>
+                                        <th>Average Grade</th>
                                         <th>Location</th>
+                                        <th>Registration Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {assignmentsLoading ? (
-                                        <tr><td colSpan="5">Loading...</td></tr>
+                                        <tr><td colSpan="6">Loading...</td></tr>
                                     ) : assignmentsError ? (
-                                        <tr><td colSpan="5">Error fetching assignments: {assignmentsError}</td></tr>
+                                        <tr><td colSpan="6">Error fetching assignments: {assignmentsError}</td></tr>
                                     ) : assignments.length > 0 ? (
                                         assignments.map((x, index) => (
                                             <tr key={index}>
-                                                <td>{x.course_title}</td>
-                                                <td>{x.term}</td>
+                                                <td>
+                                                    <Link href={`/courses/course_info?id=${x.course_id}`}>
+                                                        {x.course_title}
+                                                    </Link>
+                                                </td>
+                                                <td>{x.section_num}</td>
                                                 <td>{x.days} - {x.start_time} to {x.end_time}</td>
                                                 <td>{x.num_students}</td>
-                                                <td>{x.building} {x.room_num}</td>
+                                                <td>{x.average_grade}</td>
+                                                <td>{x.location}</td>
+                                                <td>{x.registration_status}</td>
                                             </tr>
                                         ))
                                     ) : (
-                                        <tr><td colSpan="5">No assignments found</td></tr>
+                                        <tr><td colSpan="6">No assignments found</td></tr>
                                     )}
                                 </tbody>
                             </Table>
@@ -212,7 +234,7 @@ export default function Home() {
                     <Col xs={4}>
                         <HourCard />
                         <Card>
-                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Hours per service role this month</b>
+                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Hours per Service Role</b>
                             <Table>
                                 <thead>
                                     <tr>
@@ -228,7 +250,11 @@ export default function Home() {
                                     ) : serviceRoles.length > 0 ? (
                                         serviceRoles.map((x, index) => (
                                             <tr key={index}>
-                                                <td>{x.service_role}</td>
+                                                <td>
+                                                    <Link href={`/service_roles/service_role_info?id=${x.service_role_id}`}>
+                                                        {x.service_role}
+                                                    </Link>
+                                                </td>
                                                 <td>{x.hours}</td>
                                             </tr>
                                         ))
@@ -245,7 +271,7 @@ export default function Home() {
                         <Card className="tw-mb-3">
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Historical Working Hours</b>
                             <Dropdown className="tw-ml-2">
-                                <DropdownToggle>{term}</DropdownToggle>
+                                <DropdownToggle>{year}</DropdownToggle>
                                 <DropdownMenu>
                                     {[2023, 2024].map((year, index) => (
                                         <DropdownItem key={index} onClick={() => setTerm(year)}>

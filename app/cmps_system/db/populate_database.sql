@@ -526,7 +526,7 @@ VALUES
         'Active'
     ),
     (
-        2023,
+        2024,
         'Summer',
         'Term 1',
         'PHYS',
@@ -551,7 +551,7 @@ VALUES
         'Active'
     ),
     (
-        2023,
+        2024,
         'Summer',
         'Term 2',
         'STAT',
@@ -626,7 +626,7 @@ VALUES
         'Active'
     ),
     (
-        2023,
+        2024,
         'Summer',
         'Term 1',
         'PHYS',
