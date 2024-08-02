@@ -13,7 +13,7 @@ export default function Instructors() {
   ];
 
   const columnsConfig = [
-    { field: 'id', headerName: 'ID', width: 50, editable: false },
+    { field: 'id', headerName: 'ID', width: 100, editable: false },
     {
       field: 'full_name',
       headerName: 'Instructor',
@@ -22,6 +22,7 @@ export default function Instructors() {
       linkConfig: { prefix: '/instructors/instructor_info?id=', idField: 'id' }
     },
     { field: 'ubc_employee_num', headerName: 'Employee Number', flex: 1, editable: false },
+    { field: 'email', headerName: 'Email', flex: 1, editable: false },
     { field: 'title', headerName: 'Title', flex: 1, editable: true },
     { field: 'hire_date', headerName: 'Hired Date', flex: 1, editable: true },
   ];

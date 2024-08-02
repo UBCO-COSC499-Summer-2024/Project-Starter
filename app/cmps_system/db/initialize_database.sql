@@ -393,6 +393,7 @@ WITH
     (security_invoker) AS
 SELECT
     instructor_id as id,
+    email,
     first_name,
     last_name,
     CONCAT(
