@@ -23,9 +23,25 @@ export default function EventInfo() {
     const { push } = useRouter();
     const searchParams = useSearchParams();
     const eventId = searchParams.get('id');
-    const userRole = 'Staff'; // Placeholder for actual role-checking logic
+    const [userRole, setUserRole] = useState(''); // Initialize userRole state
 
     useEffect(() => {
+        async function fetchUserRole() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data, error } = await supabase
+                    .from('user_role')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .single();
+                if (error) {
+                    console.error('Error fetching user role:', error);
+                } else {
+                    setUserRole(data.role); // Set userRole state
+                }
+            }
+        }
+
         async function fetchEventInfo() {
             const { data: eventData, error: eventError } = await supabase
                 .from('event')
@@ -63,6 +79,7 @@ export default function EventInfo() {
             }
         }
 
+        fetchUserRole(); // Fetch user role when component mounts
         fetchEventInfo();
         fetchInstructors();
     }, [eventId]);
@@ -132,18 +149,20 @@ export default function EventInfo() {
             const instructor = instructors.find(inst => inst.instructor_id === params.value);
             return instructor ? `${instructor.first_name} ${instructor.last_name}` : '';
         }},
-        { field: 'attendance_duration', headerName: 'Duration', width: 150, editable: userRole === 'Staff' || userRole === 'Head' },
+        { field: 'attendance_duration', headerName: 'Duration', width: 150 },
         {
             field: 'actions',
             headerName: 'Actions',
             width: 100,
             renderCell: (params) => (
-                <GridActionsCellItem
-                    icon={<DeleteIcon />}
-                    label="Delete"
-                    onClick={() => handleDeleteAttendance(params.row.instructor_id)}
-                    color="inherit"
-                />
+                ['staff', 'head'].includes(userRole.toLowerCase()) && (
+                    <GridActionsCellItem
+                        icon={<DeleteIcon />}
+                        label="Delete"
+                        onClick={() => handleDeleteAttendance(params.row.instructor_id)}
+                        color="inherit"
+                    />
+                )
             ),
         },
     ];
@@ -159,14 +178,16 @@ export default function EventInfo() {
                         Event Info
                     </Typography>
                     <Box>
-                        <Button 
-                            variant="contained" 
-                            color="primary"
-                            onClick={() => setIsModalOpen(true)}
-                            style={{ marginRight: '10px' }}
-                        >
-                            Add Instructor Attendance
-                        </Button>
+                        {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                            <Button 
+                                variant="contained" 
+                                color="primary"
+                                onClick={() => setIsModalOpen(true)}
+                                style={{ marginRight: '10px' }}
+                            >
+                                Add Instructor Attendance
+                            </Button>
+                        )}
                         <Button 
                             variant="outlined" 
                             color="primary"
