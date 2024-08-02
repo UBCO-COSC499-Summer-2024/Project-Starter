@@ -30,7 +30,7 @@ const monthNames = ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan
 const parseData = (x) => ({
     labels: x.map(entry => monthNames[(entry.month - 5 + 12) % 12]),
     datasets: [{
-        label: 'Personal Monthly Working Hours',
+        label: 'Hours',
         data: x.map(entry => entry.hours),
         backgroundColor: 'rgba(58, 190, 249, 0.2)',
         borderColor: 'rgb(58, 190, 249)',
@@ -157,9 +157,10 @@ export default function Home() {
 
     useEffect(() => {
         const fetchWorkingHours = async () => {
+            const userRes = await supabase.auth.getUser();
             const { data, error } = await supabase
-                .from('service_hours_entry')
-                .select('*');
+                .from('v_service_hours_entry')
+                .select('*').eq('instructor_email', userRes.data.user.email);
 
             if (error) {
                 console.error('Error fetching working hours:', error);
@@ -167,13 +168,14 @@ export default function Home() {
             } else {
                 setWorkingHours(data);
 
-                const years = [...new Set(data.map(entry => {
+                const years = Array.from(new Set(data.map(entry => {
                     if (entry.month >= 5) {
                         return entry.year;
                     } else {
                         return entry.year - 1;
                     }
-                }))];
+                })));
+
                 setAvailableYears(years);
                 setTerm(years[years.length - 1].toString());
             }
@@ -251,6 +253,28 @@ export default function Home() {
                                 </tbody>
                             </Table>
                         </Card>
+                        <Card className="tw-mb-3 tw-mt-3">
+                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Year-to-date Working Hours</b>
+                            <Dropdown className="tw-ml-2">
+                                <DropdownToggle>{year}</DropdownToggle>
+                                <DropdownMenu>
+                                    {availableYears.map((year, index) => (
+                                        <DropdownItem key={index} onClick={() => setTerm(year.toString())}>
+                                            {year}
+                                        </DropdownItem>
+                                    ))}
+                                </DropdownMenu>
+                            </Dropdown>
+                            <div className="tw-h-48">
+                                <Bar className="tw-p-2 tw-h-max"
+                                    data={parseData(getFilteredWorkingHours())}
+                                    options={{
+                                        maintainAspectRatio: false,
+                                        scales: { y: { beginAtZero: true } }
+                                    }}
+                                />
+                            </div>
+                        </Card>
                     </Col>
                     <Col xs={4}>
                         <HourCard />
@@ -288,30 +312,6 @@ export default function Home() {
                     </Col>
                 </Row>
                 <Row>
-                    <Col className="pt-3">
-                        <Card className="tw-mb-3">
-                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Historical Working Hours</b>
-                            <Dropdown className="tw-ml-2">
-                                <DropdownToggle>{year}</DropdownToggle>
-                                <DropdownMenu>
-                                    {availableYears.map((year, index) => (
-                                        <DropdownItem key={index} onClick={() => setTerm(year.toString())}>
-                                            {year}
-                                        </DropdownItem>
-                                    ))}
-                                </DropdownMenu>
-                            </Dropdown>
-                            <div className="tw-h-62">
-                                <Bar className="tw-p-2 tw-h-max"
-                                    data={parseData(getFilteredWorkingHours())}
-                                    options={{
-                                        maintainAspectRatio: false,
-                                        scales: { y: { beginAtZero: true } }
-                                    }}
-                                />
-                            </div>
-                        </Card>
-                    </Col>
                     <Col className="tw-pt-3">
                         <Card>
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">SEI Results</b>

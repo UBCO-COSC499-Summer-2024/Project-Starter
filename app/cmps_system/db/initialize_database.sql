@@ -755,8 +755,10 @@ FROM
     ) AS hours
     JOIN instructor ON hours.instructor_id = instructor.instructor_id;
 
-CREATE OR REPLACE VIEW v_dashboard_current_courses
-WITH (security_invoker) AS
+CREATE OR REPLACE VIEW
+    v_dashboard_current_courses
+WITH
+    (security_invoker) AS
 SELECT
     instructor.instructor_id AS instructor_id,
     instructor.email AS instructor_email,
@@ -773,14 +775,82 @@ SELECT
     CONCAT(course.building, ' ', course.room_num) AS location
 FROM
     course
-    JOIN
-    course_assign ON course.course_id = course_assign.course_id
-    JOIN
-    instructor ON course_assign.instructor_id = instructor.instructor_id
+    JOIN course_assign ON course.course_id = course_assign.course_id
+    JOIN instructor ON course_assign.instructor_id = instructor.instructor_id
 WHERE
     (
-        (course.session = 'Winter' AND course.academic_year = EXTRACT(YEAR FROM CURRENT_DATE) - 1 AND EXTRACT(MONTH FROM CURRENT_DATE) BETWEEN 1 AND 4)
-        OR (course.session = 'Winter' AND course.academic_year = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM CURRENT_DATE) BETWEEN 9 AND 12)
-        OR (course.session = 'Summer' AND course.academic_year = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM CURRENT_DATE) BETWEEN 5 AND 8)
+        (
+            course.session = 'Winter'
+            AND course.academic_year = EXTRACT(
+                YEAR
+                FROM
+                    CURRENT_DATE
+            ) - 1
+            AND EXTRACT(
+                MONTH
+                FROM
+                    CURRENT_DATE
+            ) BETWEEN 1 AND 4
+        )
+        OR (
+            course.session = 'Winter'
+            AND course.academic_year = EXTRACT(
+                YEAR
+                FROM
+                    CURRENT_DATE
+            )
+            AND EXTRACT(
+                MONTH
+                FROM
+                    CURRENT_DATE
+            ) BETWEEN 9 AND 12
+        )
+        OR (
+            course.session = 'Summer'
+            AND course.academic_year = EXTRACT(
+                YEAR
+                FROM
+                    CURRENT_DATE
+            )
+            AND EXTRACT(
+                MONTH
+                FROM
+                    CURRENT_DATE
+            ) BETWEEN 5 AND 8
+        )
     );
 
+CREATE OR REPLACE VIEW
+    v_service_hours_entry
+WITH
+    (security_invoker) AS
+SELECT
+    service_hours_entry_id,
+    instructor.instructor_id,
+    instructor.email AS instructor_email,
+    service_role_id,
+    year,
+    month,
+    hours
+FROM
+    service_hours_entry
+    JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
+
+CREATE OR REPLACE VIEW
+    v_dashboard_upcoming_events
+WITH
+    (security_invoker) AS
+SELECT
+    event_id,
+    event_datetime,
+    is_meeting,
+    duration,
+    description,
+    location
+FROM
+    event
+WHERE
+    event_datetime > CURRENT_TIMESTAMP
+    AND event_datetime < CURRENT_TIMESTAMP + INTERVAL '2 weeks'
+ORDER BY
+    event_datetime;
