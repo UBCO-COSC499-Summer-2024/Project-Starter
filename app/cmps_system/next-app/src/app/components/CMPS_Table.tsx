@@ -359,6 +359,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     const input_ids = new Set();
                     const uniqueColumnSets = new Map(); // Use a Map to store unique sets and their corresponding rows
 
+                    // Scan for duplicate IDs and unique column sets in the CSV data
                     for (const row of jsonData) {
                         if (idColumn && row[idColumn] && input_ids.has(row[idColumn])) {
                             setErrorMessage(`Duplicate ID found in CSV: ${row[idColumn]}`);
@@ -379,20 +380,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         if (idColumn && row[idColumn]) input_ids.add(row[idColumn]);
                     }
 
-                    // Fetch all current IDs from the database to check existence if idColumn is defined
-                    const existingIds = new Set();
-                    if (idColumn) {
-                        const { data: currentData, error: fetchError } = await supabase.from(tableName).select(idColumn);
-                        if (fetchError) throw fetchError;
-                        currentData.forEach(row => existingIds.add(row[idColumn]));
-                    }
-
                     // Iterate over each row in the JSON data
                     for (const row of jsonData) {
                         if (!idColumn || !row[idColumn] || row[idColumn] === "") {
                             // Create a copy of the row without the idColumn
                             const { [idColumn]: _, ...rowWithoutId } = row;
                             // Upsert row based on uniqueColumns if idColumn is not specified or empty
+                            // so that the database can generate the ID
                             const { error } = await supabase.from(tableName).upsert(rowWithoutId, { onConflict: uniqueColumns });
                             if (error) {
                                 console.error("Error upserting row:", error);
@@ -401,23 +395,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                                 return;
                             }
                         } else {
-                            // Insert or update based on idColumn
-                            if (existingIds.has(row[idColumn])) {
-                                const { error } = await supabase.from(tableName).update(row).eq(idColumn, row[idColumn]);
-                                if (error) {
-                                    console.error("Error updating row:", error);
-                                    setErrorMessage(`Error updating row: ${JSON.stringify(row)} - ${error.message}`);
-                                    setErrorOpen(true);
-                                    return;
-                                }
-                            } else {
-                                const { error } = await supabase.from(tableName).insert(row);
-                                if (error) {
-                                    console.error("Error inserting row:", error);
-                                    setErrorMessage(`Error inserting row: ${JSON.stringify(row)} - ${error.message}`);
-                                    setErrorOpen(true);
-                                    return;
-                                }
+                            // Upsert row with specified ID, using idColumn to handle conflicts
+                            const { error } = await supabase.from(tableName).upsert(row, { onConflict: [idColumn] });
+                            if (error) {
+                                console.error("Error upserting row:", error);
+                                setErrorMessage(`Error upserting row: ${JSON.stringify(row)} - ${error.message}`);
+                                setErrorOpen(true);
+                                return;
                             }
                         }
                     }
@@ -439,6 +423,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             reader.readAsText(file);
         }
     };
+
 
 
     const EditToolbar = () => {
