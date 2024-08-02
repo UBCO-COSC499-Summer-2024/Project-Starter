@@ -355,17 +355,36 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     const jsonData = await csv2json(cleanCsvText);
                     console.log("Converted JSON data:", jsonData);
     
-                    // Delete all rows from the table
-                    const { error: deleteError } = await supabase.from(tableName).delete().neq(idColumn, -1);
-                    if (deleteError) {
-                        console.error("Error deleting existing rows:", deleteError);
+                    // Ensure idColumn is defined
+                    if (!idColumn) {
+                        console.error("idColumn is not defined");
                         return;
                     }
-                    console.log("Existing rows deleted successfully.");
     
+                    // Fetch all current rows to determine which ones to delete
+                    const { data: currentData, error: fetchError } = await supabase.from(tableName).select();
+                    if (fetchError) throw fetchError;
+    
+                    // Determine rows to delete
+                    const currentIds = new Set(currentData.map(row => row[idColumn]));
+                    const newIds = new Set(jsonData.map(row => row[idColumn]));
+                    const idsToDelete = [...currentIds].filter(id => !newIds.has(id));
+    
+                    if (idsToDelete.length > 0) {
+                        // Delete only those rows that are not in the new CSV
+                        const { error: deleteError } = await supabase.from(tableName).delete().in(idColumn, idsToDelete);
+                        if (deleteError) {
+                            console.error("Error deleting existing rows:", deleteError);
+                            return;
+                        }
+                        console.log("Existing rows deleted successfully.");
+                    } else {
+                        console.log("No rows to delete.");
+                    }
+    
+                    // Insert or update rows
                     for (const row of jsonData) {
-                        // Assuming 'course_id' is the primary key
-                        const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns });
+                        const { error } = await supabase.from(tableName).upsert(row, { onConflict: [idColumn] });
                         if (error) {
                             console.error("Error inserting/updating row:", error);
                             return;
@@ -373,12 +392,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     }
                     console.log("New rows inserted/updated successfully.");
     
-                    const { data, error: fetchError } = await supabase.from(fetchUrl).select();
-                    if (fetchError) throw fetchError;
-                    console.log("Fetched updated table data:", data);
+                    // Fetch updated table data
+                    const { data: updatedData, error: fetchUpdatedError } = await supabase.from(fetchUrl).select();
+                    if (fetchUpdatedError) throw fetchUpdatedError;
+                    console.log("Fetched updated table data:", updatedData);
     
-                    setTableData(data);
-                    setInitialTableData(data); // Update initial data to reflect the new state
+                    setTableData(updatedData);
+                    setInitialTableData(updatedData); // Update initial data to reflect the new state
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
                 }
@@ -386,6 +406,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             reader.readAsText(file);
         }
     };
+    
+    
     
     
     
