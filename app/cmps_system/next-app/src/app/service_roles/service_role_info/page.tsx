@@ -18,11 +18,28 @@ export default function ServiceRoleInfo() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [userRole, setUserRole] = useState(''); // Initialize userRole state
     const router = useRouter();
     const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
     const serviceRoleId = searchParams.get('id'); // Extract the 'id' from the URL
 
     useEffect(() => {
+        const fetchUserRole = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data, error } = await supabase
+                    .from('user_role')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .single();
+                if (error) {
+                    console.error('Error fetching user role:', error);
+                } else {
+                    setUserRole(data.role); // Set userRole state
+                }
+            }
+        };
+
         const fetchServiceRole = async () => {
             try {
                 const { data, error } = await supabase
@@ -70,6 +87,7 @@ export default function ServiceRoleInfo() {
         };
 
         if (serviceRoleId) {
+            fetchUserRole();
             fetchServiceRole();
             fetchAssignments();
             fetchInstructors();
@@ -179,20 +197,22 @@ export default function ServiceRoleInfo() {
                 return instructor ? `${instructor.first_name} ${instructor.last_name}` : '';
             }
         },
-        { field: 'start_date', headerName: 'Start Date', width: 150, editable: true },
-        { field: 'end_date', headerName: 'End Date', width: 150, editable: true },
-        { field: 'expected_hours', headerName: 'Expected Hours', width: 150, editable: true },
+        { field: 'start_date', headerName: 'Start Date', width: 150, editable: ['staff', 'head'].includes(userRole.toLowerCase()) },
+        { field: 'end_date', headerName: 'End Date', width: 150, editable: ['staff', 'head'].includes(userRole.toLowerCase()) },
+        { field: 'expected_hours', headerName: 'Expected Hours', width: 150, editable: ['staff', 'head'].includes(userRole.toLowerCase()) },
         {
             field: 'actions',
             headerName: 'Actions',
             width: 100,
             renderCell: (params) => (
-                <GridActionsCellItem
-                    icon={<DeleteIcon />}
-                    label="Delete"
-                    onClick={() => handleDeleteAssignment(params.row.service_role_assign_id)}
-                    color="inherit"
-                />
+                ['staff', 'head'].includes(userRole.toLowerCase()) && (
+                    <GridActionsCellItem
+                        icon={<DeleteIcon />}
+                        label="Delete"
+                        onClick={() => handleDeleteAssignment(params.row.service_role_assign_id)}
+                        color="inherit"
+                    />
+                )
             ),
         },
     ];
@@ -221,6 +241,7 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('title')}
                             margin="normal"
                             variant="outlined"
+                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
                         />
                         <TextField
                             label="Description"
@@ -229,6 +250,7 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('description')}
                             margin="normal"
                             variant="outlined"
+                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
                         />
                         <TextField
                             label="Building"
@@ -237,6 +259,7 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('building')}
                             margin="normal"
                             variant="outlined"
+                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
                         />
                         <TextField
                             label="Room Number"
@@ -245,6 +268,7 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('room_num')}
                             margin="normal"
                             variant="outlined"
+                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
                         />
                         <TextField
                             label="Default Expected Hours"
@@ -253,14 +277,19 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('default_expected_hours')}
                             margin="normal"
                             variant="outlined"
+                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
                         />
                         <Box mt={2}>
-                            <Button variant="contained" color="primary" onClick={handleSaveChanges} style={{ marginRight: '10px' }}>
-                                Save Changes
-                            </Button>
-                            <Button variant="outlined" color="secondary" onClick={handleDiscardChanges}>
-                                Discard Changes
-                            </Button>
+                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                <>
+                                    <Button variant="contained" color="primary" onClick={handleSaveChanges} style={{ marginRight: '10px' }}>
+                                        Save Changes
+                                    </Button>
+                                    <Button variant="outlined" color="secondary" onClick={handleDiscardChanges}>
+                                        Discard Changes
+                                    </Button>
+                                </>
+                            )}
                         </Box>
                     </div>
                 )}
@@ -268,13 +297,15 @@ export default function ServiceRoleInfo() {
                     <Typography variant="h5" component="h2">
                         Assignees
                     </Typography>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        Add New Assignment
-                    </Button>
+                    {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Add New Assignment
+                        </Button>
+                    )}
                 </Box>
                 <div style={{ height: 400, width: '100%', marginTop: '20px' }}>
                     <DataGrid
