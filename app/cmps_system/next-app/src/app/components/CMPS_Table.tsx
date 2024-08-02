@@ -270,7 +270,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             console.error("Error fetching data for CSV:", error);
             return;
         }
-        const csvData = await json2csv(data);
+        const csvData = await json2csv(data, { delimiter: { wrap: '"' } }); // Ensure strings are wrapped in quotes
         setDefaultCSV(csvData);
         setCsvShow(true);
     };
@@ -278,8 +278,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const handleApplyCSV = async () => {
         try {
             const csvText = csv.current.value;
-            const jsonData = await csv2json(csvText);
-            const originalData = await csv2json(defaultCSV);
+            const jsonData = await csv2json(csvText, { delimiter: { wrap: '"' } });
+            const originalData = await csv2json(defaultCSV, { delimiter: { wrap: '"' } });
 
             // Create a set of primary keys from the original CSV
             const originalIds = new Set(originalData.map(row => row[idColumn]));
@@ -308,9 +308,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         return;
                     }
                 } else {
-                    const { error } = await supabase.from(tableName).upsert(row, uniqueColumns ? { onConflict: uniqueColumns } : {});
+                    const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
                     if (error) {
-                        console.error("Error updating row:", error);
+                        console.error("Error upserting row:", error);
+                        setErrorMessage(`Error upserting row: ${JSON.stringify(row)} - ${error.message}`);
+                        setErrorOpen(true);
                         return;
                     }
                 }
@@ -322,6 +324,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setCsvShow(false);
         } catch (error) {
             console.error("Error processing CSV data:", error);
+            setErrorMessage(`Error processing CSV file: ${error.message}`);
+            setErrorOpen(true);
         }
     };
 
@@ -353,14 +357,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 try {
                     // Preprocess CSV to remove any trailing whitespace and carriage returns from headers and values
                     const cleanCsvText = (csvText as string).split('\n').map(line => line.split(',').map(cell => cell.trim()).join(',')).join('\n');
-                    const jsonData = await csv2json(cleanCsvText);
+                    const jsonData = await csv2json(cleanCsvText, { trimHeaderFields: false, trimFieldValues: false });
                     console.log("Converted JSON data:", jsonData);
 
                     // Validate CSV data for duplicates
                     const input_ids = new Set();
                     const uniqueColumnSets = new Map(); // Use a Map to store unique sets and their corresponding rows
 
-                    // Scan for duplicate IDs and unique column sets in the CSV data
                     for (const row of jsonData) {
                         if (idColumn && row[idColumn] && input_ids.has(row[idColumn])) {
                             setErrorMessage(`Duplicate ID found in CSV: ${row[idColumn]}`);
@@ -381,26 +384,27 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         if (idColumn && row[idColumn]) input_ids.add(row[idColumn]);
                     }
 
-                    // Iterate over each row in the JSON data
                     for (const row of jsonData) {
                         if (!idColumn || !row[idColumn] || row[idColumn] === "") {
-                            // Create a copy of the row without the idColumn
                             const { [idColumn]: _, ...rowWithoutId } = row;
-                            // Upsert row based on uniqueColumns if idColumn is not specified or empty
-                            // so that the database can generate the ID
-                            const { error } = await supabase.from(tableName).upsert(rowWithoutId, { onConflict: uniqueColumns });
+                            const cleanedRow = Object.fromEntries(
+                                Object.entries(rowWithoutId).map(([key, value]) => [key.trim(), typeof value === 'string' ? value.trim() : value])
+                            );
+                            const { error } = await supabase.from(tableName).upsert(cleanedRow, uniqueColumns ? { onConflict: uniqueColumns } : {});
                             if (error) {
                                 console.error("Error upserting row:", error);
-                                setErrorMessage(`Error upserting row: ${JSON.stringify(rowWithoutId)} - ${error.message}`);
+                                setErrorMessage(`Error upserting row: ${JSON.stringify(cleanedRow)} - ${error.message}`);
                                 setErrorOpen(true);
                                 return;
                             }
                         } else {
-                            // Upsert row with specified ID, using idColumn to handle conflicts
-                            const { error } = await supabase.from(tableName).upsert(row, { onConflict: [idColumn] });
+                            const cleanedRow = Object.fromEntries(
+                                Object.entries(row).map(([key, value]) => [key.trim(), typeof value === 'string' ? value.trim() : value])
+                            );
+                            const { error } = await supabase.from(tableName).upsert(cleanedRow, { onConflict: [idColumn] });
                             if (error) {
                                 console.error("Error upserting row:", error);
-                                setErrorMessage(`Error upserting row: ${JSON.stringify(row)} - ${error.message}`);
+                                setErrorMessage(`Error upserting row: ${JSON.stringify(cleanedRow)} - ${error.message}`);
                                 setErrorOpen(true);
                                 return;
                             }
@@ -408,13 +412,12 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     }
                     console.log("Rows processed successfully.");
 
-                    // Fetch updated table data
                     const { data: updatedData, error: fetchUpdatedError } = await supabase.from(fetchUrl).select();
                     if (fetchUpdatedError) throw fetchUpdatedError;
                     console.log("Fetched updated table data:", updatedData);
 
                     setTableData(updatedData);
-                    setInitialTableData(updatedData); // Update initial data to reflect the new state
+                    setInitialTableData(updatedData);
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
                     setErrorMessage(`Error processing CSV file: ${error.message}`);
@@ -425,6 +428,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         }
     };
 
+
     const handleDownloadCSV = async () => {
         try {
             const { data, error } = await supabase.from(tableName).select();
@@ -434,7 +438,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 setErrorOpen(true);
                 return;
             }
-            const csvData = await json2csv(data);
+            const csvData = await json2csv(data, { delimiter: { wrap: '"' } }); // Ensure strings are wrapped in quotes
             const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
             saveAs(blob, `${tableName}.csv`);
         } catch (error) {
@@ -457,9 +461,9 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 ) : (
                     <>
                         <Button color="primary" onClick={handleAddRecordClick}>➕ Add Record</Button>
+                        <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
                         <Button className="textPrimary" onClick={handleEditClick} color="inherit">✏️ Edit</Button>
                         <Button onClick={handleDeleteClick} color="inherit">🗑️ Delete</Button>
-                        <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
                         <input
                             accept=".csv"
                             style={{ display: 'none' }}
