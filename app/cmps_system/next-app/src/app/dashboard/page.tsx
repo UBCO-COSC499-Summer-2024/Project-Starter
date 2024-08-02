@@ -253,7 +253,11 @@ export default function Home() {
                 })));
 
                 setAvailableYears(years);
-                setTerm(years[years.length - 1].toString());
+                if (years.length > 0) {
+                    setTerm(years[years.length - 1].toString());
+                } else {
+                    setTerm("");
+                }
             }
             setLoading(false);
         };
@@ -433,3 +437,4 @@ export default function Home() {
         </main>
     );
 }
+
