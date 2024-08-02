@@ -9,6 +9,7 @@ import Navbar from '@/app/components/NavBar';
 import supabase from "@/app/components/supabaseClient";
 
 export default function EventInfo() {
+    // State variables
     const [event, setEvent] = useState(null);
     const [attendees, setAttendees] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +26,7 @@ export default function EventInfo() {
     const eventId = searchParams.get('id');
     const userRole = 'Staff'; // Placeholder for actual role-checking logic
 
+    // Fetch event info and attendees when component mounts
     useEffect(() => {
         async function fetchEventInfo() {
             const { data: eventData, error: eventError } = await supabase
@@ -67,6 +69,7 @@ export default function EventInfo() {
         fetchInstructors();
     }, [eventId]);
 
+    // Handle adding new attendance
     const handleAddAttendance = async () => {
         if (!newInstructor || (hours === '00' && minutes === '00' && seconds === '00')) {
             setSnackbarMessage('Please fill in all fields.');
@@ -103,6 +106,7 @@ export default function EventInfo() {
         setSnackbarOpen(true);
     };
 
+    // Handle deleting attendance
     const handleDeleteAttendance = async (instructorId) => {
         const { error } = await supabase
             .from('event_attendance')
@@ -123,10 +127,12 @@ export default function EventInfo() {
         setSnackbarOpen(true);
     };
 
+    // Handle closing snackbar
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
 
+    // Define columns for DataGrid
     const columns = [
         { field: 'instructor_id', headerName: 'Instructor', width: 200, renderCell: (params) => {
             const instructor = instructors.find(inst => inst.instructor_id === params.value);
@@ -148,6 +154,7 @@ export default function EventInfo() {
         },
     ];
 
+    // Options for duration dropdowns
     const durationOptions = Array.from({ length: 60 }, (_, i) => (i < 10 ? `0${i}` : `${i}`));
 
     return (
