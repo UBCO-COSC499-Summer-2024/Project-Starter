@@ -365,9 +365,21 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     const { data: currentData, error: fetchError } = await supabase.from(tableName).select();
                     if (fetchError) throw fetchError;
     
+                    // Determine the maximum current ID to generate new IDs if needed
+                    const currentIds = currentData.map(row => row[idColumn]);
+                    let maxId = Math.max(0, ...currentIds);
+    
+                    // Generate new IDs if missing
+                    const updatedJsonData = jsonData.map(row => {
+                        if (!row[idColumn] || row[idColumn] === "") {
+                            maxId += 1;
+                            row[idColumn] = maxId;
+                        }
+                        return row;
+                    });
+    
                     // Determine rows to delete
-                    const currentIds = new Set(currentData.map(row => row[idColumn]));
-                    const newIds = new Set(jsonData.map(row => row[idColumn]));
+                    const newIds = new Set(updatedJsonData.map(row => row[idColumn]));
                     const idsToDelete = [...currentIds].filter(id => !newIds.has(id));
     
                     if (idsToDelete.length > 0) {
@@ -383,7 +395,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     }
     
                     // Insert or update rows
-                    for (const row of jsonData) {
+                    for (const row of updatedJsonData) {
                         const { error } = await supabase.from(tableName).upsert(row, { onConflict: [idColumn] });
                         if (error) {
                             console.error("Error inserting/updating row:", error);
@@ -406,6 +418,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             reader.readAsText(file);
         }
     };
+    
     
     
     
