@@ -59,7 +59,6 @@ export default function EventsPage() {
         }
 
         // Call the fetch functions when component mounts
-        fetchUserRole();
         fetchUserRole(); // Fetch user role when component mounts
         fetchEvents();
     }, []);
@@ -105,7 +104,6 @@ export default function EventsPage() {
                     >
                         View Details
                     </Button>
-                    <Button
                     {['staff', 'head'].includes(userRole.toLowerCase()) && (
                         <Button
                             variant="contained"
