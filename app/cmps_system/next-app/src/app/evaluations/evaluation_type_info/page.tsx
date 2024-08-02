@@ -48,8 +48,25 @@ const EvaluationTypeInfo = () => {
         max_value: ''
     });
     const [addMetricError, setAddMetricError] = useState(null);
+    const [userRole, setUserRole] = useState(''); // Initialize userRole state
 
     useEffect(() => {
+        async function fetchUserRole() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data, error } = await supabase
+                    .from('user_role')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .single();
+                if (error) {
+                    console.error('Error fetching user role:', error);
+                } else {
+                    setUserRole(data.role); // Set userRole state
+                }
+            }
+        }
+
         if (id) {
             const fetchEvaluationTypeData = async () => {
                 try {
@@ -77,6 +94,7 @@ const EvaluationTypeInfo = () => {
                 }
             };
 
+            fetchUserRole();
             fetchEvaluationTypeData();
         }
     }, [id]);
@@ -277,9 +295,11 @@ const EvaluationTypeInfo = () => {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton onClick={() => editEvaluationTypeMode.evaluation_type_name ? handleEvaluationTypeSave('evaluation_type_name') : handleEvaluationTypeEdit('evaluation_type_name')}>
-                                                {editEvaluationTypeMode.evaluation_type_name ? <SaveIcon /> : <EditIcon />}
-                                            </IconButton>
+                                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                <IconButton onClick={() => editEvaluationTypeMode.evaluation_type_name ? handleEvaluationTypeSave('evaluation_type_name') : handleEvaluationTypeEdit('evaluation_type_name')}>
+                                                    {editEvaluationTypeMode.evaluation_type_name ? <SaveIcon /> : <EditIcon />}
+                                                </IconButton>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -296,9 +316,11 @@ const EvaluationTypeInfo = () => {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton onClick={() => editEvaluationTypeMode.description ? handleEvaluationTypeSave('description') : handleEvaluationTypeEdit('description')}>
-                                                {editEvaluationTypeMode.description ? <SaveIcon /> : <EditIcon />}
-                                            </IconButton>
+                                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                <IconButton onClick={() => editEvaluationTypeMode.description ? handleEvaluationTypeSave('description') : handleEvaluationTypeEdit('description')}>
+                                                    {editEvaluationTypeMode.description ? <SaveIcon /> : <EditIcon />}
+                                                </IconButton>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -315,9 +337,11 @@ const EvaluationTypeInfo = () => {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton onClick={() => editEvaluationTypeMode.requires_course ? handleEvaluationTypeSave('requires_course') : handleEvaluationTypeEdit('requires_course')}>
-                                                {editEvaluationTypeMode.requires_course ? <SaveIcon /> : <EditIcon />}
-                                            </IconButton>
+                                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                <IconButton onClick={() => editEvaluationTypeMode.requires_course ? handleEvaluationTypeSave('requires_course') : handleEvaluationTypeEdit('requires_course')}>
+                                                    {editEvaluationTypeMode.requires_course ? <SaveIcon /> : <EditIcon />}
+                                                </IconButton>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -334,9 +358,11 @@ const EvaluationTypeInfo = () => {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton onClick={() => editEvaluationTypeMode.requires_instructor ? handleEvaluationTypeSave('requires_instructor') : handleEvaluationTypeEdit('requires_instructor')}>
-                                                {editEvaluationTypeMode.requires_instructor ? <SaveIcon /> : <EditIcon />}
-                                            </IconButton>
+                                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                <IconButton onClick={() => editEvaluationTypeMode.requires_instructor ? handleEvaluationTypeSave('requires_instructor') : handleEvaluationTypeEdit('requires_instructor')}>
+                                                    {editEvaluationTypeMode.requires_instructor ? <SaveIcon /> : <EditIcon />}
+                                                </IconButton>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -353,9 +379,11 @@ const EvaluationTypeInfo = () => {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton onClick={() => editEvaluationTypeMode.requires_service_role ? handleEvaluationTypeSave('requires_service_role') : handleEvaluationTypeEdit('requires_service_role')}>
-                                                {editEvaluationTypeMode.requires_service_role ? <SaveIcon /> : <EditIcon />}
-                                            </IconButton>
+                                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                <IconButton onClick={() => editEvaluationTypeMode.requires_service_role ? handleEvaluationTypeSave('requires_service_role') : handleEvaluationTypeEdit('requires_service_role')}>
+                                                    {editEvaluationTypeMode.requires_service_role ? <SaveIcon /> : <EditIcon />}
+                                                </IconButton>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>
@@ -413,23 +441,31 @@ const EvaluationTypeInfo = () => {
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                <IconButton onClick={() => editMode[metric.metric_num] ? handleSave(metric) : handleEdit(metric.metric_num)}>
-                                                    {editMode[metric.metric_num] ? <SaveIcon /> : <EditIcon />}
-                                                </IconButton>
-                                                <IconButton onClick={() => openDeleteConfirm(metric)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
+                                                {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                    <>
+                                                        <IconButton onClick={() => editMode[metric.metric_num] ? handleSave(metric) : handleEdit(metric.metric_num)}>
+                                                            {editMode[metric.metric_num] ? <SaveIcon /> : <EditIcon />}
+                                                        </IconButton>
+                                                        <IconButton onClick={() => openDeleteConfirm(metric)}>
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                    </>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        <Button variant="contained" color="primary" onClick={openAddMetric} style={{ marginBottom: '20px' }}>
-                            Add Evaluation Metric
-                        </Button>
+                        {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                            <Button variant="contained" color="primary" onClick={openAddMetric} style={{ marginBottom: '20px' }}>
+                                Add Evaluation Metric
+                            </Button>
+                        )}
                         <div style={{ marginTop: '20px' }}>
-                            <Button variant="contained" color="secondary" onClick={openDeleteEvaluationTypeConfirm}>Remove this evaluation type</Button>
+                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                <Button variant="contained" color="secondary" onClick={openDeleteEvaluationTypeConfirm}>Remove this evaluation type</Button>
+                            )}
                             <Button variant="contained" color="primary" onClick={() => router.push('/evaluations/evaluation_types')}>Back</Button>
                         </div>
                     </>
