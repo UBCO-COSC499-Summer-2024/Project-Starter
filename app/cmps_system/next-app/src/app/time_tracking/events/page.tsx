@@ -12,16 +12,38 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import supabase from "@/app/components/supabaseClient";
 
 export default function EventsPage() {
+    // State to store events data
     const [events, setEvents] = useState([]);
+    // Router for navigation
     const { push } = useRouter();
-    const userRole = 'Staff'; // Placeholder for user role check (replace with actual role checking logic)
+    // State to store user role
+    const [userRole, setUserRole] = useState(''); // Initialize userRole state
 
+    // useEffect to fetch user role and events on component mount
     useEffect(() => {
+        // Fetch user role from Supabase
+        async function fetchUserRole() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data, error } = await supabase
+                    .from('user_role')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .single();
+                if (error) {
+                    console.error('Error fetching user role:', error);
+                } else {
+                    setUserRole(data.role); // Set userRole state
+                }
+            }
+        }
+
         async function fetchEvents() {
             const { data, error } = await supabase.from('event').select();
             if (error) {
                 console.error('Error fetching events:', error);
             } else {
+                // Format event datetime for better readability
                 const formattedData = data.map(event => ({
                     ...event,
                     event_datetime: new Date(event.event_datetime).toLocaleString('en-US', {
@@ -35,6 +57,9 @@ export default function EventsPage() {
                 setEvents(formattedData);
             }
         }
+
+        // Call the fetch functions when component mounts
+        fetchUserRole(); // Fetch user role when component mounts
         fetchEvents();
     }, []);
 
@@ -58,6 +83,7 @@ export default function EventsPage() {
         }
     };
 
+    // Define columns for DataGrid
     const columns = [
         { field: 'description', headerName: 'Description', width: 300 },
         { field: 'location', headerName: 'Location', width: 200 },
@@ -78,15 +104,17 @@ export default function EventsPage() {
                     >
                         View Details
                     </Button>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => handleDelete(params.row.event_id)}
-                        sx={{ fontSize: '0.8rem', padding: '5px 10px' }}
-                    >
-                        Delete
-                    </Button>
+                    {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => handleDelete(params.row.event_id)}
+                            sx={{ fontSize: '0.8rem', padding: '5px 10px' }}
+                        >
+                            Delete
+                        </Button>
+                    )}
                 </Box>
             ),
         },
@@ -98,7 +126,8 @@ export default function EventsPage() {
             <Container maxWidth={false} style={{ padding: '20px' }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <h1>Events</h1>
-                    {(userRole === 'Staff' || userRole === 'Head') && (
+                    {/* Show 'Create New Event' button only for staff and head roles */}
+                    {['staff', 'head'].includes(userRole.toLowerCase()) && (
                         <Button
                             onClick={() => push('/time_tracking/events/create_new_event')}
                             variant="contained"
