@@ -31,7 +31,7 @@ ChartJS.register(
     Legend
 );
 
-import supabase from "@/app/components/supabaseClient"; 
+import supabase from "@/app/components/supabaseClient";
 const parseData = function (x) {
 
     return {
@@ -58,8 +58,9 @@ const HourCard = () => {
     const [teamHour, setTeamHour] = useState(0);
     const [personalExpected, setPersonalExpected] = useState(0);
     const [teamExpected, setTeamExpected] = useState(0);
+
     useEffect(() => {
-        (async ()=>{
+        (async () => {
             const res = await supabase.from("progress").select("*").eq("email", (await supabase.auth.getUser()).data.user.email);
             console.log(res)
             setPersonalHour(res.data[0].worked);
@@ -72,21 +73,21 @@ const HourCard = () => {
             setTeamExpected(teamTotalExpected);
 
         })();
-    }, []); 
+    }, []);
     return <>
         <Card className="tw-mb-3">
-            <div style={{ color: personalHour>0.5*personalExpected?"green":"orange" }}>
+            <div style={{ color: personalHour > 0.5 * personalExpected ? "green" : "orange" }}>
                 <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal Working Hours</b>
                 <h1>{personalHour}/{personalExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
-                <ProgressBar className="tw-m-3" now={personalHour/personalExpected*100} />
+                <ProgressBar className="tw-m-3" now={personalHour / personalExpected * 100} />
             </div>
 
-            <div style={{ color: teamHour>0.5*teamExpected?"green":"orange" }}>
+            <div style={{ color: teamHour > 0.5 * teamExpected ? "green" : "orange" }}>
                 <b className="tw-mt-2 tw-ml-2 tw-text-lg">Team Working Hours</b>
                 <h1>{teamHour}/{teamExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
-                <ProgressBar className="tw-m-3" now={teamHour/teamExpected*100} />
+                <ProgressBar className="tw-m-3" now={teamHour / teamExpected * 100} />
             </div>
 
         </Card></>
