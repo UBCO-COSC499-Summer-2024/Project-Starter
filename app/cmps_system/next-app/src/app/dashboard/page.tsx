@@ -41,12 +41,14 @@ const parseData = (x) => ({
         borderWidth: 1
     },
     {
-        label: 'Benchmark Hours (averaged)',
+        label: 'Monthly Target Hours',
         data: x.map(entry => entry.monthly_benchmark),
         type: 'line',
         borderColor: 'red',
         borderWidth: 2,
         fill: false,
+        pointRadius: 0, // hide the points
+        spanGaps: true, // ensure the line spans the entire chart
     }]
 });
 
