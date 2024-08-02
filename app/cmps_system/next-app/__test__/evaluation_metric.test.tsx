@@ -1,4 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
+
 const testData = {
   evaluation_metric_id: -3,
   evaluation_type_id: 3,
@@ -8,9 +11,6 @@ const testData = {
   max_value: null
 };
 
-
-
-const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.ANON_KEY);
 test('read_from_supabase_evaluation_metric', async () => {
   const { data, error } = await supabase.from("evaluation_metric").select();
   expect(data).not.toBeNull()
