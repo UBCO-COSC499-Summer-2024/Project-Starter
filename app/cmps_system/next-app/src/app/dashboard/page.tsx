@@ -68,36 +68,52 @@ const HourCard = () => {
 
     useEffect(() => {
         (async () => {
-            const res = await supabase.from("v_dashboard_progress").select("*").eq("email", (await supabase.auth.getUser()).data.user.email);
-            console.log(res)
-            setPersonalHour(res.data[0].worked);
-            setPersonalExpected(res.data[0].expected);
-            const res2 = await supabase.from("v_dashboard_progress").select("*");
-            const departmentTotalWorked = res2.data.reduce((acc, cur) => acc + cur.worked, 0);
-            const departmentTotalExpected = res2.data.reduce((acc, cur) => acc + cur.expected, 0);
-            console.log(res2)
-            setDepartmentHour(departmentTotalWorked);
-            setDepartmentExpected(departmentTotalExpected);
+            const userRes = await supabase.auth.getUser();
+            const res = await supabase
+                .from("v_dashboard_progress")
+                .select("*")
+                .eq("email", userRes.data.user.email);
 
+            if (res.data && res.data.length > 0) {
+                setPersonalHour(res.data[0].worked);
+                setPersonalExpected(res.data[0].expected);
+            } else {
+                setPersonalHour(0);
+                setPersonalExpected(0);
+            }
+
+            const res2 = await supabase.from("v_dashboard_progress").select("*");
+
+            if (res2.data && res2.data.length > 0) {
+                const departmentTotalWorked = res2.data.reduce((acc, cur) => acc + cur.worked, 0);
+                const departmentTotalExpected = res2.data.reduce((acc, cur) => acc + cur.expected, 0);
+                setDepartmentHour(departmentTotalWorked);
+                setDepartmentExpected(departmentTotalExpected);
+            } else {
+                setDepartmentHour(0);
+                setDepartmentExpected(0);
+            }
         })();
     }, []);
+
     return <>
         <Card className="tw-mb-3">
-            <div style={{ color: personalHour > 0.5 * personalExpected ? "green" : "orange" }}>
+            <div style={{ color: personalExpected === 0 || personalHour / personalExpected > 0.5 ? "green" : "orange" }}>
                 <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal service hours this month</b>
                 <h1>{personalHour}/{personalExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
-                <ProgressBar className="tw-m-3" now={personalHour / personalExpected * 100} />
+                <ProgressBar className="tw-m-3" now={personalExpected === 0 ? 0 : personalHour / personalExpected * 100} />
             </div>
 
-            <div style={{ color: departmentHour > 0.5 * departmentExpected ? "green" : "orange" }}>
+            <div style={{ color: departmentExpected === 0 || departmentHour / departmentExpected > 0.5 ? "green" : "orange" }}>
                 <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department service hours this month</b>
                 <h1>{departmentHour}/{departmentExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
-                <ProgressBar className="tw-m-3" now={departmentHour / departmentExpected * 100} />
+                <ProgressBar className="tw-m-3" now={departmentExpected === 0 ? 0 : departmentHour / departmentExpected * 100} />
             </div>
+        </Card>
+    </>
 
-        </Card></>
 }
 export default function Home() {
 
@@ -249,7 +265,7 @@ export default function Home() {
                     <Col xs={4}>
                         <HourCard />
                         <Card>
-                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Service Roles Hours</b>
+                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Hours per service role this month</b>
 
                             <Table>
                                 <thead>
