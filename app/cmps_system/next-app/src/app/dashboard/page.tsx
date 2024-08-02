@@ -51,7 +51,15 @@ const parseData = function (x) {
 }
 
 const HourCard = () => {
-    /** This function render the hour card showing how many hours the user and team worked vs expected. It query a database view that is quiet complex with many sub queries to achrive this
+    /** This function render the hour card showing how many hours the user and team worked vs expected. It query a database view that is quiet complex 
+     * with many sub queries to achrive this.
+     * ```
+     * CREATE OR REPLACE VIEW progress AS 
+     *  SELECT instructor.email, hours.instructor_id, hours.worked, hours.expected FROM (SELECT worked.instructor_id, 
+     *       worked.sum AS worked, expected.sum AS expected FROM (select instructor_id, SUM(hours) from service_hours_entry GROUP 
+     *       BY instructor_id) AS worked JOIN (select instructor_id, sum(hours) from service_hours_benchmark group by instructor_id)
+     *       as expected ON worked.instructor_id=expected.instructor_id) AS hours JOIN instructor ON hours.instructor_id=instructor.instructor_id;
+     * ```
      * It uses the data to render a number showing and a progress bar.
      */
     const [personalHour, setPersonalHour] = useState(0);
