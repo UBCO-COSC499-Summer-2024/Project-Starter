@@ -47,7 +47,7 @@ const HourCard = () => {
             const res = await supabase
                 .from("v_dashboard_progress")
                 .select("*")
-                .eq("email", userRes.data.user.email);
+                .eq("instructor_email", userRes.data.user.email);
 
             if (res.data && res.data.length > 0) {
                 setPersonalHour(res.data[0].worked);
@@ -130,21 +130,19 @@ export default function Home() {
 
     useEffect(() => {
         const fetchServiceRoles = async () => {
-            const { data: serviceRolesData, error: serviceRolesError } = await supabase.from('service_role').select('*');
-            const { data: serviceHoursData, error: serviceHoursError } = await supabase.from('service_hours_entry').select('*');
+            const userRes = await supabase.auth.getUser();
+            const { data, error } = await supabase
+                .from('v_timetracking')
+                .select('*')
+                .eq('year', new Date().getFullYear())
+                .eq('month', new Date().getMonth() + 1)
+                .eq('instructor_email', userRes.data.user.email);
 
-            if (serviceRolesError || serviceHoursError) {
-                console.error('Error fetching service roles:', serviceRolesError || serviceHoursError);
-                setServiceError((serviceRolesError || serviceHoursError).message);
+            if (error) {
+                console.error('Error fetching service roles:', error);
+                setServiceError(error.message);
             } else {
-                const joinedData = serviceHoursData.map(entry => {
-                    const role = serviceRolesData.find(role => role.service_role_id === entry.service_role_id);
-                    return {
-                        ...entry,
-                        roleName: role ? role.title : 'Unknown Role'
-                    };
-                });
-                setServiceRoles(joinedData);
+                setServiceRoles(data);
             }
             setServiceLoading(false);
         };
@@ -230,7 +228,7 @@ export default function Home() {
                                     ) : serviceRoles.length > 0 ? (
                                         serviceRoles.map((x, index) => (
                                             <tr key={index}>
-                                                <td>{x.roleName}</td>
+                                                <td>{x.service_role}</td>
                                                 <td>{x.hours}</td>
                                             </tr>
                                         ))

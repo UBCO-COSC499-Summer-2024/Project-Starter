@@ -584,6 +584,7 @@ WITH
 SELECT
     service_hours_entry_id as id,
     service_hours_entry.instructor_id,
+    instructor.email as instructor_email,
     CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_full_name,
     service_role.service_role_id as service_role_id,
     service_role.title as service_role,
