@@ -20,7 +20,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { useState, useEffect } from "react";
-
+import supabase from "@/app/components/supabaseClient";
 
 ChartJS.register(
     CategoryScale,
@@ -31,7 +31,6 @@ ChartJS.register(
     Legend
 );
 
-import supabase from "@/app/components/supabaseClient";
 const parseData = function (x) {
 
     return {
@@ -51,7 +50,7 @@ const parseData = function (x) {
 }
 
 const HourCard = () => {
-    /** This function render the hour card showing how many hours the user and team worked vs expected. It query a database view that is quiet complex 
+    /** This function render the hour card showing how many hours the user and department worked vs expected. It query a database view that is quiet complex 
      * with many sub queries to achrive this.
      * ```
      * CREATE OR REPLACE VIEW progress AS 
@@ -63,39 +62,39 @@ const HourCard = () => {
      * It uses the data to render a number showing and a progress bar.
      */
     const [personalHour, setPersonalHour] = useState(0);
-    const [teamHour, setTeamHour] = useState(0);
+    const [departmentHour, setDepartmentHour] = useState(0);
     const [personalExpected, setPersonalExpected] = useState(0);
-    const [teamExpected, setTeamExpected] = useState(0);
+    const [departmentExpected, setDepartmentExpected] = useState(0);
 
     useEffect(() => {
         (async () => {
-            const res = await supabase.from("progress").select("*").eq("email", (await supabase.auth.getUser()).data.user.email);
+            const res = await supabase.from("v_dashboard_progress").select("*").eq("email", (await supabase.auth.getUser()).data.user.email);
             console.log(res)
             setPersonalHour(res.data[0].worked);
             setPersonalExpected(res.data[0].expected);
-            const res2 = await supabase.from("progress").select("*");
-            const teamTotalWorked = res2.data.reduce((acc, cur) => acc + cur.worked, 0);
-            const teamTotalExpected = res2.data.reduce((acc, cur) => acc + cur.expected, 0);
+            const res2 = await supabase.from("v_dashboard_progress").select("*");
+            const departmentTotalWorked = res2.data.reduce((acc, cur) => acc + cur.worked, 0);
+            const departmentTotalExpected = res2.data.reduce((acc, cur) => acc + cur.expected, 0);
             console.log(res2)
-            setTeamHour(teamTotalWorked);
-            setTeamExpected(teamTotalExpected);
+            setDepartmentHour(departmentTotalWorked);
+            setDepartmentExpected(departmentTotalExpected);
 
         })();
     }, []);
     return <>
         <Card className="tw-mb-3">
             <div style={{ color: personalHour > 0.5 * personalExpected ? "green" : "orange" }}>
-                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal Working Hours</b>
+                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal service hours this month</b>
                 <h1>{personalHour}/{personalExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
                 <ProgressBar className="tw-m-3" now={personalHour / personalExpected * 100} />
             </div>
 
-            <div style={{ color: teamHour > 0.5 * teamExpected ? "green" : "orange" }}>
-                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Team Working Hours</b>
-                <h1>{teamHour}/{teamExpected}</h1>
+            <div style={{ color: departmentHour > 0.5 * departmentExpected ? "green" : "orange" }}>
+                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department service hours this month</b>
+                <h1>{departmentHour}/{departmentExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
-                <ProgressBar className="tw-m-3" now={teamHour / teamExpected * 100} />
+                <ProgressBar className="tw-m-3" now={departmentHour / departmentExpected * 100} />
             </div>
 
         </Card></>

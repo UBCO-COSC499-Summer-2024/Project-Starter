@@ -484,7 +484,12 @@ SELECT
 FROM
     service_role_assign;
 
-REVOKE INSERT, UPDATE, DELETE ON v_service_role_assign FROM PUBLIC, authenticated;
+REVOKE INSERT,
+UPDATE,
+DELETE ON v_service_role_assign
+FROM
+    PUBLIC,
+    authenticated;
 
 CREATE OR REPLACE VIEW
     v_service_roles_page
@@ -596,13 +601,7 @@ WITH
     (security_invoker) AS
 SELECT
     instructor_id,
-    CONCAT(
-        instructor.instructor_id,
-        ' - ',
-        instructor.last_name,
-        ', ',
-        instructor.first_name
-    ) AS name
+    CONCAT(instructor.last_name, ', ', instructor.first_name) AS name
 FROM
     instructor;
 
@@ -612,13 +611,7 @@ WITH
     (security_invoker) AS
 SELECT
     benchmark_id as id,
-    CONCAT(
-        instructor.instructor_id,
-        ' - ',
-        instructor.last_name,
-        ', ',
-        instructor.first_name
-    ) as instructor,
+    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
     year,
     hours
 from
@@ -649,13 +642,7 @@ SELECT
     instructor.first_name as instructor_first_name,
     instructor.last_name as instructor_last_name,
     CASE
-        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(
-            instructor.instructor_id,
-            ' - ',
-            instructor.last_name,
-            ', ',
-            instructor.first_name
-        )
+        WHEN instructor.instructor_id IS NOT NULL THEN CONCAT(instructor.last_name, ', ', instructor.first_name)
         ELSE ''
     END AS instructor_full_name,
     CASE
@@ -715,14 +702,58 @@ WITH
     (security_invoker) AS
 SELECT
     service_role.service_role_id,
-    CONCAT(
-        service_role.service_role_id,
-        ' - ',
-        service_role.title
-    ) AS service_role_name
+    CONCAT(service_role.title) AS service_role_name
 FROM
     service_role;
 
-CREATE OR REPLACE VIEW progress AS 
-SELECT instructor.email, hours.instructor_id, hours.worked, hours.expected FROM (SELECT worked.instructor_id, worked.sum AS worked, expected.sum AS expected FROM (select instructor_id, SUM(hours) from service_hours_entry GROUP BY instructor_id) AS worked JOIN (select instructor_id, sum(hours) from service_hours_benchmark group by instructor_id) as expected ON worked.instructor_id=expected.instructor_id) AS hours JOIN instructor ON hours.instructor_id=instructor.instructor_id;
-
+CREATE OR REPLACE VIEW
+    v_dashboard_progress AS
+SELECT
+    instructor.email,
+    hours.instructor_id,
+    hours.worked,
+    hours.expected
+FROM
+    (
+        SELECT
+            worked.instructor_id,
+            worked.sum AS worked,
+            expected.sum AS expected
+        FROM
+            (
+                SELECT
+                    instructor_id,
+                    SUM(hours) AS sum
+                FROM
+                    service_hours_entry
+                WHERE
+                    year = EXTRACT(
+                        YEAR
+                        FROM
+                            CURRENT_DATE
+                    )
+                    AND month = EXTRACT(
+                        MONTH
+                        FROM
+                            CURRENT_DATE
+                    )
+                GROUP BY
+                    instructor_id
+            ) AS worked
+            JOIN (
+                SELECT
+                    instructor_id,
+                    sum(hours) / 12 AS sum
+                FROM
+                    service_hours_benchmark
+                WHERE
+                    year = EXTRACT(
+                        YEAR
+                        FROM
+                            CURRENT_DATE
+                    )
+                GROUP BY
+                    instructor_id
+            ) AS expected ON worked.instructor_id = expected.instructor_id
+    ) AS hours
+    JOIN instructor ON hours.instructor_id = instructor.instructor_id;
