@@ -39,6 +39,7 @@ import supabase from "@/app/components/supabaseClient";
 export default function Home() {
 
     const [instructors, setInstructors] = useState([])
+     // Fetch data for instructors and benchmarks
     useEffect(() => {
         (async () => {
 
@@ -58,7 +59,7 @@ export default function Home() {
             }
         })()
     }, [])
-
+    // Table column configuration
     const tableColumns = [
 
         { field: 'instructor', headerName: 'Instructor', width: 200, editable: true, type: 'singleSelect', valueOptions: instructors },
@@ -76,7 +77,7 @@ export default function Home() {
     const [defaultCSV, setDefaultCSV] = useState("")
     const [id, setId] = useState('0') 
     const [rowModesModel, setRowModesModel] = React.useState({});
-
+    // Custom toolbar for the DataGrid
     const EditToolbar = useCallback((props) => {
         console.log(props)
         const { setTimeData, setRowModesModel, id } = props;

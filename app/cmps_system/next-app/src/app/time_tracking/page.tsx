@@ -8,12 +8,13 @@ import { useRouter } from 'next/navigation';
 
 export default function TimeTracking() {
     const router = useRouter();
-    const fetchUrl = "v_timetracking";
-    const tableName = "service_hours_entry";
+    const fetchUrl = "v_timetracking"; // URL to fetch data from the database view
+    const tableName = "service_hours_entry"; // Name of the table to update
     const initialSortModel = [
         { field: 'id', sort: 'desc' },
     ];
 
+    // Configuration for the columns in the table
     const columnsConfig = [
         { field: 'id', headerName: 'ID', width: 75, editable: false },
         {
@@ -35,6 +36,7 @@ export default function TimeTracking() {
         { field: 'hours', headerName: 'Hours', flex: 1, editable: true }
     ];
 
+    // Handler to update a row in the table
     const rowUpdateHandler = async (row) => {
         const { error } = await supabase
             .from('service_hours_entry')
