@@ -10,6 +10,7 @@ import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 import supabase from "@/app/components/supabaseClient";
+
 const InstructorInfo = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -34,8 +35,25 @@ const InstructorInfo = () => {
   const [selectedServiceRole, setSelectedServiceRole] = useState(null);
   const [courses, setCourses] = useState([]);
   const [courseAssignments, setCourseAssignments] = useState([]);
+  const [userRole, setUserRole] = useState(''); // Initialize userRole state
 
   useEffect(() => {
+    async function fetchUserRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('user_role')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        if (error) {
+          console.error('Error fetching user role:', error);
+        } else {
+          setUserRole(data.role); // Set userRole state
+        }
+      }
+    }
+
     if (id) {
       const fetchInstructorData = async () => {
         try {
@@ -86,6 +104,7 @@ const InstructorInfo = () => {
         }
       };
 
+      fetchUserRole();
       fetchInstructorData();
     }
   }, [id]);
@@ -209,16 +228,20 @@ const InstructorInfo = () => {
                 <tr>
                   <td>Service Role</td>
                   <td>
-                    <Form.Select
-                      value={selectedServiceRole}
-                      onChange={handleServiceRoleChange}
-                    >
-                      {serviceRoles.map((role) => (
-                        <option key={role.service_role_id} value={role.service_role_id}>
-                          {role.title}
-                        </option>
-                      ))}
-                    </Form.Select>
+                    {['staff', 'head'].includes(userRole.toLowerCase()) ? (
+                      <Form.Select
+                        value={selectedServiceRole}
+                        onChange={handleServiceRoleChange}
+                      >
+                        {serviceRoles.map((role) => (
+                          <option key={role.service_role_id} value={role.service_role_id}>
+                            {role.title}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    ) : (
+                      serviceRoles.find(role => role.service_role_id === selectedServiceRole)?.title || 'N/A'
+                    )}
                   </td>
                 </tr>
                 {courseAssignments.map((assignment) => (
@@ -226,16 +249,20 @@ const InstructorInfo = () => {
                     <tr>
                       <td>Teaching Assignment</td>
                       <td>
-                        <Form.Select
-                          value={assignment.course_id}
-                          onChange={(e) => handleCourseChange(e, assignment.assignment_id)}
-                        >
-                          {courses.map((course) => (
-                            <option key={course.course_id} value={course.course_id}>
-                              {course.course_title}
-                            </option>
-                          ))}
-                        </Form.Select>
+                        {['staff', 'head'].includes(userRole.toLowerCase()) ? (
+                          <Form.Select
+                            value={assignment.course_id}
+                            onChange={(e) => handleCourseChange(e, assignment.assignment_id)}
+                          >
+                            {courses.map((course) => (
+                              <option key={course.course_id} value={course.course_id}>
+                                {course.course_title}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        ) : (
+                          courses.find(course => course.course_id === assignment.course_id)?.course_title || 'N/A'
+                        )}
                       </td>
                     </tr>
                   </React.Fragment>
@@ -243,7 +270,9 @@ const InstructorInfo = () => {
               </tbody>
             </table>
             <div className="instructor-info-footer">
-              <button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</button>
+              {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                <button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</button>
+              )}
               <button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</button>
             </div>
           </>

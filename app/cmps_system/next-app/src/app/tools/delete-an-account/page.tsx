@@ -12,7 +12,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Initialize Supabase client with environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL;
-const supabaseServiceKey =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q"; // Use the service role key
+/** Here we check if the service key is in the session storage, if not we will use null as place holder as supabase dose not allow empty key. This null key
+ * should throw an error if the user tried to perfome any operations. 
+ */
+const supabaseServiceKey = sessionStorage.getItem('supabaseServiceKey') ? sessionStorage.getItem('supabaseServiceKey') : "null"
+console.log({"key":supabaseServiceKey})
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export default function DeleteAnAccount() {
@@ -52,7 +56,17 @@ export default function DeleteAnAccount() {
             setEmail('');
         }
     };
-
+    if(supabaseServiceKey === "null"){
+        /** if the service key is null, it will show 403. Note that this is only front end practise to inform user. */
+        return (
+            <main>
+                <Navbar />
+                <Container>
+                    <h1>403 Forbidden - Invalid Key </h1>
+                </Container>
+            </main>
+        );
+    }
     return (
         <main>
             <Navbar />

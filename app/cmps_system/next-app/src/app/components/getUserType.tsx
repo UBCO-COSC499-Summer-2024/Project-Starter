@@ -5,12 +5,9 @@ const getUserType = async () => {
 
     This function takes no input and return one of 'instructor', 'head', or 'stadd' as a string.
     */
-    const { data:{user} } = await supabase.auth.getUser()
-    console.log(user.id)
+    const { data: { user } } = await supabase.auth.getUser()
     const res = await supabase.from('user_role').select('role').eq('user_id', user.id)
-    console.log({"user":res})
-    if(res.error)
-    {
+    if (res.error) {
         console.error('Error fetching user type:', res.error)
         return
     }
