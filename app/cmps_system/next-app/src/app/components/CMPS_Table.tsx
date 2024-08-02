@@ -361,6 +361,22 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         return;
                     }
     
+                    // Validate CSV data for duplicates
+                    const ids = new Set();
+                    const emails = new Set();
+                    for (const row of jsonData) {
+                        if (row[idColumn] && ids.has(row[idColumn])) {
+                            alert(`Duplicate ID found in CSV: ${row[idColumn]}`);
+                            return;
+                        }
+                        if (row.email && emails.has(row.email)) {
+                            alert(`Duplicate email found in CSV: ${row.email}`);
+                            return;
+                        }
+                        if (row[idColumn]) ids.add(row[idColumn]);
+                        if (row.email) emails.add(row.email);
+                    }
+    
                     // Fetch all current IDs from the database to check existence
                     const { data: currentData, error: fetchError } = await supabase.from(tableName).select(idColumn);
                     if (fetchError) throw fetchError;
@@ -411,6 +427,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             reader.readAsText(file);
         }
     };
+    
     
     
     
