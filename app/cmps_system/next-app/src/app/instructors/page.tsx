@@ -53,6 +53,7 @@ export default function Instructors() {
         idColumn="instructor_id"
         deleteWarningMessage="Are you sure you want to delete the selected instructors? All evaluations, course assignments, and service role assignments involving this instructor will be deleted as well. This action is not recoverable!"
         newRecordURL="/instructors/create_new_instructor"
+        uniqueColumns={["ubc_employee_num"]}
       />
     </>
   );

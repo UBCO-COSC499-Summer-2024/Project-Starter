@@ -342,106 +342,108 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
         console.log("File selected for upload:", file);
-    
+
         if (file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const csvText = e.target.result;
                 console.log("CSV file content:", csvText);
-    
+
                 try {
                     // Preprocess CSV to remove any trailing whitespace and carriage returns from headers and values
-                    const cleanCsvText = csvText.split('\n').map(line => line.split(',').map(cell => cell.trim()).join(',')).join('\n');
+                    const cleanCsvText = (csvText as string).split('\n').map(line => line.split(',').map(cell => cell.trim()).join(',')).join('\n');
                     const jsonData = await csv2json(cleanCsvText);
                     console.log("Converted JSON data:", jsonData);
-    
-                    // Ensure idColumn is defined
-                    if (!idColumn) {
-                        console.error("idColumn is not defined");
-                        return;
-                    }
-    
+
                     // Validate CSV data for duplicates
-                    const ids = new Set();
-                    const emails = new Set();
+                    const input_ids = new Set();
+                    const uniqueColumnSets = new Map(); // Use a Map to store unique sets and their corresponding rows
+
                     for (const row of jsonData) {
-                        if (row[idColumn] && ids.has(row[idColumn])) {
-                            alert(`Duplicate ID found in CSV: ${row[idColumn]}`);
+                        if (idColumn && row[idColumn] && input_ids.has(row[idColumn])) {
+                            setErrorMessage(`Duplicate ID found in CSV: ${row[idColumn]}`);
+                            setErrorOpen(true);
                             return;
                         }
-                        if (row.email && emails.has(row.email)) {
-                            alert(`Duplicate email found in CSV: ${row.email}`);
-                            return;
+
+                        const uniqueSet = uniqueColumns?.map(col => row[col]).join('|');
+                        if (uniqueSet) {
+                            if (uniqueColumnSets.has(uniqueSet)) {
+                                setErrorMessage(`Duplicate combination of unique columns found in CSV: ${uniqueSet}, Row: ${JSON.stringify(row)}`);
+                                setErrorOpen(true);
+                                return;
+                            }
+                            uniqueColumnSets.set(uniqueSet, row);
                         }
-                        if (row[idColumn]) ids.add(row[idColumn]);
-                        if (row.email) emails.add(row.email);
+
+                        if (idColumn && row[idColumn]) input_ids.add(row[idColumn]);
                     }
-    
-                    // Fetch all current IDs from the database to check existence
-                    const { data: currentData, error: fetchError } = await supabase.from(tableName).select(idColumn);
-                    if (fetchError) throw fetchError;
-                    const existingIds = new Set(currentData.map(row => row[idColumn]));
-    
+
+                    // Fetch all current IDs from the database to check existence if idColumn is defined
+                    const existingIds = new Set();
+                    if (idColumn) {
+                        const { data: currentData, error: fetchError } = await supabase.from(tableName).select(idColumn);
+                        if (fetchError) throw fetchError;
+                        currentData.forEach(row => existingIds.add(row[idColumn]));
+                    }
+
                     // Iterate over each row in the JSON data
                     for (const row of jsonData) {
-                        if (!row[idColumn] || row[idColumn] === "") {
+                        if (!idColumn || !row[idColumn] || row[idColumn] === "") {
                             // Create a copy of the row without the idColumn
                             const { [idColumn]: _, ...rowWithoutId } = row;
-                            // Insert row without specifying the ID
-                            const { error } = await supabase.from(tableName).insert(rowWithoutId);
+                            // Upsert row based on uniqueColumns if idColumn is not specified or empty
+                            const { error } = await supabase.from(tableName).upsert(rowWithoutId, { onConflict: uniqueColumns });
                             if (error) {
-                                console.error("Error inserting row without ID:", error);
+                                console.error("Error upserting row:", error);
+                                setErrorMessage(`Error upserting row: ${JSON.stringify(rowWithoutId)} - ${error.message}`);
+                                setErrorOpen(true);
                                 return;
                             }
                         } else {
+                            // Insert or update based on idColumn
                             if (existingIds.has(row[idColumn])) {
-                                // Update row if ID already exists
                                 const { error } = await supabase.from(tableName).update(row).eq(idColumn, row[idColumn]);
                                 if (error) {
-                                    console.error("Error updating row with existing ID:", error);
+                                    console.error("Error updating row:", error);
+                                    setErrorMessage(`Error updating row: ${JSON.stringify(row)} - ${error.message}`);
+                                    setErrorOpen(true);
                                     return;
                                 }
                             } else {
-                                // Insert row with specified ID
                                 const { error } = await supabase.from(tableName).insert(row);
                                 if (error) {
-                                    console.error("Error inserting row with new ID:", error);
+                                    console.error("Error inserting row:", error);
+                                    setErrorMessage(`Error inserting row: ${JSON.stringify(row)} - ${error.message}`);
+                                    setErrorOpen(true);
                                     return;
                                 }
                             }
                         }
                     }
                     console.log("Rows processed successfully.");
-    
+
                     // Fetch updated table data
                     const { data: updatedData, error: fetchUpdatedError } = await supabase.from(fetchUrl).select();
                     if (fetchUpdatedError) throw fetchUpdatedError;
                     console.log("Fetched updated table data:", updatedData);
-    
+
                     setTableData(updatedData);
                     setInitialTableData(updatedData); // Update initial data to reflect the new state
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
+                    setErrorMessage(`Error processing CSV file: ${error.message}`);
+                    setErrorOpen(true);
                 }
             };
             reader.readAsText(file);
         }
     };
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 
     const EditToolbar = () => {
         const isInEditMode = selectedRows.some(id => rowModesModel[id]?.mode === GridRowModes.Edit);
-    
+
         return (
             <GridToolbarContainer>
                 {isInEditMode ? (
@@ -470,7 +472,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             </GridToolbarContainer>
         );
     };
-    
+
 
     const handleCSVClose = () => setCsvShow(false);
 

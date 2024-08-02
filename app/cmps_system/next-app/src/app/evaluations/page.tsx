@@ -90,6 +90,12 @@ export default function Evaluations() {
                 deleteWarningMessage="Are you sure you want to delete this evaluation?"
                 idColumn="evaluation_entry_id"
                 newRecordURL="/evaluations/enter_evaluation"
+                uniqueColumns={["evaluation_type_id",
+                    "metric_num",
+                    "course_id",
+                    "instructor_id",
+                    "service_role_id",
+                    "evaluation_date"]}
             />
         </>
     );

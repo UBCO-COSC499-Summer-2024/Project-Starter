@@ -103,6 +103,12 @@ export default function Courses() {
                 idColumn="course_id"
                 deleteWarningMessage="Are you sure you want to delete the selected courses? All related teaching assignments and evaluation entries will be deleted as well. This action is not recoverable!"
                 newRecordURL="/courses/create_new_course"
+                uniqueColumns={["academic_year",
+                    "session",
+                    "term",
+                    "subject_code",
+                    "course_num",
+                    "section_num"]}
             />
         </>
     );
