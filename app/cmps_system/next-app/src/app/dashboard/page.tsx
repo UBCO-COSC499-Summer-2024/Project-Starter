@@ -25,8 +25,10 @@ ChartJS.register(
     Legend
 );
 
+const monthNames = ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr"];
+
 const parseData = (x) => ({
-    labels: x.map(entry => entry.month),
+    labels: x.map(entry => monthNames[(entry.month - 5 + 12) % 12]),
     datasets: [{
         label: 'Personal Monthly Working Hours',
         data: x.map(entry => entry.hours),
@@ -92,7 +94,8 @@ const HourCard = () => {
 };
 
 export default function Home() {
-    const [year, setTerm] = useState("2024");
+    const [year, setTerm] = useState("");
+    const [availableYears, setAvailableYears] = useState([]);
     const [workingHours, setWorkingHours] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -156,26 +159,46 @@ export default function Home() {
         const fetchWorkingHours = async () => {
             const { data, error } = await supabase
                 .from('service_hours_entry')
-                .select('*')
-                .eq('year', year);
+                .select('*');
 
             if (error) {
                 console.error('Error fetching working hours:', error);
                 setError(error.message);
             } else {
                 setWorkingHours(data);
+
+                const years = [...new Set(data.map(entry => {
+                    if (entry.month >= 5) {
+                        return entry.year;
+                    } else {
+                        return entry.year - 1;
+                    }
+                }))];
+                setAvailableYears(years);
+                setTerm(years[years.length - 1].toString());
             }
             setLoading(false);
         };
 
         fetchWorkingHours();
-    }, [year]);
+    }, []);
 
     const getCurrentMonthYear = () => {
         const date = new Date();
         const month = date.toLocaleString('default', { month: 'long' });
         const year = date.getFullYear();
         return `${month} ${year}`;
+    };
+
+    const getFilteredWorkingHours = () => {
+        const academicYear = parseInt(year);
+        return workingHours.filter(entry => {
+            if (entry.month >= 5) {
+                return entry.year === academicYear;
+            } else {
+                return entry.year === academicYear + 1;
+            }
+        });
     };
 
     return (
@@ -198,7 +221,6 @@ export default function Home() {
                                         <th>Section</th>
                                         <th>Days/Time</th>
                                         <th>Students</th>
-                                        <th>Average Grade</th>
                                         <th>Location</th>
                                         <th>Registration Status</th>
                                     </tr>
@@ -219,7 +241,6 @@ export default function Home() {
                                                 <td>{x.section_num}</td>
                                                 <td>{x.days} - {x.start_time} to {x.end_time}</td>
                                                 <td>{x.num_students}</td>
-                                                <td>{x.average_grade}</td>
                                                 <td>{x.location}</td>
                                                 <td>{x.registration_status}</td>
                                             </tr>
@@ -273,8 +294,8 @@ export default function Home() {
                             <Dropdown className="tw-ml-2">
                                 <DropdownToggle>{year}</DropdownToggle>
                                 <DropdownMenu>
-                                    {[2023, 2024].map((year, index) => (
-                                        <DropdownItem key={index} onClick={() => setTerm(year)}>
+                                    {availableYears.map((year, index) => (
+                                        <DropdownItem key={index} onClick={() => setTerm(year.toString())}>
                                             {year}
                                         </DropdownItem>
                                     ))}
@@ -282,7 +303,7 @@ export default function Home() {
                             </Dropdown>
                             <div className="tw-h-62">
                                 <Bar className="tw-p-2 tw-h-max"
-                                    data={parseData(workingHours)}
+                                    data={parseData(getFilteredWorkingHours())}
                                     options={{
                                         maintainAspectRatio: false,
                                         scales: { y: { beginAtZero: true } }
