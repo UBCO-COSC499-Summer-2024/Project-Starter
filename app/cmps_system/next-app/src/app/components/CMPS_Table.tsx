@@ -339,9 +339,62 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         }
     };
 
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        console.log("File selected for upload:", file);
+    
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const csvText = e.target.result;
+                console.log("CSV file content:", csvText);
+    
+                try {
+                    // Preprocess CSV to remove any trailing whitespace and carriage returns from headers and values
+                    const cleanCsvText = csvText.split('\n').map(line => line.split(',').map(cell => cell.trim()).join(',')).join('\n');
+                    const jsonData = await csv2json(cleanCsvText);
+                    console.log("Converted JSON data:", jsonData);
+    
+                    // Delete all rows from the table
+                    const { error: deleteError } = await supabase.from(tableName).delete().neq(idColumn, -1);
+                    if (deleteError) {
+                        console.error("Error deleting existing rows:", deleteError);
+                        return;
+                    }
+                    console.log("Existing rows deleted successfully.");
+    
+                    for (const row of jsonData) {
+                        // Assuming 'course_id' is the primary key
+                        const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns });
+                        if (error) {
+                            console.error("Error inserting/updating row:", error);
+                            return;
+                        }
+                    }
+                    console.log("New rows inserted/updated successfully.");
+    
+                    const { data, error: fetchError } = await supabase.from(fetchUrl).select();
+                    if (fetchError) throw fetchError;
+                    console.log("Fetched updated table data:", data);
+    
+                    setTableData(data);
+                    setInitialTableData(data); // Update initial data to reflect the new state
+                } catch (error) {
+                    console.error("Error processing CSV file:", error);
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    
+    
+    
+    
+    
+
     const EditToolbar = () => {
         const isInEditMode = selectedRows.some(id => rowModesModel[id]?.mode === GridRowModes.Edit);
-
+    
         return (
             <GridToolbarContainer>
                 {isInEditMode ? (
@@ -355,11 +408,22 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
                         <Button className="textPrimary" onClick={handleEditClick} color="inherit">✏️ Edit</Button>
                         <Button onClick={handleDeleteClick} color="inherit">🗑️ Delete</Button>
+                        <input
+                            accept=".csv"
+                            style={{ display: 'none' }}
+                            id="upload-csv-file"
+                            type="file"
+                            onChange={handleFileUpload}
+                        />
+                        <label htmlFor="upload-csv-file">
+                            <Button component="span" color="primary">📤 Upload CSV</Button>
+                        </label>
                     </>
                 )}
             </GridToolbarContainer>
         );
     };
+    
 
     const handleCSVClose = () => setCsvShow(false);
 
