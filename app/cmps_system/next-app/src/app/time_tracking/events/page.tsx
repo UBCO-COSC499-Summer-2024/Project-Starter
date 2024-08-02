@@ -17,7 +17,7 @@ export default function EventsPage() {
     // Router for navigation
     const { push } = useRouter();
     // State to store user role
-    const [userRole, setUserRole] = useState('');
+    const [userRole, setUserRole] = useState(''); // Initialize userRole state
 
     // useEffect to fetch user role and events on component mount
     useEffect(() => {
@@ -33,12 +33,11 @@ export default function EventsPage() {
                 if (error) {
                     console.error('Error fetching user role:', error);
                 } else {
-                    setUserRole(data.role);
+                    setUserRole(data.role); // Set userRole state
                 }
             }
         }
 
-        // Fetch events from Supabase
         async function fetchEvents() {
             const { data, error } = await supabase.from('event').select();
             if (error) {
@@ -61,10 +60,10 @@ export default function EventsPage() {
 
         // Call the fetch functions when component mounts
         fetchUserRole();
+        fetchUserRole(); // Fetch user role when component mounts
         fetchEvents();
     }, []);
 
-    // Function to handle event deletion
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this event?')) {
             try {
@@ -107,14 +106,17 @@ export default function EventsPage() {
                         View Details
                     </Button>
                     <Button
-                        variant="contained"
-                        color="secondary"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => handleDelete(params.row.event_id)}
-                        sx={{ fontSize: '0.8rem', padding: '5px 10px' }}
-                    >
-                        Delete
-                    </Button>
+                    {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => handleDelete(params.row.event_id)}
+                            sx={{ fontSize: '0.8rem', padding: '5px 10px' }}
+                        >
+                            Delete
+                        </Button>
+                    )}
                 </Box>
             ),
         },
