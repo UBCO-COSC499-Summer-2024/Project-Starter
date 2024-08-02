@@ -7,6 +7,7 @@ import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Navbar from '@/app/components/NavBar';
 import supabase from "@/app/components/supabaseClient";
+import styles from './ServiceRoleInfo.module.css'; // Import custom CSS
 
 export default function ServiceRoleInfo() {
     const [serviceRole, setServiceRole] = useState(null);
@@ -241,7 +242,10 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('title')}
                             margin="normal"
                             variant="outlined"
-                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
+                            className={!['staff', 'head'].includes(userRole.toLowerCase()) ? styles.nonEditable : ''}
+                            InputProps={{
+                                readOnly: !['staff', 'head'].includes(userRole.toLowerCase()),
+                            }}
                         />
                         <TextField
                             label="Description"
@@ -250,7 +254,10 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('description')}
                             margin="normal"
                             variant="outlined"
-                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
+                            className={!['staff', 'head'].includes(userRole.toLowerCase()) ? styles.nonEditable : ''}
+                            InputProps={{
+                                readOnly: !['staff', 'head'].includes(userRole.toLowerCase()),
+                            }}
                         />
                         <TextField
                             label="Building"
@@ -259,7 +266,10 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('building')}
                             margin="normal"
                             variant="outlined"
-                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
+                            className={!['staff', 'head'].includes(userRole.toLowerCase()) ? styles.nonEditable : ''}
+                            InputProps={{
+                                readOnly: !['staff', 'head'].includes(userRole.toLowerCase()),
+                            }}
                         />
                         <TextField
                             label="Room Number"
@@ -268,7 +278,10 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('room_num')}
                             margin="normal"
                             variant="outlined"
-                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
+                            className={!['staff', 'head'].includes(userRole.toLowerCase()) ? styles.nonEditable : ''}
+                            InputProps={{
+                                readOnly: !['staff', 'head'].includes(userRole.toLowerCase()),
+                            }}
                         />
                         <TextField
                             label="Default Expected Hours"
@@ -277,7 +290,10 @@ export default function ServiceRoleInfo() {
                             onChange={handleFieldChange('default_expected_hours')}
                             margin="normal"
                             variant="outlined"
-                            disabled={!['staff', 'head'].includes(userRole.toLowerCase())}
+                            className={!['staff', 'head'].includes(userRole.toLowerCase()) ? styles.nonEditable : ''}
+                            InputProps={{
+                                readOnly: !['staff', 'head'].includes(userRole.toLowerCase()),
+                            }}
                         />
                         <Box mt={2}>
                             {['staff', 'head'].includes(userRole.toLowerCase()) && (
