@@ -3,13 +3,11 @@ const testData = {
   assignment_id: 101,
   instructor_id: 1, //must exist in the instructor table
   course_id: 2, //must exist in the course table
-  position: 'TA',
-  start_date: '2024-01-05',
-  end_date: '2024-05-15'
+  position: 'TA'
 };
 
 
-const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.ANON_KEY);
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
 test('read_from_supabase_course_assign', async () => {
   const { data, error } = await supabase.from("course_assign").select();
   expect(data).not.toBeNull()

@@ -7,6 +7,12 @@ import { useRouter } from 'next/navigation';
 import supabase from "@/app/components/supabaseClient";
 
 export default function Home() {
+    /**
+     * This page is the login page. It contains a form for the user to input their email and password. The user can either sign up or log in.
+     * This page call supabase to sign up or log in the user. If the user successfully signed up or logged in, the user will be redirected to
+     * the dashboard page.
+     */
+
     const router = useRouter();
     const email_input = useRef(null);
     const password_input = useRef(null);
