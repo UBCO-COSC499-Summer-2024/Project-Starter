@@ -717,13 +717,13 @@ FROM
     (
         SELECT
             worked.instructor_id,
-            worked.sum AS worked,
-            expected.sum AS expected
+            worked.hours AS worked,
+            expected.hours AS expected
         FROM
             (
                 SELECT
                     instructor_id,
-                    SUM(hours) AS sum
+                    hours
                 FROM
                     service_hours_entry
                 WHERE
@@ -737,13 +737,11 @@ FROM
                         FROM
                             CURRENT_DATE
                     )
-                GROUP BY
-                    instructor_id
             ) AS worked
             JOIN (
                 SELECT
                     instructor_id,
-                    sum(hours) / 12 AS sum
+                    hours / 12 AS hours
                 FROM
                     service_hours_benchmark
                 WHERE
@@ -752,8 +750,6 @@ FROM
                         FROM
                             CURRENT_DATE
                     )
-                GROUP BY
-                    instructor_id
             ) AS expected ON worked.instructor_id = expected.instructor_id
     ) AS hours
     JOIN instructor ON hours.instructor_id = instructor.instructor_id;
