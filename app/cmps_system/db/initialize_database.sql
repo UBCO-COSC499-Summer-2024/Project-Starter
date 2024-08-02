@@ -825,16 +825,28 @@ CREATE OR REPLACE VIEW
 WITH
     (security_invoker) AS
 SELECT
-    service_hours_entry_id,
+    service_hours_entry.service_hours_entry_id,
     instructor.instructor_id,
     instructor.email AS instructor_email,
-    service_role_id,
-    year,
-    month,
-    hours
+    service_hours_entry.service_role_id,
+    service_hours_entry.year,
+    service_hours_entry.month,
+    service_hours_entry.hours,
+    service_hours_benchmark.hours / 12 AS monthly_benchmark
 FROM
     service_hours_entry
-    JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
+    JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id
+    LEFT JOIN service_hours_benchmark ON service_hours_benchmark.instructor_id = service_hours_entry.instructor_id
+    AND (
+        (
+            service_hours_entry.month >= 5
+            AND service_hours_entry.year = service_hours_benchmark.year
+        )
+        OR (
+            service_hours_entry.month < 5
+            AND service_hours_entry.year = service_hours_benchmark.year + 1
+        )
+    );
 
 CREATE OR REPLACE VIEW
     v_dashboard_upcoming_events

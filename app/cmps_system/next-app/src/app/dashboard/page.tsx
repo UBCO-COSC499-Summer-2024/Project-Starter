@@ -13,13 +13,17 @@ import {
     BarElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    LineElement,
+    PointElement,
 } from 'chart.js';
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
     Legend
@@ -35,6 +39,14 @@ const parseData = (x) => ({
         backgroundColor: 'rgba(58, 190, 249, 0.2)',
         borderColor: 'rgb(58, 190, 249)',
         borderWidth: 1
+    },
+    {
+        label: 'Benchmark Hours (averaged)',
+        data: x.map(entry => entry.monthly_benchmark),
+        type: 'line',
+        borderColor: 'red',
+        borderWidth: 2,
+        fill: false,
     }]
 });
 
@@ -88,6 +100,68 @@ const HourCard = () => {
                 <h1>{departmentHour}/{departmentExpected}</h1>
                 <p className="tw-ml-5">(worked/expected)</p>
                 <ProgressBar className="tw-m-3" now={departmentExpected === 0 ? 0 : departmentHour / departmentExpected * 100} />
+            </div>
+        </Card>
+    );
+};
+
+const UpcomingEventsCard = () => {
+    const [events, setEvents] = useState([]);
+    const [eventsLoading, setEventsLoading] = useState(true);
+    const [eventsError, setEventsError] = useState(null);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            const { data, error } = await supabase
+                .from('v_dashboard_upcoming_events')
+                .select('*');
+
+            if (error) {
+                console.error('Error fetching upcoming events:', error);
+                setEventsError(error.message);
+            } else {
+                setEvents(data);
+            }
+            setEventsLoading(false);
+        };
+
+        fetchEvents();
+    }, []);
+
+    return (
+        <Card className="tw-mb-3">
+            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Upcoming Events</b>
+            <div className="tw-m-3 tw-h-48 tw-overflow-y-auto">
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Description</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {eventsLoading ? (
+                            <tr><td colSpan="3">Loading...</td></tr>
+                        ) : eventsError ? (
+                            <tr><td colSpan="3">Error fetching events: {eventsError}</td></tr>
+                        ) : events.length > 0 ? (
+                            events.map((event, index) => (
+                                <tr key={index}>
+                                    <td>{new Date(event.event_datetime).toLocaleString()}</td>
+                                    <td>
+                                        <Link href={`/time_tracking/events/event_info?id=${event.event_id}`}>
+                                            {event.description}
+                                        </Link>
+                                    </td>
+                                    <td>{event.location}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr><td colSpan="3">No upcoming events found</td></tr>
+                        )}
+                    </tbody>
+                </Table>
             </div>
         </Card>
     );
@@ -163,7 +237,7 @@ export default function Home() {
                 .select('*').eq('instructor_email', userRes.data.user.email);
 
             if (error) {
-                console.error('Error fetching working hours:', error);
+                console.error('Error fetching service hours:', error);
                 setError(error.message);
             } else {
                 setWorkingHours(data);
@@ -254,7 +328,7 @@ export default function Home() {
                             </Table>
                         </Card>
                         <Card className="tw-mb-3 tw-mt-3">
-                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Year-to-date Working Hours</b>
+                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Year-to-date Service Hours</b>
                             <Dropdown className="tw-ml-2">
                                 <DropdownToggle>{year}</DropdownToggle>
                                 <DropdownMenu>
@@ -346,6 +420,11 @@ export default function Home() {
                                 </tbody>
                             </Table>
                         </Card>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col className="tw-pt-3">
+                        <UpcomingEventsCard />
                     </Col>
                 </Row>
             </Container>

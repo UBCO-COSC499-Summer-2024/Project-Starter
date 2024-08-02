@@ -1049,35 +1049,35 @@ VALUES
         'Design Lab'
     ),
     (
-        '2024-07-27 11:00:00',
+        '2024-08-11 11:00:00',
         TRUE,
         '02:00:00',
         'Project kickoff',
         'Library'
     ),
     (
-        '2024-07-28 16:00:00',
+        '2024-08-09 16:00:00',
         FALSE,
         '01:00:00',
         'Research presentation',
         'Lecture Hall'
     ),
     (
-        '2024-07-29 10:00:00',
+        '2024-08-05 10:00:00',
         TRUE,
         '01:00:00',
         'Executive meeting',
         'SCI 261'
     ),
     (
-        '2024-07-30 15:00:00',
+        '2024-08-10 15:00:00',
         FALSE,
         '02:00:00',
         'Community outreach',
         'Town Hall'
     ),
     (
-        '2024-07-31 02:00:00',
+        '2024-08-07 02:00:00',
         FALSE,
         '03:00:00',
         'Fundraising event',
