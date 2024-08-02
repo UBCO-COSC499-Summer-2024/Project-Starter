@@ -361,48 +361,41 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         return;
                     }
     
-                    // Fetch all current rows to determine which ones to delete
-                    const { data: currentData, error: fetchError } = await supabase.from(tableName).select();
+                    // Fetch all current IDs from the database to check existence
+                    const { data: currentData, error: fetchError } = await supabase.from(tableName).select(idColumn);
                     if (fetchError) throw fetchError;
+                    const existingIds = new Set(currentData.map(row => row[idColumn]));
     
-                    // Determine the maximum current ID to generate new IDs if needed
-                    const currentIds = currentData.map(row => row[idColumn]);
-                    let maxId = Math.max(0, ...currentIds);
-    
-                    // Generate new IDs if missing
-                    const updatedJsonData = jsonData.map(row => {
+                    // Iterate over each row in the JSON data
+                    for (const row of jsonData) {
                         if (!row[idColumn] || row[idColumn] === "") {
-                            maxId += 1;
-                            row[idColumn] = maxId;
-                        }
-                        return row;
-                    });
-    
-                    // Determine rows to delete
-                    const newIds = new Set(updatedJsonData.map(row => row[idColumn]));
-                    const idsToDelete = [...currentIds].filter(id => !newIds.has(id));
-    
-                    if (idsToDelete.length > 0) {
-                        // Delete only those rows that are not in the new CSV
-                        const { error: deleteError } = await supabase.from(tableName).delete().in(idColumn, idsToDelete);
-                        if (deleteError) {
-                            console.error("Error deleting existing rows:", deleteError);
-                            return;
-                        }
-                        console.log("Existing rows deleted successfully.");
-                    } else {
-                        console.log("No rows to delete.");
-                    }
-    
-                    // Insert or update rows
-                    for (const row of updatedJsonData) {
-                        const { error } = await supabase.from(tableName).upsert(row, { onConflict: [idColumn] });
-                        if (error) {
-                            console.error("Error inserting/updating row:", error);
-                            return;
+                            // Create a copy of the row without the idColumn
+                            const { [idColumn]: _, ...rowWithoutId } = row;
+                            // Insert row without specifying the ID
+                            const { error } = await supabase.from(tableName).insert(rowWithoutId);
+                            if (error) {
+                                console.error("Error inserting row without ID:", error);
+                                return;
+                            }
+                        } else {
+                            if (existingIds.has(row[idColumn])) {
+                                // Update row if ID already exists
+                                const { error } = await supabase.from(tableName).update(row).eq(idColumn, row[idColumn]);
+                                if (error) {
+                                    console.error("Error updating row with existing ID:", error);
+                                    return;
+                                }
+                            } else {
+                                // Insert row with specified ID
+                                const { error } = await supabase.from(tableName).insert(row);
+                                if (error) {
+                                    console.error("Error inserting row with new ID:", error);
+                                    return;
+                                }
+                            }
                         }
                     }
-                    console.log("New rows inserted/updated successfully.");
+                    console.log("Rows processed successfully.");
     
                     // Fetch updated table data
                     const { data: updatedData, error: fetchUpdatedError } = await supabase.from(fetchUrl).select();
@@ -418,6 +411,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             reader.readAsText(file);
         }
     };
+    
+    
     
     
     
