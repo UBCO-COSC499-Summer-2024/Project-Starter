@@ -299,22 +299,20 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 }
             }
 
+            // Determine onConflict columns
+            const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
+
+            // Perform upserts (insert or update)
             for (const row of jsonData) {
                 if (!row[idColumn]) {
                     delete row[idColumn];
-                    const { error } = await supabase.from(tableName).insert(row);
-                    if (error) {
-                        console.error("Error inserting row:", error);
-                        return;
-                    }
-                } else {
-                    const { error } = await supabase.from(tableName).upsert(row, { onConflict: [idColumn, ...uniqueColumns] ? uniqueColumns : idColumn });
-                    if (error) {
-                        console.error("Error upserting row:", error);
-                        setErrorMessage(`Error upserting row: ${JSON.stringify(row)} - ${error.message}`);
-                        setErrorOpen(true);
-                        return;
-                    }
+                }
+                const { error } = await supabase.from(tableName).upsert(row, { onConflict: onConflictColumns });
+                if (error) {
+                    console.error("Error upserting row:", error);
+                    setErrorMessage(`Error upserting row: ${JSON.stringify(row)} - ${error.message}`);
+                    setErrorOpen(true);
+                    return;
                 }
             }
 
@@ -328,6 +326,9 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setErrorOpen(true);
         }
     };
+
+
+
 
     const handleAddRecordClick = () => {
         if (newRecordURL) {
