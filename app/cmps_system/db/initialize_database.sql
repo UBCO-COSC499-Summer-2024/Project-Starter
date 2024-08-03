@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS
     "service_role" (
         "service_role_id" SERIAL NOT NULL,
         "title" VARCHAR(255) NOT NULL,
-        "description" TEXT NOT NULL,
+        "description" TEXT NULL,
         "default_expected_hours" INTEGER NOT NULL,
         "building" VARCHAR(255) NULL,
         "room_num" VARCHAR(255) NULL

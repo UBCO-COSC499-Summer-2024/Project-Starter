@@ -21,7 +21,7 @@ export default function ServiceRoles() {
             editable: true,
             linkConfig: { prefix: '/service_roles/service_role_info?id=', idField: 'id' }
         },
-        { field: 'description', headerName: 'Description', flex: 1, editable: false },
+        { field: 'description', headerName: 'Description', flex: 1, editable: true },
         { field: 'default_expected_hours', headerName: 'Default Monthly Hours', flex: 1, editable: true },
         { field: 'assignees', headerName: 'Number of Assignees', flex: 1, editable: false },
         { field: 'building', headerName: 'Building', flex: 1, editable: true },
@@ -33,9 +33,10 @@ export default function ServiceRoles() {
             .from('service_role')
             .update({
                 title: row.title,
+                description: row.description,
                 default_expected_hours: row.default_expected_hours,
                 building: row.building,
-                room: row.room
+                room_num: row.room_num
             })
             .eq('service_role_id', row.id);
 
