@@ -299,25 +299,46 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 }
             }
 
+            // Separate rows into new and existing
+            const newRows = [];
+            const existingRows = [];
+
+            jsonData.forEach(row => {
+                if (!row[idColumn] || row[idColumn] === null || row[idColumn] === "") {
+                    const { [idColumn]: _, ...newRow } = row;  // Remove idColumn
+                    newRows.push(newRow);
+                } else {
+                    existingRows.push(row);
+                }
+            });
+
             // Determine onConflict columns
             const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
 
-            // Perform upserts (insert or update)
-            for (const row of jsonData) {
-                if (!row[idColumn]) {
-                    delete row[idColumn];
-                }
-                const { error } = await supabase.from(tableName).upsert(row, { onConflict: onConflictColumns });
+            // Perform upserts (insert or update) for new rows with no specified ID
+            if (newRows.length > 0) {
+                const { error } = await supabase.from(tableName).upsert(newRows, { onConflict: onConflictColumns });
                 if (error) {
-                    console.error("Error upserting row:", error);
-                    setErrorMessage(`Error upserting row: ${JSON.stringify(row)} - ${error.message}`);
+                    console.error("Error upserting new rows:", error);
+                    setErrorMessage(`Error upserting new rows: ${error.message}`);
                     setErrorOpen(true);
                     return;
                 }
             }
 
-            const { data, error } = await supabase.from(fetchUrl).select();
-            if (error) throw error;
+            // Perform upserts (insert or update) for rows with specified IDs
+            if (existingRows.length > 0) {
+                const { error } = await supabase.from(tableName).upsert(existingRows, { onConflict: onConflictColumns });
+                if (error) {
+                    console.error("Error upserting existing rows:", error);
+                    setErrorMessage(`Error upserting existing rows: ${error.message}`);
+                    setErrorOpen(true);
+                    return;
+                }
+            }
+
+            const { data, error: fetchError } = await supabase.from(fetchUrl).select();
+            if (fetchError) throw fetchError;
             setTableData(data);
             setCsvShow(false);
         } catch (error) {
@@ -326,9 +347,6 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setErrorOpen(true);
         }
     };
-
-
-
 
     const handleAddRecordClick = () => {
         if (newRecordURL) {
