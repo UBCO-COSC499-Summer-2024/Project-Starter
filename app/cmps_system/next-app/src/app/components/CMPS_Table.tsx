@@ -139,17 +139,19 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [errorMessage, setErrorMessage] = useState('');
     const [userRole, setUserRole] = useState(null);
 
+    const fetchData = async () => {
+        try {
+            const { data, error } = await supabase.from(fetchUrl).select();
+            if (error) throw error;
+            setTableData(data);
+            setInitialTableData(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
+
     useEffect(() => {
-        (async () => {
-            try {
-                const { data, error } = await supabase.from(fetchUrl).select();
-                if (error) throw error;
-                setTableData(data);
-                setInitialTableData(data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        })();
+        fetchData();
     }, [fetchUrl]);
 
     useEffect(() => {
@@ -255,7 +257,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 return;
             }
 
-            setTableData(tableData.filter((row) => !selectedRows.includes(row[idColumn || "id"])));
+            await fetchData(); // Fetch updated data after deletion
             setSelectedRows([]);
         } catch (error) {
             console.error("Error during deletion:", error);
