@@ -212,7 +212,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         if (selectedRows.includes(row.id)) {
             const { error } = await rowUpdateHandler(row);
             if (error) {
-                setErrorMessages(prev => [...prev, error.message.charAt(0).toUpperCase() + error.message.slice(1) || 'An error occurred']);
+                setErrorMessages(prev => [...prev, { message: error.message.charAt(0).toUpperCase() + error.message.slice(1) || 'An error occurred', row }]);
                 setErrorOpen(true);
             }
         }
@@ -543,6 +543,10 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setErrorMessages([]);
     };
 
+    const formatRowData = (row) => {
+        return JSON.stringify(row, null, 2);
+    };
+
     const processedColumns = processColumnConfig(columnsConfig, rowModesModel, handleOpenModal);
 
     return (
@@ -600,12 +604,17 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 type={searchModalType}
             />
 
-            <Dialog open={errorOpen} onClose={handleCloseErrorModal}>
+            <Dialog open={errorOpen} onClose={handleCloseErrorModal} maxWidth="md" fullWidth>
                 <DialogTitle>Error</DialogTitle>
                 <DialogContent dividers>
                     <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
-                        {errorMessages.map((msg, index) => (
-                            <DialogContentText key={index}>{msg}</DialogContentText>
+                        {errorMessages.map((error, index) => (
+                            <Box key={index} sx={{ mb: 2 }}>
+                                <DialogContentText>{error.message}</DialogContentText>
+                                <Box component="pre" sx={{ backgroundColor: '#f5f5f5', p: 2, borderRadius: 1 }}>
+                                    {formatRowData(error.row)}
+                                </Box>
+                            </Box>
                         ))}
                     </Box>
                 </DialogContent>
