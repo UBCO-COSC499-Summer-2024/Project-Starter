@@ -303,11 +303,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             // Determine which rows have been deleted
             const deletedIds = [...originalIds].filter(id => !currentIds.has(id));
 
-            // Perform deletions
-            for (const id of deletedIds) {
-                const { error } = await supabase.from(tableName).delete().eq(idColumn, id);
+            // Perform deletions in batch
+            if (deletedIds.length > 0) {
+                const { error } = await supabase.from(tableName).delete().in(idColumn, deletedIds);
                 if (error) {
-                    console.error("Error deleting row:", error);
+                    console.error("Error deleting rows:", error);
                     return;
                 }
             }
@@ -360,6 +360,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setErrorOpen(true);
         }
     };
+
 
     const handleAddRecordClick = () => {
         if (newRecordURL) {
