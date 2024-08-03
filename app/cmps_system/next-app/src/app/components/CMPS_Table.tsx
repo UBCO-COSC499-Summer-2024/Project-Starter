@@ -241,16 +241,29 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
     const handleDeleteClick = async () => {
         if (!confirm(deleteWarningMessage || "Are you sure you want to delete the selected records? This action is not recoverable!")) return;
-        for (const id of selectedRows) {
-            const { error } = await supabase.from(tableName).delete().eq(idColumn || "id", id);
+
+        try {
+            const { error } = await supabase
+                .from(tableName)
+                .delete()
+                .in(idColumn || "id", selectedRows);
+
             if (error) {
-                console.error("Error deleting record:", error);
+                console.error("Error deleting records:", error);
+                setErrorMessage(`Error deleting records: ${error.message}`);
+                setErrorOpen(true);
                 return;
             }
+
+            setTableData(tableData.filter((row) => !selectedRows.includes(row[idColumn || "id"])));
+            setSelectedRows([]);
+        } catch (error) {
+            console.error("Error during deletion:", error);
+            setErrorMessage(`Error during deletion: ${error.message}`);
+            setErrorOpen(true);
         }
-        setTableData(tableData.filter((row) => !selectedRows.includes(row.id)));
-        setSelectedRows([]);
     };
+
 
     const handleCellClick = (params, event) => {
         const columnConfig = columnsConfig.find(column => column.field === params.field);
