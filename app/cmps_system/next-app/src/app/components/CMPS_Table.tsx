@@ -390,7 +390,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                             const cleanedRow = Object.fromEntries(
                                 Object.entries(rowWithoutId).map(([key, value]) => [key.trim(), typeof value === 'string' ? value.trim() : value])
                             );
-                            const { error } = await supabase.from(tableName).upsert(cleanedRow, uniqueColumns ? { onConflict: uniqueColumns } : {});
+                            const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
                             if (error) {
                                 console.error("Error upserting row:", error);
                                 setErrorMessage(`Error upserting row: ${JSON.stringify(cleanedRow)} - ${error.message}`);
@@ -401,7 +401,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                             const cleanedRow = Object.fromEntries(
                                 Object.entries(row).map(([key, value]) => [key.trim(), typeof value === 'string' ? value.trim() : value])
                             );
-                            const { error } = await supabase.from(tableName).upsert(cleanedRow, { onConflict: [idColumn] });
+                            const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
                             if (error) {
                                 console.error("Error upserting row:", error);
                                 setErrorMessage(`Error upserting row: ${JSON.stringify(cleanedRow)} - ${error.message}`);
