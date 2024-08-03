@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
-import { Button, Modal, Typography, Box, styled, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox } from '@mui/material';
+import { Button, Modal, Typography, Box, styled, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
 import { csv2json, json2csv } from 'json-2-csv';
@@ -110,10 +110,66 @@ interface CMPS_TableProps {
     rowUpdateHandler: (row: any) => Promise<any>;
     deleteWarningMessage: string;
     idColumn: string;
-    uniqueColumns?: string[]; // Optional
-    newRecordURL?: string; // Optional
-    showSelectAll?: boolean; // Optional
+    uniqueColumns?: string[];
+    newRecordURL?: string;
+    showSelectAll?: boolean;
 }
+
+const fetchTableData = async (fetchUrl, setDataCallback) => {
+    try {
+        const { data, error } = await supabase.from(fetchUrl).select();
+        if (error) throw error;
+        setDataCallback(data);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+};
+
+const getUserRole = async (setUserRoleCallback) => {
+    try {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        const user = sessionData?.session?.user;
+        const { data, error } = await supabase
+            .from('user_role')
+            .select('role')
+            .eq('user_id', user.id)
+            .single();
+        if (error) throw error;
+        setUserRoleCallback(data.role);
+    } catch (error) {
+        console.error("Error fetching user role:", error);
+    }
+};
+
+const handleUpsertRows = async (rows, tableName, uniqueColumns) => {
+    const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : ['id'];
+
+    if (rows.length > 0) {
+        const { error } = await supabase.from(tableName).upsert(rows, { onConflict: onConflictColumns });
+        if (error) {
+            console.error("Error upserting rows:", error);
+            return error.message;
+        }
+    }
+
+    return null;
+};
+
+const handleDeleteRows = async (deletedIds, tableName, idColumn) => {
+    if (deletedIds.length > 0) {
+        const { error } = await supabase.from(tableName).delete().in(idColumn, deletedIds);
+        if (error) {
+            console.error("Error deleting rows:", error);
+            return error.message;
+        }
+    }
+
+    return null;
+};
+
+const formatRowData = (row) => {
+    return JSON.stringify(row, null, 2);
+};
 
 const CMPS_Table: React.FC<CMPS_TableProps> = ({
     fetchUrl,
@@ -138,40 +194,23 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [searchModalType, setSearchModalType] = useState('');
     const csv = useRef(null);
     const [errorOpen, setErrorOpen] = useState(false);
-    const [errorMessages, setErrorMessages] = useState([]); // Accumulate multiple errors here
+    const [errorMessages, setErrorMessages] = useState([]);
     const [userRole, setUserRole] = useState(null);
 
-    const fetchData = async () => {
-        try {
-            const { data, error } = await supabase.from(fetchUrl).select();
-            if (error) throw error;
-            setTableData(data);
-            setInitialTableData(data);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
-    };
+    const [beforeData, setBeforeData] = useState([]);
+    const [afterData, setAfterData] = useState([]);
+    const [addedRows, setAddedRows] = useState([]);
+    const [deletedRows, setDeletedRows] = useState([]);
+    const [modifiedRows, setModifiedRows] = useState([]);
+    const [showBeforeAfterModal, setShowBeforeAfterModal] = useState(false);
 
     useEffect(() => {
-        fetchData();
+        fetchTableData(fetchUrl, setTableData);
+        fetchTableData(fetchUrl, setInitialTableData);
     }, [fetchUrl]);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-                const user = sessionData?.session?.user;
-                const { data, error } = await supabase
-                    .from('user_role')
-                    .select('role')
-                    .eq('user_id', user.id)
-                    .single();
-                if (error) throw error;
-                setUserRole(data.role);
-            } catch (error) {
-                console.error("Error fetching user role:", error);
-            }
-        })();
+        getUserRole(setUserRole);
     }, []);
 
     const handleOpenModal = (type, row) => {
@@ -246,19 +285,15 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         if (!confirm(deleteWarningMessage || "Are you sure you want to delete the selected records? This action is not recoverable!")) return;
 
         try {
-            const { error } = await supabase
-                .from(tableName)
-                .delete()
-                .in(idColumn || "id", selectedRows);
-
-            if (error) {
-                console.error("Error deleting records:", error);
-                setErrorMessages([`Error deleting records: ${error.message}`]);
+            const deletedIds = selectedRows;
+            const deleteError = await handleDeleteRows(deletedIds, tableName, idColumn);
+            if (deleteError) {
+                setErrorMessages([`Error deleting records: ${deleteError}`]);
                 setErrorOpen(true);
                 return;
             }
 
-            await fetchData(); // Fetch updated data after deletion
+            await fetchTableData(fetchUrl, setTableData);
             setSelectedRows([]);
         } catch (error) {
             console.error("Error during deletion:", error);
@@ -266,7 +301,6 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setErrorOpen(true);
         }
     };
-
 
     const handleCellClick = (params, event) => {
         const columnConfig = columnsConfig.find(column => column.field === params.field);
@@ -280,83 +314,53 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         }
     };
 
-    const handleEditAsCSV = async () => {
+    const handleCSVEdit = async () => {
         const { data, error } = await supabase.from(tableName).select();
         if (error) {
             console.error("Error fetching data for CSV:", error);
             return;
         }
-        const csvData = await json2csv(data, { delimiter: { wrap: '"' } }); // Ensure strings are wrapped in quotes
+        console.log('Loaded data for CSV Edit:', data); // Debug: Check loaded data
+        const csvData = await json2csv(data, { delimiter: { wrap: '"' } });
         setDefaultCSV(csvData);
         setCsvShow(true);
     };
 
-    const handleApplyEditAsCSV = async () => {
+    const calculateDifferences = (originalData, updatedData) => {
+        const originalMap = new Map(originalData.map(row => [row[idColumn], row]));
+        const updatedMap = new Map(updatedData.map(row => [row[idColumn], row]));
+
+        const added = updatedData.filter(row => !originalMap.has(row[idColumn]));
+        const deleted = originalData.filter(row => !updatedMap.has(row[idColumn]));
+        const modified = updatedData.filter(row => {
+            const originalRow = originalMap.get(row[idColumn]);
+            const isModified = originalRow && JSON.stringify(originalRow) !== JSON.stringify(row);
+            if (isModified) {
+                console.log('Modified row:', row); // Debug: Check modified rows
+                console.log('Original row:', originalRow); // Debug: Check original rows
+            }
+            return isModified;
+        });
+
+        setAddedRows(added);
+        setDeletedRows(deleted);
+        setModifiedRows(modified);
+    };
+
+    const handleShowBeforeAfter = (originalData, updatedData) => {
+        setBeforeData(originalData);
+        setAfterData(updatedData);
+        calculateDifferences(originalData, updatedData);
+        setShowBeforeAfterModal(true);
+    };
+
+    const handleApplyCSV = async () => {
         try {
             const csvText = csv.current.value;
             const jsonData = await csv2json(csvText, { delimiter: { wrap: '"' } });
             const originalData = await csv2json(defaultCSV, { delimiter: { wrap: '"' } });
 
-            // Create a set of primary keys from the original CSV
-            const originalIds = new Set(originalData.map(row => row[idColumn]));
-
-            // Create a set of primary keys from the current CSV
-            const currentIds = new Set(jsonData.map(row => row[idColumn]));
-
-            // Determine which rows have been deleted
-            const deletedIds = [...originalIds].filter(id => !currentIds.has(id));
-
-            // Perform deletions in batch
-            if (deletedIds.length > 0) {
-                const { error } = await supabase.from(tableName).delete().in(idColumn, deletedIds);
-                if (error) {
-                    console.error("Error deleting rows:", error);
-                    return;
-                }
-            }
-
-            // Separate rows into new and existing
-            const newRows = [];
-            const existingRows = [];
-
-            jsonData.forEach(row => {
-                if (!row[idColumn] || row[idColumn] === null || row[idColumn] === "") {
-                    const { [idColumn]: _, ...newRow } = row;  // Remove idColumn
-                    newRows.push(newRow);
-                } else {
-                    existingRows.push(row);
-                }
-            });
-
-            // Determine onConflict columns
-            const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
-
-            // Perform upserts (insert or update) for new rows with no specified ID
-            if (newRows.length > 0) {
-                const { error } = await supabase.from(tableName).upsert(newRows, { onConflict: onConflictColumns });
-                if (error) {
-                    console.error("Error upserting new rows:", error);
-                    setErrorMessages([`Error upserting new rows: ${error.message}`]);
-                    setErrorOpen(true);
-                    return;
-                }
-            }
-
-            // Perform upserts (insert or update) for rows with specified IDs
-            if (existingRows.length > 0) {
-                const { error } = await supabase.from(tableName).upsert(existingRows, { onConflict: onConflictColumns });
-                if (error) {
-                    console.error("Error upserting existing rows:", error);
-                    setErrorMessages([`Error upserting existing rows: ${error.message}`]);
-                    setErrorOpen(true);
-                    return;
-                }
-            }
-
-            const { data, error: fetchError } = await supabase.from(fetchUrl).select();
-            if (fetchError) throw fetchError;
-            setTableData(data);
-            setCsvShow(false);
+            handleShowBeforeAfter(originalData, jsonData);
         } catch (error) {
             console.error("Error processing CSV data:", error);
             setErrorMessages([`Error processing CSV file: ${error.message}`]);
@@ -364,6 +368,56 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         }
     };
 
+    const handleConfirmChanges = async () => {
+        try {
+            const jsonData = afterData;
+
+            const originalIds = new Set(beforeData.map(row => row[idColumn]));
+            const currentIds = new Set(jsonData.map(row => row[idColumn]));
+            const deletedIds = [...originalIds].filter(id => !currentIds.has(id));
+
+            const deleteError = await handleDeleteRows(deletedIds, tableName, idColumn);
+            if (deleteError) {
+                setErrorMessages([`Error deleting rows: ${deleteError}`]);
+                setErrorOpen(true);
+                return;
+            }
+
+            const newRows = [];
+            const existingRows = [];
+
+            jsonData.forEach(row => {
+                if (!row[idColumn] || row[idColumn] === null || row[idColumn] === "") {
+                    const { [idColumn]: _, ...newRow } = row;
+                    newRows.push(newRow);
+                } else {
+                    existingRows.push(row);
+                }
+            });
+
+            const newRowsError = await handleUpsertRows(newRows, tableName, uniqueColumns);
+            if (newRowsError) {
+                setErrorMessages([`Error upserting new rows: ${newRowsError}`]);
+                setErrorOpen(true);
+                return;
+            }
+
+            const existingRowsError = await handleUpsertRows(existingRows, tableName, uniqueColumns);
+            if (existingRowsError) {
+                setErrorMessages([`Error upserting existing rows: ${existingRowsError}`]);
+                setErrorOpen(true);
+                return;
+            }
+
+            await fetchTableData(fetchUrl, setTableData);
+            setCsvShow(false);
+            setShowBeforeAfterModal(false);
+        } catch (error) {
+            console.error("Error confirming changes:", error);
+            setErrorMessages([`Error confirming changes: ${error.message}`]);
+            setErrorOpen(true);
+        }
+    };
 
     const handleAddRecordClick = () => {
         if (newRecordURL) {
@@ -382,100 +436,15 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
     const handleCSVImport = async (event) => {
         const file = event.target.files[0];
-        console.log("File selected for upload:", file);
-
         if (file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const csvText = e.target.result;
-                console.log("CSV file content:", csvText);
-
                 try {
-                    // Preprocess CSV to remove any trailing whitespace and carriage returns from headers and values
                     const cleanCsvText = (csvText as string).split('\n').map(line => line.split(',').map(cell => cell.trim()).join(',')).join('\n');
                     const jsonData = await csv2json(cleanCsvText, { trimHeaderFields: false, trimFieldValues: false });
-                    console.log("Converted JSON data:", jsonData);
 
-                    // Validate CSV data for duplicates
-                    const input_ids = new Set();
-                    const uniqueColumnSets = new Map(); // Use a Map to store unique sets and their corresponding rows
-
-                    for (const row of jsonData) {
-                        if (idColumn && row[idColumn] && input_ids.has(row[idColumn])) {
-                            setErrorMessages([`Duplicate ID found in CSV: ${row[idColumn]}`]);
-                            setErrorOpen(true);
-                            return;
-                        }
-
-                        const uniqueSet = uniqueColumns?.map(col => row[col]).join('|');
-                        if (uniqueSet) {
-                            if (uniqueColumnSets.has(uniqueSet)) {
-                                setErrorMessages([`Duplicate combination of unique columns found in CSV: ${uniqueSet}, Row: ${JSON.stringify(row)}`]);
-                                setErrorOpen(true);
-                                return;
-                            }
-                            uniqueColumnSets.set(uniqueSet, row);
-                        }
-
-                        if (idColumn && row[idColumn]) input_ids.add(row[idColumn]);
-                    }
-
-                    // Separate rows into new and existing
-                    const newRows = [];
-                    const existingRows = [];
-
-                    jsonData.forEach(row => {
-                        // Handle empty strings in integer columns
-                        const cleanedRow = Object.fromEntries(
-                            Object.entries(row).map(([key, value]) => {
-                                if (typeof value === 'string' && value.trim() === '') {
-                                    return [key.trim(), null];
-                                }
-                                return [key.trim(), typeof value === 'string' ? value.trim() : value];
-                            })
-                        );
-
-                        if (!idColumn || !row[idColumn] || row[idColumn] === "") {
-                            const { [idColumn]: _, ...rowWithoutId } = cleanedRow;
-                            newRows.push(rowWithoutId);
-                        } else {
-                            existingRows.push(cleanedRow);
-                        }
-                    });
-
-                    // Determine onConflict columns
-                    const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
-
-                    // Perform upserts (insert or update) for new rows with no specified ID
-                    if (newRows.length > 0) {
-                        const { error } = await supabase.from(tableName).upsert(newRows, { onConflict: onConflictColumns });
-                        if (error) {
-                            console.error("Error upserting new rows:", error);
-                            setErrorMessages([`Error upserting new rows: ${error.message}`]);
-                            setErrorOpen(true);
-                            return;
-                        }
-                    }
-
-                    // Perform upserts (insert or update) for rows with specified IDs
-                    if (existingRows.length > 0) {
-                        const { error } = await supabase.from(tableName).upsert(existingRows, { onConflict: onConflictColumns });
-                        if (error) {
-                            console.error("Error upserting existing rows:", error);
-                            setErrorMessages([`Error upserting existing rows: ${error.message}`]);
-                            setErrorOpen(true);
-                            return;
-                        }
-                    }
-
-                    console.log("Rows processed successfully.");
-
-                    const { data: updatedData, error: fetchUpdatedError } = await supabase.from(fetchUrl).select();
-                    if (fetchUpdatedError) throw fetchUpdatedError;
-                    console.log("Fetched updated table data:", updatedData);
-
-                    setTableData(updatedData);
-                    setInitialTableData(updatedData);
+                    handleShowBeforeAfter(tableData, jsonData);
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
                     setErrorMessages([`Error processing CSV file: ${error.message}`]);
@@ -495,7 +464,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 setErrorOpen(true);
                 return;
             }
-            const csvData = await json2csv(data, { delimiter: { wrap: '"' } }); // Ensure strings are wrapped in quotes
+            const csvData = await json2csv(data, { delimiter: { wrap: '"' } });
             const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
             saveAs(blob, `${tableName}.csv`);
         } catch (error) {
@@ -518,7 +487,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 ) : (
                     <>
                         <Button color="primary" onClick={handleAddRecordClick}>➕ Add Record</Button>
-                        <Button color="primary" onClick={handleEditAsCSV}>📝 Edit As CSV</Button>
+                        <Button color="primary" onClick={handleCSVEdit}>📝 Edit As CSV</Button>
                         <Button className="textPrimary" onClick={handleEditClick} color="inherit">✏️ Edit</Button>
                         <Button onClick={handleDeleteClick} color="inherit">🗑️ Delete</Button>
                         <input
@@ -545,8 +514,38 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setErrorMessages([]);
     };
 
-    const formatRowData = (row) => {
-        return JSON.stringify(row, null, 2);
+    const handleBeforeAfterClose = () => {
+        setShowBeforeAfterModal(false);
+        setBeforeData([]);
+        setAfterData([]);
+        setAddedRows([]);
+        setDeletedRows([]);
+        setModifiedRows([]);
+    };
+
+    const renderDifferencesTable = (rows, color) => {
+        return (
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        {columnsConfig.map((column) => (
+                            <TableCell key={column.field}>{column.headerName}</TableCell>
+                        ))}
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {rows.map((row, index) => (
+                        <TableRow key={index} style={{ backgroundColor: color }}>
+                            {columnsConfig.map((column) => (
+                                <TableCell key={column.field}>
+                                    {row[column.field] !== undefined ? row[column.field] : 'N/A'} {/* Ensure value is displayed */}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        );
     };
 
     const processedColumns = processColumnConfig(columnsConfig, rowModesModel, handleOpenModal);
@@ -600,7 +599,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         />
                     </Typography>
                     <Button variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button variant="contained" onClick={handleApplyEditAsCSV}>Apply</Button>
+                    <Button variant="contained" onClick={handleApplyCSV}>Apply</Button>
                 </Box>
             </Modal>
 
@@ -629,6 +628,24 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     <Button onClick={handleCloseErrorModal} color="primary">
                         Close
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={showBeforeAfterModal} onClose={handleBeforeAfterClose} maxWidth="md" fullWidth>
+                <DialogTitle>Changes Preview</DialogTitle>
+                <DialogContent dividers>
+                    <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+                        <Typography variant="h6">Added Rows (Green):</Typography>
+                        {renderDifferencesTable(addedRows, '#d4edda')}
+                        <Typography variant="h6">Deleted Rows (Red):</Typography>
+                        {renderDifferencesTable(deletedRows, '#f8d7da')}
+                        <Typography variant="h6">Modified Rows (Yellow):</Typography>
+                        {renderDifferencesTable(modifiedRows, '#fff3cd')}
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleBeforeAfterClose} color="inherit">Cancel</Button>
+                    <Button onClick={handleConfirmChanges} color="primary">Confirm</Button>
                 </DialogActions>
             </Dialog>
         </div>
