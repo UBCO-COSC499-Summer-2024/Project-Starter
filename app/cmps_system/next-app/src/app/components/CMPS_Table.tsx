@@ -125,6 +125,21 @@ const fetchTableData = async (fetchUrl, setDataCallback) => {
     }
 };
 
+const fetchTableColumns = async (tableName, setColumnNames) => {
+    try {
+        const { data, error } = await supabase
+            .from(tableName)
+            .select('*')
+            .limit(1);
+        if (error) throw error;
+        if (data.length > 0) {
+            setColumnNames(Object.keys(data[0]));
+        }
+    } catch (error) {
+        console.error("Error fetching table columns:", error);
+    }
+};
+
 const getUserRole = async (setUserRoleCallback) => {
     try {
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -196,6 +211,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessages, setErrorMessages] = useState([]);
     const [userRole, setUserRole] = useState(null);
+    const [tableColumns, setTableColumns] = useState([]);
 
     const [beforeData, setBeforeData] = useState([]);
     const [afterData, setAfterData] = useState([]);
@@ -207,7 +223,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     useEffect(() => {
         fetchTableData(fetchUrl, setTableData);
         fetchTableData(fetchUrl, setInitialTableData);
-    }, [fetchUrl]);
+        fetchTableColumns(tableName, setTableColumns);
+    }, [fetchUrl, tableName]);
 
     useEffect(() => {
         getUserRole(setUserRole);
@@ -320,7 +337,6 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             console.error("Error fetching data for CSV:", error);
             return;
         }
-        console.log('Loaded data for CSV Edit:', data); // Debug: Check loaded data
         const csvData = await json2csv(data, { delimiter: { wrap: '"' } });
         setDefaultCSV(csvData);
         setCsvShow(true);
@@ -334,12 +350,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         const deleted = originalData.filter(row => !updatedMap.has(row[idColumn]));
         const modified = updatedData.filter(row => {
             const originalRow = originalMap.get(row[idColumn]);
-            const isModified = originalRow && JSON.stringify(originalRow) !== JSON.stringify(row);
-            if (isModified) {
-                console.log('Modified row:', row); // Debug: Check modified rows
-                console.log('Original row:', originalRow); // Debug: Check original rows
-            }
-            return isModified;
+            return originalRow && JSON.stringify(originalRow) !== JSON.stringify(row);
         });
 
         setAddedRows(added);
@@ -528,17 +539,17 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             <Table>
                 <TableHead>
                     <TableRow>
-                        {columnsConfig.map((column) => (
-                            <TableCell key={column.field}>{column.headerName}</TableCell>
+                        {tableColumns.map((column) => (
+                            <TableCell key={column}>{column}</TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {rows.map((row, index) => (
                         <TableRow key={index} style={{ backgroundColor: color }}>
-                            {columnsConfig.map((column) => (
-                                <TableCell key={column.field}>
-                                    {row[column.field] !== undefined ? row[column.field] : 'N/A'} {/* Ensure value is displayed */}
+                            {tableColumns.map((column) => (
+                                <TableCell key={column}>
+                                    {row[column] !== undefined ? row[column] : 'N/A'} {/* Ensure value is displayed */}
                                 </TableCell>
                             ))}
                         </TableRow>
