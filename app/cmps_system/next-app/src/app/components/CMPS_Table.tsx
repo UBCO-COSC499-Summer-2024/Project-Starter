@@ -275,7 +275,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setCsvShow(true);
     };
 
-    const handleApplyCSV = async () => {
+    const handleApplyEditAsCSV = async () => {
         try {
             const csvText = csv.current.value;
             const jsonData = await csv2json(csvText, { delimiter: { wrap: '"' } });
@@ -363,7 +363,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         }
     };
 
-    const handleFileUpload = async (event) => {
+    const handleCSVImport = async (event) => {
         const file = event.target.files[0];
         console.log("File selected for upload:", file);
 
@@ -403,7 +403,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         if (idColumn && row[idColumn]) input_ids.add(row[idColumn]);
                     }
 
-                    for (const row of jsonData) {
+                    // Separate rows into new and existing
+                    const newRows = [];
+                    const existingRows = [];
+
+                    jsonData.forEach(row => {
                         // Handle empty strings in integer columns
                         const cleanedRow = Object.fromEntries(
                             Object.entries(row).map(([key, value]) => {
@@ -416,23 +420,37 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
                         if (!idColumn || !row[idColumn] || row[idColumn] === "") {
                             const { [idColumn]: _, ...rowWithoutId } = cleanedRow;
-                            const { error } = await supabase.from(tableName).upsert(rowWithoutId, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
-                            if (error) {
-                                console.error("Error upserting row:", error);
-                                setErrorMessage(`Error upserting row: ${JSON.stringify(rowWithoutId)} - ${error.message}`);
-                                setErrorOpen(true);
-                                return;
-                            }
+                            newRows.push(rowWithoutId);
                         } else {
-                            const { error } = await supabase.from(tableName).upsert(cleanedRow, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
-                            if (error) {
-                                console.error("Error upserting row:", error);
-                                setErrorMessage(`Error upserting row: ${JSON.stringify(cleanedRow)} - ${error.message}`);
-                                setErrorOpen(true);
-                                return;
-                            }
+                            existingRows.push(cleanedRow);
+                        }
+                    });
+
+                    // Determine onConflict columns
+                    const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
+
+                    // Perform upserts (insert or update) for new rows with no specified ID
+                    if (newRows.length > 0) {
+                        const { error } = await supabase.from(tableName).upsert(newRows, { onConflict: onConflictColumns });
+                        if (error) {
+                            console.error("Error upserting new rows:", error);
+                            setErrorMessage(`Error upserting new rows: ${error.message}`);
+                            setErrorOpen(true);
+                            return;
                         }
                     }
+
+                    // Perform upserts (insert or update) for rows with specified IDs
+                    if (existingRows.length > 0) {
+                        const { error } = await supabase.from(tableName).upsert(existingRows, { onConflict: onConflictColumns });
+                        if (error) {
+                            console.error("Error upserting existing rows:", error);
+                            setErrorMessage(`Error upserting existing rows: ${error.message}`);
+                            setErrorOpen(true);
+                            return;
+                        }
+                    }
+
                     console.log("Rows processed successfully.");
 
                     const { data: updatedData, error: fetchUpdatedError } = await supabase.from(fetchUrl).select();
@@ -450,8 +468,6 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             reader.readAsText(file);
         }
     };
-
-
 
     const handleDownloadCSV = async () => {
         try {
@@ -493,7 +509,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                             style={{ display: 'none' }}
                             id="upload-csv-file"
                             type="file"
-                            onChange={handleFileUpload}
+                            onChange={handleCSVImport}
                         />
                         <label htmlFor="upload-csv-file">
                             <Button component="span" color="primary">📤 Upload CSV</Button>
@@ -553,7 +569,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         />
                     </Typography>
                     <Button variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button variant="contained" onClick={handleApplyCSV}>Apply</Button>
+                    <Button variant="contained" onClick={handleApplyEditAsCSV}>Apply</Button>
                 </Box>
             </Modal>
 
