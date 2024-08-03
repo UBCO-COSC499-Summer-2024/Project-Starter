@@ -136,7 +136,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [searchModalType, setSearchModalType] = useState('');
     const csv = useRef(null);
     const [errorOpen, setErrorOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [errorMessages, setErrorMessages] = useState([]); // Accumulate multiple errors here
     const [userRole, setUserRole] = useState(null);
 
     const fetchData = async () => {
@@ -211,9 +211,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setTableData(tableData.map((oldRow) => (oldRow.id === row.id ? row : oldRow)));
         if (selectedRows.includes(row.id)) {
             const { error } = await rowUpdateHandler(row);
-            // Show an error modal if there is an error
             if (error) {
-                setErrorMessage(error.message.charAt(0).toUpperCase() + error.message.slice(1) || 'An error occurred');
+                setErrorMessages(prev => [...prev, error.message.charAt(0).toUpperCase() + error.message.slice(1) || 'An error occurred']);
                 setErrorOpen(true);
             }
         }
@@ -252,7 +251,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
             if (error) {
                 console.error("Error deleting records:", error);
-                setErrorMessage(`Error deleting records: ${error.message}`);
+                setErrorMessages([`Error deleting records: ${error.message}`]);
                 setErrorOpen(true);
                 return;
             }
@@ -261,7 +260,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setSelectedRows([]);
         } catch (error) {
             console.error("Error during deletion:", error);
-            setErrorMessage(`Error during deletion: ${error.message}`);
+            setErrorMessages([`Error during deletion: ${error.message}`]);
             setErrorOpen(true);
         }
     };
@@ -335,7 +334,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 const { error } = await supabase.from(tableName).upsert(newRows, { onConflict: onConflictColumns });
                 if (error) {
                     console.error("Error upserting new rows:", error);
-                    setErrorMessage(`Error upserting new rows: ${error.message}`);
+                    setErrorMessages([`Error upserting new rows: ${error.message}`]);
                     setErrorOpen(true);
                     return;
                 }
@@ -346,7 +345,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 const { error } = await supabase.from(tableName).upsert(existingRows, { onConflict: onConflictColumns });
                 if (error) {
                     console.error("Error upserting existing rows:", error);
-                    setErrorMessage(`Error upserting existing rows: ${error.message}`);
+                    setErrorMessages([`Error upserting existing rows: ${error.message}`]);
                     setErrorOpen(true);
                     return;
                 }
@@ -358,7 +357,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setCsvShow(false);
         } catch (error) {
             console.error("Error processing CSV data:", error);
-            setErrorMessage(`Error processing CSV file: ${error.message}`);
+            setErrorMessages([`Error processing CSV file: ${error.message}`]);
             setErrorOpen(true);
         }
     };
@@ -401,7 +400,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
                     for (const row of jsonData) {
                         if (idColumn && row[idColumn] && input_ids.has(row[idColumn])) {
-                            setErrorMessage(`Duplicate ID found in CSV: ${row[idColumn]}`);
+                            setErrorMessages([`Duplicate ID found in CSV: ${row[idColumn]}`]);
                             setErrorOpen(true);
                             return;
                         }
@@ -409,7 +408,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         const uniqueSet = uniqueColumns?.map(col => row[col]).join('|');
                         if (uniqueSet) {
                             if (uniqueColumnSets.has(uniqueSet)) {
-                                setErrorMessage(`Duplicate combination of unique columns found in CSV: ${uniqueSet}, Row: ${JSON.stringify(row)}`);
+                                setErrorMessages([`Duplicate combination of unique columns found in CSV: ${uniqueSet}, Row: ${JSON.stringify(row)}`]);
                                 setErrorOpen(true);
                                 return;
                             }
@@ -450,7 +449,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         const { error } = await supabase.from(tableName).upsert(newRows, { onConflict: onConflictColumns });
                         if (error) {
                             console.error("Error upserting new rows:", error);
-                            setErrorMessage(`Error upserting new rows: ${error.message}`);
+                            setErrorMessages([`Error upserting new rows: ${error.message}`]);
                             setErrorOpen(true);
                             return;
                         }
@@ -461,7 +460,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         const { error } = await supabase.from(tableName).upsert(existingRows, { onConflict: onConflictColumns });
                         if (error) {
                             console.error("Error upserting existing rows:", error);
-                            setErrorMessage(`Error upserting existing rows: ${error.message}`);
+                            setErrorMessages([`Error upserting existing rows: ${error.message}`]);
                             setErrorOpen(true);
                             return;
                         }
@@ -477,7 +476,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     setInitialTableData(updatedData);
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
-                    setErrorMessage(`Error processing CSV file: ${error.message}`);
+                    setErrorMessages([`Error processing CSV file: ${error.message}`]);
                     setErrorOpen(true);
                 }
             };
@@ -490,7 +489,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             const { data, error } = await supabase.from(tableName).select();
             if (error) {
                 console.error("Error fetching data for CSV download:", error);
-                setErrorMessage(`Error fetching data for CSV download: ${error.message}`);
+                setErrorMessages([`Error fetching data for CSV download: ${error.message}`]);
                 setErrorOpen(true);
                 return;
             }
@@ -499,7 +498,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             saveAs(blob, `${tableName}.csv`);
         } catch (error) {
             console.error("Error downloading CSV:", error);
-            setErrorMessage(`Error downloading CSV: ${error.message}`);
+            setErrorMessages([`Error downloading CSV: ${error.message}`]);
             setErrorOpen(true);
         }
     };
@@ -538,6 +537,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     };
 
     const handleCSVClose = () => setCsvShow(false);
+
+    const handleCloseErrorModal = () => {
+        setErrorOpen(false);
+        setErrorMessages([]);
+    };
 
     const processedColumns = processColumnConfig(columnsConfig, rowModesModel, handleOpenModal);
 
@@ -596,13 +600,17 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 type={searchModalType}
             />
 
-            <Dialog open={errorOpen} onClose={() => setErrorOpen(false)}>
+            <Dialog open={errorOpen} onClose={handleCloseErrorModal}>
                 <DialogTitle>Error</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>{errorMessage}</DialogContentText>
+                <DialogContent dividers>
+                    <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+                        {errorMessages.map((msg, index) => (
+                            <DialogContentText key={index}>{msg}</DialogContentText>
+                        ))}
+                    </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setErrorOpen(false)} color="primary">
+                    <Button onClick={handleCloseErrorModal} color="primary">
                         Close
                     </Button>
                 </DialogActions>
