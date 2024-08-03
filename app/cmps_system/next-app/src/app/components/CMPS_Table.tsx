@@ -385,23 +385,27 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     }
 
                     for (const row of jsonData) {
+                        // Handle empty strings in integer columns
+                        const cleanedRow = Object.fromEntries(
+                            Object.entries(row).map(([key, value]) => {
+                                if (typeof value === 'string' && value.trim() === '') {
+                                    return [key.trim(), null];
+                                }
+                                return [key.trim(), typeof value === 'string' ? value.trim() : value];
+                            })
+                        );
+
                         if (!idColumn || !row[idColumn] || row[idColumn] === "") {
-                            const { [idColumn]: _, ...rowWithoutId } = row;
-                            const cleanedRow = Object.fromEntries(
-                                Object.entries(rowWithoutId).map(([key, value]) => [key.trim(), typeof value === 'string' ? value.trim() : value])
-                            );
-                            const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
+                            const { [idColumn]: _, ...rowWithoutId } = cleanedRow;
+                            const { error } = await supabase.from(tableName).upsert(rowWithoutId, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
                             if (error) {
                                 console.error("Error upserting row:", error);
-                                setErrorMessage(`Error upserting row: ${JSON.stringify(cleanedRow)} - ${error.message}`);
+                                setErrorMessage(`Error upserting row: ${JSON.stringify(rowWithoutId)} - ${error.message}`);
                                 setErrorOpen(true);
                                 return;
                             }
                         } else {
-                            const cleanedRow = Object.fromEntries(
-                                Object.entries(row).map(([key, value]) => [key.trim(), typeof value === 'string' ? value.trim() : value])
-                            );
-                            const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
+                            const { error } = await supabase.from(tableName).upsert(cleanedRow, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
                             if (error) {
                                 console.error("Error upserting row:", error);
                                 setErrorMessage(`Error upserting row: ${JSON.stringify(cleanedRow)} - ${error.message}`);
@@ -427,6 +431,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             reader.readAsText(file);
         }
     };
+
 
 
     const handleDownloadCSV = async () => {
