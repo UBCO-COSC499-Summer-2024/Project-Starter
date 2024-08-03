@@ -15,7 +15,7 @@ export default function Evaluations() {
     ];
 
     const columnsConfig = [
-        { field: 'id', headerName: 'ID', width: 10, editable: false },
+        { field: 'id', headerName: 'ID', width: 100, editable: false },
         {
             field: 'evaluation_type',
             headerName: 'Evaluation Type',

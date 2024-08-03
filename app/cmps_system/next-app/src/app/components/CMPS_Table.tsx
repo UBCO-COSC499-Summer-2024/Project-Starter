@@ -308,7 +308,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         return;
                     }
                 } else {
-                    const { error } = await supabase.from(tableName).upsert(row, { onConflict: uniqueColumns ? uniqueColumns : idColumn });
+                    const { error } = await supabase.from(tableName).upsert(row, { onConflict: [idColumn, ...uniqueColumns] ? uniqueColumns : idColumn });
                     if (error) {
                         console.error("Error upserting row:", error);
                         setErrorMessage(`Error upserting row: ${JSON.stringify(row)} - ${error.message}`);

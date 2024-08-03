@@ -150,8 +150,8 @@ ADD PRIMARY KEY ("service_role_assign_id");
 CREATE TABLE IF NOT EXISTS
     "event" (
         "event_id" SERIAL NOT NULL,
-        "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-        "is_meeting" BOOLEAN NOT NULL,
+        "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "is_meeting" BOOLEAN NOT NULL DEFAULT FALSE,
         "duration" TIME(0) WITHOUT TIME ZONE NOT NULL,
         "description" TEXT NULL,
         "location" VARCHAR(255) NULL
@@ -173,13 +173,13 @@ CREATE TABLE IF NOT EXISTS
             "month" >= 1
             AND "month" <= 12
         ) NOT NULL,
-        "hours" INTEGER NOT NULL
+        "hours" INTEGER NOT NULL CHECK ("hours" >= 0) DEFAULT 0
     );
 
 ALTER TABLE "service_hours_entry"
 ADD CONSTRAINT "service_hours_entry_unique" UNIQUE (
-    "service_role_id",
     "instructor_id",
+    "service_role_id",
     "year",
     "month"
 );
@@ -214,6 +214,9 @@ CREATE TABLE IF NOT EXISTS
 ALTER TABLE "evaluation_type"
 ADD PRIMARY KEY ("evaluation_type_id");
 
+ALTER TABLE "evaluation_type"
+ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
+
 CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
         "evaluation_metric_id" SERIAL NOT NULL,
@@ -226,9 +229,6 @@ CREATE TABLE IF NOT EXISTS
 
 ALTER TABLE "evaluation_metric"
 ADD CONSTRAINT "evaluation_type_metric_num_unique" UNIQUE ("evaluation_type_id", "metric_num");
-
-ALTER TABLE "evaluation_type"
-ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_entry" (
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS
     );
 
 ALTER TABLE "evaluation_entry"
-ADD CONSTRAINT "evaluation_entry_unique" UNIQUE (
+ADD CONSTRAINT "evaluation_entry_unique" UNIQUE NULLS NOT DISTINCT (
     "evaluation_type_id",
     "metric_num",
     "course_id",
