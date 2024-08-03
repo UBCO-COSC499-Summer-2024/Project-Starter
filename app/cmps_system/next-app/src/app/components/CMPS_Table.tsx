@@ -112,6 +112,7 @@ interface CMPS_TableProps {
     idColumn: string;
     uniqueColumns?: string[]; // Optional
     newRecordURL?: string; // Optional
+    showSelectAll?: boolean; // Optional
 }
 
 const CMPS_Table: React.FC<CMPS_TableProps> = ({
@@ -123,7 +124,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     deleteWarningMessage,
     idColumn,
     uniqueColumns,
-    newRecordURL
+    newRecordURL,
+    showSelectAll = false
 }) => {
     const router = useRouter();
     const [tableData, setTableData] = useState([]);
@@ -566,6 +568,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     onRowSelectionModelChange={(newSelection) => setSelectedRows(newSelection)}
                     autoHeight
                     onCellClick={handleCellClick}
+                    sx={{
+                        "& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer": {
+                            display: showSelectAll ? "flex" : "none"
+                        }
+                    }}
                 />
             </div>
 
