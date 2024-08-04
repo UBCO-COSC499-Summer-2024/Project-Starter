@@ -436,23 +436,54 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setCsvShow(true);
     };
 
-    const calculateDifferences = async (originalData, updatedData) => {
+    // Returns true if the two JSON objects are equal, with the exception that numeric strings are considered equal to numbers
+    const compareJsonWithCasting = (obj1: any, obj2: any): boolean => {
+        const keys1 = Object.keys(obj1);
+        const keys2 = Object.keys(obj2);
+
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+
+        for (const key of keys1) {
+            const val1 = obj1[key];
+            const val2 = obj2[key];
+
+            // Convert numeric strings to numbers for comparison
+            if (typeof val1 === 'string' && !isNaN(Number(val1)) && typeof val2 === 'number') {
+                if (Number(val1) !== val2) {
+                    return false;
+                }
+            } else if (typeof val1 === 'number' && typeof val2 === 'string' && !isNaN(Number(val2))) {
+                if (val1 !== Number(val2)) {
+                    return false;
+                }
+            } else if (val1 !== val2) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    const calculateDifferences = async (originalData, updatedData, isImport: boolean = false) => {
         const originalMap = new Map(originalData.map(row => [row[idColumn], row]));
         const updatedMap = new Map(updatedData.map(row => [row[idColumn], row]));
 
         const added = updatedData.filter(row => !originalMap.has(row[idColumn]));
-        const deleted = originalData.filter(row => !updatedMap.has(row[idColumn]));
+        const deleted = isImport ? [] : originalData.filter(row => !updatedMap.has(row[idColumn]));
         const modified = updatedData.filter(row => {
             const originalRow = originalMap.get(row[idColumn]);
-            return originalRow && JSON.stringify(originalRow) !== JSON.stringify(row);
+            return originalRow && !compareJsonWithCasting(originalRow, row);
         });
+        console.log('modified rows:', modified);
 
         const modifiedCells = {};
         updatedData.forEach(row => {
             const originalRow = originalMap.get(row[idColumn]);
             if (originalRow) {
                 Object.keys(row).forEach(col => {
-                    if (row[col] !== originalRow[col]) {
+                    if (String(row[col]) !== String(originalRow[col])) {
                         if (!modifiedCells[row[idColumn]]) {
                             modifiedCells[row[idColumn]] = {};
                         }
@@ -474,10 +505,10 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setDuplicateUniqueRows(duplicates.duplicateUnique);
     };
 
-    const handleShowBeforeAfter = async (originalData, updatedData) => {
+    const handleShowBeforeAfter = async (originalData, updatedData, isImport: boolean = false) => {
         setBeforeData(originalData);
         setAfterData(updatedData);
-        await calculateDifferences(originalData, updatedData);
+        await calculateDifferences(originalData, updatedData, isImport);
         setShowBeforeAfterModal(true);
     };
 
@@ -551,9 +582,15 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 const csvText = e.target.result;
                 try {
                     const cleanCsvText = (csvText as string).split('\n').map(line => line.split(',').map(cell => cell.trim()).join(',')).join('\n');
-                    const jsonData = await csv2json(cleanCsvText, { trimHeaderFields: false, trimFieldValues: false });
+                    const importedData = await csv2json(cleanCsvText, { trimHeaderFields: false, trimFieldValues: false });
+                    const { data, error } = await supabase.from(tableName).select();
+                    const originalData = data;
+                    if (error) {
+                        console.error("Error fetching data for CSV:", error);
+                        return;
+                    }
 
-                    await handleShowBeforeAfter(tableData, jsonData);
+                    await handleShowBeforeAfter(originalData, importedData, true);
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
                     setErrorMessages([error]);
@@ -770,13 +807,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     <Box sx={{ maxHeight: 600, overflowY: 'auto' }}>
                         {duplicatePKRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Duplicate Rows (Primary Key):</Typography>
+                                <Typography variant="h6">Duplicate Rows Provided (Primary Key):</Typography>
                                 {renderDifferencesTable(duplicatePKRows, '#E6E6FA', {}, { [idColumn]: '#ffb3b3' })}
                             </>
                         )}
                         {duplicateUniqueRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Duplicate Rows (Unique Key):</Typography>
+                                <Typography variant="h6">Duplicate Rows Provided (Unique Key):</Typography>
                                 {renderDifferencesTable(duplicateUniqueRows, '#E6E6FA', {}, Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
                             </>
                         )}
