@@ -635,7 +635,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setDuplicateUniqueRows([]);
     };
 
-    const renderDifferencesTable = (rows, color, highlightCells = {}) => {
+    const renderDifferencesTable = (rows, color, highlightCells = {}, highlightColumns = {}) => {
         return (
             <Table>
                 <TableHead>
@@ -651,7 +651,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                             {tableColumns.map((column) => (
                                 <TableCell
                                     key={column}
-                                    style={highlightCells[row[idColumn]] && highlightCells[row[idColumn]][column] ? { backgroundColor: '#ffb3b3' } : {}}
+                                    style={
+                                        (highlightCells[row[idColumn]] && highlightCells[row[idColumn]][column])
+                                            ? { backgroundColor: '#ffb3b3' }
+                                            : (highlightColumns[column] && row[column])
+                                                ? { backgroundColor: highlightColumns[column] }
+                                                : {}
+                                    }
                                 >
                                     {row[column] !== undefined && row[column] !== null ? row[column].toString() : 'N/A'}
                                 </TableCell>
@@ -765,13 +771,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         {duplicatePKRows.length > 0 && (
                             <>
                                 <Typography variant="h6">Duplicate Rows (Primary Key):</Typography>
-                                {renderDifferencesTable(duplicatePKRows, '#ffecb3', { [idColumn]: '#ffb3b3' })}
+                                {renderDifferencesTable(duplicatePKRows, '#ffecb3', {}, { [idColumn]: '#ffb3b3' })}
                             </>
                         )}
                         {duplicateUniqueRows.length > 0 && (
                             <>
                                 <Typography variant="h6">Duplicate Rows (Unique Key):</Typography>
-                                {renderDifferencesTable(duplicateUniqueRows, '#ffecb3', Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
+                                {renderDifferencesTable(duplicateUniqueRows, '#ffecb3', {}, Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
                             </>
                         )}
                         {addedRows.length > 0 && (
