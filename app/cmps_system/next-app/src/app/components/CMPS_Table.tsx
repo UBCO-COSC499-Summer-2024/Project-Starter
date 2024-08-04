@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
+import { DataGrid, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
 import { Button, Modal, Typography, Box, styled, TextField, Tooltip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
@@ -159,7 +159,6 @@ const getUserRole = async (setUserRoleCallback) => {
 const handleUpsertRows = async (rows, tableName, uniqueColumns, idColumn) => {
     const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
 
-    // Fetch existing rows based on the unique columns and id column
     const { data: existingRows, error: fetchError } = await supabase.from(tableName).select(`${idColumn}, ${uniqueColumns.join(', ')}`);
     if (fetchError) {
         console.error("Error fetching existing rows:", fetchError);
@@ -173,15 +172,13 @@ const handleUpsertRows = async (rows, tableName, uniqueColumns, idColumn) => {
     const rowsWithEmptyId = [];
 
     rows.forEach(row => {
-        // Convert empty strings to null
         Object.keys(row).forEach(key => {
             if (row[key] === "" && typeof row[key] === 'string') {
-                row[key] = null; // Or you can set a default integer value
+                row[key] = null;
             }
         });
 
         if (!row[idColumn]) {
-            // If idColumn is empty, add to rowsWithEmptyId
             delete row[idColumn];
             rowsWithEmptyId.push(row);
         } else {
@@ -261,6 +258,29 @@ const detectDuplicates = async (rows, idColumn, uniqueColumns) => {
     return { duplicatePKs, duplicateUnique };
 };
 
+const detectUniqueCollisions = (existingData, importedData, idColumn: string, uniqueColumns: string[]) => {
+    const getUniqueKey = (row) => uniqueColumns.map(col => `${col}=${row[col]}`).join('|');
+
+    const existingUniqueKeyMap = new Map(existingData.map(row => [getUniqueKey(row), row]));
+    const collisionRows = [];
+
+    importedData.forEach(row => {
+        if (row[idColumn]) {
+            const uniqueKey = getUniqueKey(row);
+            const existingUniqueRow = existingUniqueKeyMap.get(uniqueKey);
+            // If we are updating a row's unique key to one that already exists IN ANOTHER ROW, that is a collision.
+            if (existingUniqueRow && existingUniqueRow[idColumn] !== row[idColumn]) {
+                collisionRows.push({
+                    importedRow: row,
+                    existingRow: existingUniqueRow,
+                });
+            }
+        }
+    });
+
+    return collisionRows;
+};
+
 const handleDeleteRows = async (deletedIds, tableName, idColumn) => {
     if (deletedIds.length > 0) {
         const { error } = await supabase.from(tableName).delete().in(idColumn, deletedIds);
@@ -313,6 +333,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [duplicatePKRows, setDuplicatePKRows] = useState([]);
     const [duplicateUniqueRows, setDuplicateUniqueRows] = useState([]);
     const [showBeforeAfterModal, setShowBeforeAfterModal] = useState(false);
+    const [uniqueCollisionRows, setUniqueCollisionRows] = useState([]);
 
     useEffect(() => {
         fetchTableData(fetchUrl, setTableData);
@@ -466,17 +487,16 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         return true;
     };
 
-    const calculateDifferences = async (originalData, updatedData, isImport: boolean = false) => {
+    const calculateDifferences = async (originalData, updatedData, isImportMode = false) => {
         const originalMap = new Map(originalData.map(row => [row[idColumn], row]));
         const updatedMap = new Map(updatedData.map(row => [row[idColumn], row]));
 
         const added = updatedData.filter(row => !originalMap.has(row[idColumn]));
-        const deleted = isImport ? [] : originalData.filter(row => !updatedMap.has(row[idColumn]));
+        const deleted = isImportMode ? [] : originalData.filter(row => !updatedMap.has(row[idColumn]));
         const modified = updatedData.filter(row => {
             const originalRow = originalMap.get(row[idColumn]);
             return originalRow && !compareJsonWithCasting(originalRow, row);
         });
-        console.log('modified rows:', modified);
 
         const modifiedCells = {};
         updatedData.forEach(row => {
@@ -494,7 +514,6 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         });
 
         const duplicates = await detectDuplicates(updatedData, idColumn, uniqueColumns);
-
         const uniqueDuplicateRows = new Set([...duplicates.duplicatePKs, ...duplicates.duplicateUnique].map(row => row[idColumn]));
 
         setAddedRows(added.filter(row => !uniqueDuplicateRows.has(row[idColumn])));
@@ -503,9 +522,10 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setModifiedCells(modifiedCells);
         setDuplicatePKRows(duplicates.duplicatePKs);
         setDuplicateUniqueRows(duplicates.duplicateUnique);
+        setUniqueCollisionRows(isImportMode ? detectUniqueCollisions(originalData, updatedData, idColumn, uniqueColumns) : []);
     };
 
-    const handleShowBeforeAfter = async (originalData, updatedData, isImport: boolean = false) => {
+    const handleShowBeforeAfter = async (originalData, updatedData, isImport = false) => {
         setBeforeData(originalData);
         setAfterData(updatedData);
         await calculateDifferences(originalData, updatedData, isImport);
@@ -670,22 +690,29 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setModifiedCells({});
         setDuplicatePKRows([]);
         setDuplicateUniqueRows([]);
+        setUniqueCollisionRows([]);
     };
 
-    const renderDifferencesTable = (rows, color, highlightCells = {}, highlightColumns = {}) => {
+    const renderDifferencesTable = (rows, color, highlightCells = {}, highlightColumns = {}, isCollisionTable = false) => {
+        if (!rows || !rows.length) {
+            return null;
+        }
+
+        const columnsToRender = isCollisionTable ? ["Type", ...tableColumns] : tableColumns;
+
         return (
             <Table>
                 <TableHead>
                     <TableRow>
-                        {tableColumns.map((column) => (
+                        {columnsToRender.map((column) => (
                             <TableCell key={column}>{column}</TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row, index) => (
+                    {rows.map((row, index) => row && (
                         <TableRow key={index} style={{ backgroundColor: color }}>
-                            {tableColumns.map((column) => (
+                            {columnsToRender.map((column) => (
                                 <TableCell
                                     key={column}
                                     style={
@@ -696,7 +723,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                                                 : {}
                                     }
                                 >
-                                    {row[column] !== undefined && row[column] !== null ? row[column].toString() : 'N/A'}
+                                    {column === 'Type' ? (row.type === 'imported' ? 'Imported' : 'Existing') : (row[column] !== undefined && row[column] !== null ? row[column].toString() : 'N/A')}
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -709,6 +736,9 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const processedColumns = processColumnConfig(columnsConfig, rowModesModel, handleOpenModal);
 
     const hasDuplicates = duplicatePKRows.length > 0 || duplicateUniqueRows.length > 0;
+    const hasCollisions = uniqueCollisionRows.length > 0;
+
+    const hasUniqueCollisions = uniqueCollisionRows.length > 0;
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -720,7 +750,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     processRowUpdate={handleProcessRowUpdate}
                     pageSizeOptions={[10000]}
                     initialState={{ sorting: { sortModel: initialSortModel } }}
-                    slots={{ toolbar: userRole === 'head' || userRole === 'staff' ? EditToolbar : null as GridSlots['toolbar'] }}
+                    slots={{ toolbar: userRole === 'head' || userRole === 'staff' ? EditToolbar : null }}
                     rowModesModel={rowModesModel}
                     slotProps={{ toolbar: { setTableData, setRowModesModel } }}
                     checkboxSelection={userRole === 'head' || userRole === 'staff'}
@@ -817,6 +847,19 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                                 {renderDifferencesTable(duplicateUniqueRows, '#E6E6FA', {}, Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
                             </>
                         )}
+                        {hasUniqueCollisions && (
+                            <>
+                                <Typography variant="h6">Unique Key Collisions:</Typography>
+                                {renderDifferencesTable(uniqueCollisionRows.map(collision => ({
+                                    ...collision.importedRow,
+                                    type: 'imported'
+                                })), '#E6E6FA', {}, Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])), true)}
+                                {renderDifferencesTable(uniqueCollisionRows.map(collision => ({
+                                    ...collision.existingRow,
+                                    type: 'existing'
+                                })), '#E6E6FA', {}, Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])), true)}
+                            </>
+                        )}
                         {addedRows.length > 0 && (
                             <>
                                 <Typography variant="h6">Added Rows:</Typography>
@@ -839,12 +882,12 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleBeforeAfterClose} color="inherit">Cancel</Button>
-                    <Tooltip title={hasDuplicates ? "Cannot confirm changes due to duplicates" : "Confirm changes"}>
+                    <Tooltip title={hasDuplicates ? "Cannot confirm changes due to duplicates" : hasCollisions ? "Cannot confirm changes due to unique key collisions" : "Confirm changes"}>
                         <span>
                             <Button
                                 onClick={handleConfirmChanges}
                                 color="primary"
-                                disabled={hasDuplicates}
+                                disabled={hasDuplicates || hasCollisions}
                             >
                                 Confirm
                             </Button>
