@@ -647,6 +647,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
     const processedColumns = processColumnConfig(columnsConfig, rowModesModel, handleOpenModal);
 
+    const hasDuplicates = duplicatePKRows.length > 0 || duplicateUniqueRows.length > 0;
+
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 1, padding: '1rem' }}>
@@ -766,7 +768,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleBeforeAfterClose} color="inherit">Cancel</Button>
-                    <Button onClick={handleConfirmChanges} color="primary">Confirm</Button>
+                    <Button onClick={handleConfirmChanges} color="primary" disabled={hasDuplicates}>Confirm</Button>
                 </DialogActions>
             </Dialog>
         </div>
