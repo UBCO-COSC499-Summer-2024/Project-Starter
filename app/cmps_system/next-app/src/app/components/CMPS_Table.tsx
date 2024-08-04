@@ -234,28 +234,30 @@ const handleUpsertRows = async (rows, tableName, uniqueColumns, idColumn) => {
 };
 
 const detectDuplicates = async (rows, idColumn, uniqueColumns) => {
-    const idSet = new Set();
-    const uniqueSet = new Set();
+    const idSet = new Map();
+    const uniqueSet = new Map();
     const duplicatePKs = [];
     const duplicateUnique = [];
+
     rows.forEach(row => {
         if (row[idColumn]) {
             if (idSet.has(row[idColumn])) {
-                duplicatePKs.push(row);
+                duplicatePKs.push(row, idSet.get(row[idColumn]));
             } else {
-                idSet.add(row[idColumn]);
+                idSet.set(row[idColumn], row);
             }
         }
 
-        const uniqueColumnsString = uniqueColumns.map(col => `${col} = ${row[col]}`).join(', ');
+        const uniqueColumnsString = uniqueColumns.map(col => `${col}=${row[col]}`).join('|');
         if (uniqueColumnsString) {
             if (uniqueSet.has(uniqueColumnsString)) {
-                duplicateUnique.push(row);
+                duplicateUnique.push(row, uniqueSet.get(uniqueColumnsString));
             } else {
-                uniqueSet.add(uniqueColumnsString);
+                uniqueSet.set(uniqueColumnsString, row);
             }
         }
     });
+
     return { duplicatePKs, duplicateUnique };
 };
 
@@ -445,9 +447,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
         const duplicates = await detectDuplicates(updatedData, idColumn, uniqueColumns);
 
-        setAddedRows(added);
-        setDeletedRows(deleted);
-        setModifiedRows(modified);
+        const uniqueDuplicateRows = new Set(duplicates.duplicatePKs.concat(duplicates.duplicateUnique));
+
+        setAddedRows(added.filter(row => !uniqueDuplicateRows.has(row)));
+        setDeletedRows(deleted.filter(row => !uniqueDuplicateRows.has(row)));
+        setModifiedRows(modified.filter(row => !uniqueDuplicateRows.has(row)));
         setDuplicateRows([...duplicates.duplicatePKs, ...duplicates.duplicateUnique]);
     };
 
@@ -610,7 +614,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setDuplicateRows([]);
     };
 
-    const renderDifferencesTable = (rows, color) => {
+    const renderDifferencesTable = (rows, color, highlightCells = {}) => {
         return (
             <Table>
                 <TableHead>
@@ -624,8 +628,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     {rows.map((row, index) => (
                         <TableRow key={index} style={{ backgroundColor: color }}>
                             {tableColumns.map((column) => (
-                                <TableCell key={column}>
-                                    {row[column] !== undefined ? row[column] : 'N/A'} {/* Ensure value is displayed */}
+                                <TableCell
+                                    key={column}
+                                    style={highlightCells[column] && row[column] ? { backgroundColor: highlightCells[column] } : {}}
+                                >
+                                    {row[column] !== undefined ? row[column] : 'N/A'}
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -721,7 +728,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             <Dialog open={showBeforeAfterModal} onClose={handleBeforeAfterClose} maxWidth="xl" fullWidth>
                 <DialogTitle>Changes Preview</DialogTitle>
                 <DialogContent dividers>
-                    <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+                    <Box sx={{ maxHeight: 600, overflowY: 'auto' }}>
+                        {duplicateRows.length > 0 && (
+                            <>
+                                <Typography variant="h6">Duplicate Rows Provided (Orange):</Typography>
+                                {renderDifferencesTable(duplicateRows, '#ffecb3', { [idColumn]: '#ffb3b3', ...Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])) })}
+                            </>
+                        )}
                         {addedRows.length > 0 && (
                             <>
                                 <Typography variant="h6">Added Rows (Green):</Typography>
@@ -738,12 +751,6 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                             <>
                                 <Typography variant="h6">Modified Rows (Yellow):</Typography>
                                 {renderDifferencesTable(modifiedRows, '#fff3cd')}
-                            </>
-                        )}
-                        {duplicateRows.length > 0 && (
-                            <>
-                                <Typography variant="h6">Duplicate Rows Provided (Orange):</Typography>
-                                {renderDifferencesTable(duplicateRows, '#ffecb3')}
                             </>
                         )}
                     </Box>
