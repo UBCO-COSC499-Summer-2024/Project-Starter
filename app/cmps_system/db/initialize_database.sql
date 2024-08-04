@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS
     "service_role" (
         "service_role_id" SERIAL NOT NULL,
         "title" VARCHAR(255) NOT NULL,
-        "description" TEXT NOT NULL,
+        "description" TEXT NULL,
         "default_expected_hours" INTEGER NOT NULL,
         "building" VARCHAR(255) NULL,
         "room_num" VARCHAR(255) NULL
@@ -150,8 +150,8 @@ ADD PRIMARY KEY ("service_role_assign_id");
 CREATE TABLE IF NOT EXISTS
     "event" (
         "event_id" SERIAL NOT NULL,
-        "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-        "is_meeting" BOOLEAN NOT NULL,
+        "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NULL DEFAULT CURRENT_TIMESTAMP,
+        "is_meeting" BOOLEAN NULL DEFAULT FALSE,
         "duration" TIME(0) WITHOUT TIME ZONE NOT NULL,
         "description" TEXT NULL,
         "location" VARCHAR(255) NULL
@@ -163,6 +163,29 @@ ADD PRIMARY KEY ("event_id");
 ALTER TABLE "event"
 ADD CONSTRAINT "event_unique" UNIQUE ("event_datetime", "location", "description");
 
+-- We had to make this because the supabase postgres API doesn't support
+-- not supplying values for only some rows of a batch upsert,
+-- and we wanted to make use of the DEFAULT values
+CREATE
+OR REPLACE FUNCTION set_default_event_values () RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.event_datetime IS NULL THEN
+        NEW.event_datetime := CURRENT_TIMESTAMP;
+    END IF;
+    IF NEW.is_meeting IS NULL THEN
+        NEW.is_meeting := FALSE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER before_insert_event BEFORE INSERT ON event FOR EACH ROW
+EXECUTE FUNCTION set_default_event_values ();
+
+CREATE TRIGGER before_update_event BEFORE
+UPDATE ON event FOR EACH ROW
+EXECUTE FUNCTION set_default_event_values ();
+
 CREATE TABLE IF NOT EXISTS
     "service_hours_entry" (
         "service_hours_entry_id" SERIAL NOT NULL,
@@ -173,13 +196,13 @@ CREATE TABLE IF NOT EXISTS
             "month" >= 1
             AND "month" <= 12
         ) NOT NULL,
-        "hours" INTEGER NOT NULL
+        "hours" INTEGER NOT NULL CHECK ("hours" >= 0) DEFAULT 0
     );
 
 ALTER TABLE "service_hours_entry"
 ADD CONSTRAINT "service_hours_entry_unique" UNIQUE (
-    "service_role_id",
     "instructor_id",
+    "service_role_id",
     "year",
     "month"
 );
@@ -205,7 +228,7 @@ CREATE TABLE IF NOT EXISTS
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
-        "date_added" DATE NOT NULL DEFAULT CURRENT_DATE,
+        "date_added" DATE NULL DEFAULT CURRENT_DATE,
         "requires_course" BOOLEAN NULL DEFAULT NULL,
         "requires_instructor" BOOLEAN NULL DEFAULT NULL,
         "requires_service_role" BOOLEAN NULL DEFAULT NULL
@@ -213,6 +236,29 @@ CREATE TABLE IF NOT EXISTS
 
 ALTER TABLE "evaluation_type"
 ADD PRIMARY KEY ("evaluation_type_id");
+
+ALTER TABLE "evaluation_type"
+ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
+
+-- We had to make this because the supabase postgres API doesn't support
+-- not supplying values for only some rows of a batch upsert,
+-- and we wanted to make use of the DEFAULT values
+CREATE
+OR REPLACE FUNCTION set_default_evaluation_type_values () RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.date_added IS NULL THEN
+        NEW.date_added := CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER before_insert_evaluation_type BEFORE INSERT ON evaluation_type FOR EACH ROW
+EXECUTE FUNCTION set_default_evaluation_type_values ();
+
+CREATE TRIGGER before_update_evaluation_type BEFORE
+UPDATE ON evaluation_type FOR EACH ROW
+EXECUTE FUNCTION set_default_evaluation_type_values ();
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
@@ -227,9 +273,6 @@ CREATE TABLE IF NOT EXISTS
 ALTER TABLE "evaluation_metric"
 ADD CONSTRAINT "evaluation_type_metric_num_unique" UNIQUE ("evaluation_type_id", "metric_num");
 
-ALTER TABLE "evaluation_type"
-ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
-
 CREATE TABLE IF NOT EXISTS
     "evaluation_entry" (
         "evaluation_entry_id" SERIAL NOT NULL,
@@ -243,7 +286,7 @@ CREATE TABLE IF NOT EXISTS
     );
 
 ALTER TABLE "evaluation_entry"
-ADD CONSTRAINT "evaluation_entry_unique" UNIQUE (
+ADD CONSTRAINT "evaluation_entry_unique" UNIQUE NULLS NOT DISTINCT (
     "evaluation_type_id",
     "metric_num",
     "course_id",
@@ -393,6 +436,7 @@ WITH
     (security_invoker) AS
 SELECT
     instructor_id as id,
+    email,
     first_name,
     last_name,
     CONCAT(
@@ -505,7 +549,7 @@ SELECT
     room_num
 FROM
     service_role
-    JOIN v_service_role_assign ON service_role.service_role_id = v_service_role_assign.service_role_id
+    LEFT JOIN v_service_role_assign ON service_role.service_role_id = v_service_role_assign.service_role_id
 GROUP BY
     service_role.service_role_id,
     title,

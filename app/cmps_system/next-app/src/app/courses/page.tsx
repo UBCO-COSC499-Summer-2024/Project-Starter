@@ -13,7 +13,7 @@ export default function Courses() {
     ];
 
     const columnsConfig = [
-        { field: 'id', headerName: 'ID', width: 50, editable: false },
+        { field: 'id', headerName: 'ID', width: 100, editable: false },
         { field: 'subject_code', headerName: 'Subject', flex: 1, editable: true },
         { field: 'course_num', headerName: 'Course No.', flex: 1, editable: true },
         {
@@ -103,6 +103,12 @@ export default function Courses() {
                 idColumn="course_id"
                 deleteWarningMessage="Are you sure you want to delete the selected courses? All related teaching assignments and evaluation entries will be deleted as well. This action is not recoverable!"
                 newRecordURL="/courses/create_new_course"
+                uniqueColumns={["academic_year",
+                    "session",
+                    "term",
+                    "subject_code",
+                    "course_num",
+                    "section_num"]}
             />
         </>
     );
