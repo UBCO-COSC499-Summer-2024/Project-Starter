@@ -74,7 +74,7 @@ export default function TimeTracking() {
                 initialSortModel={initialSortModel}
                 tableName={tableName}
                 rowUpdateHandler={rowUpdateHandler}
-                deleteWarningMessage="Are you sure you want to delete this evaluation?"
+                deleteWarningMessage="Are you sure you want to delete these service hours records?"
                 idColumn="service_hours_entry_id"
                 uniqueColumns={["instructor_id",
                     "service_role_id",
