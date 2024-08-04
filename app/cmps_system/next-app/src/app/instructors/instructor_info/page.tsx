@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Table from 'react-bootstrap/Table';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 import supabase from "@/app/components/supabaseClient";
@@ -31,11 +32,24 @@ const InstructorInfo = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
+  const [courseModalShow, setCourseModalShow] = useState(false);
   const [serviceRoles, setServiceRoles] = useState([]);
-  const [selectedServiceRole, setSelectedServiceRole] = useState(null);
-  const [courses, setCourses] = useState([]);
+  const [serviceRoleAssignments, setServiceRoleAssignments] = useState([]);
   const [courseAssignments, setCourseAssignments] = useState([]);
-  const [userRole, setUserRole] = useState(''); // Initialize userRole state
+  const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedPosition, setSelectedPosition] = useState('Instructor');
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [endDate, setEndDate] = useState('');
+  const [showNewServiceRole, setShowNewServiceRole] = useState(false);
+  const [filters, setFilters] = useState({
+    academic_year: '',
+    session: '',
+    term: '',
+    subject_code: '',
+    course_num: ''
+  });
 
   useEffect(() => {
     async function fetchUserRole() {
@@ -55,48 +69,32 @@ const InstructorInfo = () => {
     }
 
     if (id) {
-      const fetchInstructorData = async () => {
+      const fetchData = async () => {
         try {
-          const { data: instructorData, error: instructorError } = await supabase
-            .from('instructor')
-            .select('*')
-            .eq('instructor_id', id)
-            .single();
+          const [{ data: instructorData, error: instructorError },
+            { data: serviceRoleData, error: serviceRoleError },
+            { data: assignedRoleData, error: assignedRoleError },
+            { data: assignedCoursesData, error: assignedCoursesError },
+            { data: coursesData, error: coursesError }] = await Promise.all([
+              supabase.from('instructor').select('*').eq('instructor_id', id).single(),
+              supabase.from('service_role').select('*'),
+              supabase.from('service_role_assign').select('*').eq('instructor_id', id),
+              supabase.from('v_teaching_assignments').select('*').eq('instructor_id', id),
+              supabase.from('v_courses_with_instructors').select('*')
+            ]);
 
           if (instructorError) throw instructorError;
-          setInstructor(instructorData);
-
-          const { data: serviceRoleData, error: serviceRoleError } = await supabase
-            .from('service_role')
-            .select('*');
-
           if (serviceRoleError) throw serviceRoleError;
-          setServiceRoles(serviceRoleData);
-
-          const { data: assignedRoleData, error: assignedRoleError } = await supabase
-            .from('v_service_role_assign')
-            .select('service_role_id')
-            .eq('instructor_id', id)
-            .single();
-
           if (assignedRoleError) throw assignedRoleError;
-          setSelectedServiceRole(assignedRoleData.service_role_id);
-
-          const { data: courseData, error: courseError } = await supabase
-            .from('course')
-            .select('*');
-
-          if (courseError) throw courseError;
-          setCourses(courseData);
-
-          const { data: assignedCoursesData, error: assignedCoursesError } = await supabase
-            .from('course_assign')
-            .select('*')
-            .eq('instructor_id', id);
-
           if (assignedCoursesError) throw assignedCoursesError;
-          setCourseAssignments(assignedCoursesData);
+          if (coursesError) throw coursesError;
 
+          setInstructor(instructorData);
+          setServiceRoles(serviceRoleData);
+          setServiceRoleAssignments(assignedRoleData);
+          setCourseAssignments(assignedCoursesData);
+          setCourses(coursesData);
+          setFilteredCourses(coursesData);
         } catch (error) {
           setError(error.message);
         } finally {
@@ -104,8 +102,7 @@ const InstructorInfo = () => {
         }
       };
 
-      fetchUserRole();
-      fetchInstructorData();
+      fetchData();
     }
   }, [id]);
 
@@ -127,69 +124,119 @@ const InstructorInfo = () => {
     }
   };
 
-  const handleServiceRoleChange = async (e) => {
+  const handleServiceRoleChange = (e, assignmentId) => {
     const newServiceRoleId = e.target.value;
-    setSelectedServiceRole(newServiceRoleId);
+    if (serviceRoleAssignments.some((assignment) => assignment.service_role_id === parseInt(newServiceRoleId, 10))) {
+      alert('This service role is already assigned to the instructor.');
+      return;
+    }
+    setSelectedAssignment({ type: 'service_role', newId: newServiceRoleId, assignmentId });
+    setModalShow(true);
+  };
 
+  const handleSave = async () => {
     try {
-      const { data: existingAssignment, error: fetchError } = await supabase
-        .from('v_service_role_assign')
-        .select('*')
-        .eq('instructor_id', id)
-        .single();
+      const { newId, assignmentId } = selectedAssignment;
+      const dataToSave = {
+        service_role_id: newId,
+        end_date: endDate
+      };
 
-      if (fetchError) throw fetchError;
-
-      if (existingAssignment) {
-        const { error: updateError } = await supabase
+      if (assignmentId) {
+        const { error } = await supabase
           .from('service_role_assign')
-          .update({ service_role_id: newServiceRoleId })
-          .eq('instructor_id', id);
+          .update(dataToSave)
+          .eq('service_role_assign_id', assignmentId);
 
-        if (updateError) throw updateError;
+        if (error) throw error;
+
+        setServiceRoleAssignments((prevAssignments) =>
+          prevAssignments.map((assignment) =>
+            assignment.service_role_assign_id === assignmentId
+              ? { ...assignment, ...dataToSave }
+              : assignment
+          )
+        );
       } else {
-        const { error: insertError } = await supabase
+        const { data, error } = await supabase
           .from('service_role_assign')
           .insert({
+            ...dataToSave,
             instructor_id: id,
-            service_role_id: newServiceRoleId,
             start_date: new Date().toISOString().split('T')[0],
-            end_date: null,
             expected_hours: 0,
-          });
+          })
+          .select('*');  // Explicitly select the inserted data
 
-        if (insertError) throw insertError;
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          setServiceRoleAssignments((prevAssignments) => [...prevAssignments, data[0]]);
+          setShowNewServiceRole(false);  // Reset showNewServiceRole
+        }
       }
 
-      alert('Service role updated successfully');
+      alert('Service role assignment updated successfully');
+      setModalShow(false);
+      setEndDate('');
     } catch (error) {
+      console.error('Save Error:', error);
       setError(error.message);
     }
   };
 
-  const handleCourseChange = async (e, assignmentId) => {
-    const newCourseId = e.target.value;
+  const handleNewServiceRole = () => {
+    setShowNewServiceRole(true);
+  };
 
+  const handleNewCourseAssignment = () => {
+    setCourseModalShow(true);
+  };
+
+  const handleCourseAssignmentSave = async () => {
     try {
-      const { error: updateError } = await supabase
+      const { data, error } = await supabase
         .from('course_assign')
-        .update({ course_id: newCourseId })
-        .eq('assignment_id', assignmentId);
+        .insert({
+          instructor_id: id,
+          course_id: selectedCourse,
+          position: selectedPosition,
+          start_date: new Date().toISOString().split('T')[0]
+        })
+        .select('*');  // Explicitly select the inserted data
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
-      setCourseAssignments((prevAssignments) =>
-        prevAssignments.map((assignment) =>
-          assignment.assignment_id === assignmentId
-            ? { ...assignment, course_id: newCourseId }
-            : assignment
-        )
-      );
+      if (data && data.length > 0) {
+        setCourseAssignments((prevAssignments) => [...prevAssignments, data[0]]);
+        setCourseModalShow(false);  // Reset course modal
+        setSelectedCourse('');
+        setSelectedPosition('Instructor');
+      }
 
-      alert('Course assignment updated successfully');
+      alert('Course assignment added successfully');
     } catch (error) {
+      console.error('Save Error:', error);
       setError(error.message);
     }
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+    applyFilters({ ...filters, [name]: value });
+  };
+
+  const applyFilters = (filterValues) => {
+    setFilteredCourses(courses.filter(course => {
+      return Object.keys(filterValues).every(key =>
+        !filterValues[key] || course[key]?.toString().toLowerCase().includes(filterValues[key].toLowerCase())
+      );
+    }));
+  };
+
+  const handleRowClick = (courseId) => {
+    setSelectedCourse(courseId);
   };
 
   return (
@@ -225,55 +272,85 @@ const InstructorInfo = () => {
                   <td>Hire Date</td>
                   <td>{instructor.hire_date}</td>
                 </tr>
+              </tbody>
+            </table>
+
+            <h3>Service Role Assignments</h3>
+            <table className="table table-bordered">
+              <thead>
                 <tr>
-                  <td>Service Role</td>
-                  <td>
-                    {['staff', 'head'].includes(userRole.toLowerCase()) ? (
+                  <th>Service Role</th>
+                  <th>Expected Hours</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {serviceRoleAssignments.map((assignment, index) => (
+                  <tr key={assignment.service_role_assign_id || index}>
+                    <td>
                       <Form.Select
-                        value={selectedServiceRole}
-                        onChange={handleServiceRoleChange}
+                        value={assignment.service_role_id}
+                        onChange={(e) => handleServiceRoleChange(e, assignment.service_role_assign_id)}
                       >
+                        <option value="">Select a service role</option>
                         {serviceRoles.map((role) => (
                           <option key={role.service_role_id} value={role.service_role_id}>
                             {role.title}
                           </option>
                         ))}
                       </Form.Select>
-                    ) : (
-                      serviceRoles.find(role => role.service_role_id === selectedServiceRole)?.title || 'N/A'
-                    )}
-                  </td>
+                    </td>
+                    <td>{assignment.expected_hours}</td>
+                    <td>{assignment.start_date}</td>
+                    <td>{assignment.end_date}</td>
+                  </tr>
+                ))}
+                {showNewServiceRole && (
+                  <tr>
+                    <td>
+                      <Form.Select onChange={(e) => handleServiceRoleChange(e, null)}>
+                        <option value="">Select a service role</option>
+                        {serviceRoles.map((role) => (
+                          <option key={role.service_role_id} value={role.service_role_id}>
+                            {role.title}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </td>
+                    <td colSpan="3"></td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <Button className="btn btn-primary mb-3" onClick={handleNewServiceRole}>
+              Assign New Service Role
+            </Button>
+
+            <h3>Teaching Assignments</h3>
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Position</th>
                 </tr>
-                {courseAssignments.map((assignment) => (
-                  <React.Fragment key={assignment.assignment_id}>
-                    <tr>
-                      <td>Teaching Assignment</td>
-                      <td>
-                        {['staff', 'head'].includes(userRole.toLowerCase()) ? (
-                          <Form.Select
-                            value={assignment.course_id}
-                            onChange={(e) => handleCourseChange(e, assignment.assignment_id)}
-                          >
-                            {courses.map((course) => (
-                              <option key={course.course_id} value={course.course_id}>
-                                {course.course_title}
-                              </option>
-                            ))}
-                          </Form.Select>
-                        ) : (
-                          courses.find(course => course.course_id === assignment.course_id)?.course_title || 'N/A'
-                        )}
-                      </td>
-                    </tr>
-                  </React.Fragment>
+              </thead>
+              <tbody>
+                {courseAssignments.map((assignment, index) => (
+                  <tr key={assignment.id || index}>
+                    <td>{assignment.full_course_name}</td>
+                    <td>{assignment.position}</td>
+                  </tr>
                 ))}
               </tbody>
             </table>
+            <Button className="btn btn-primary mb-3" onClick={handleNewCourseAssignment}>
+              Assign New Teaching Assignment
+            </Button>
+
             <div className="instructor-info-footer">
-              {['staff', 'head'].includes(userRole.toLowerCase()) && (
-                <button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</button>
-              )}
-              <button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</button>
+              <Button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</Button>
+              <Button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</Button>
             </div>
           </>
         ) : (
@@ -283,15 +360,93 @@ const InstructorInfo = () => {
 
       <Modal show={modalShow} onHide={() => setModalShow(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete</Modal.Title>
+          <Modal.Title>Enter End Date</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Do you really want to remove this instructor?</Modal.Body>
+        <Modal.Body>
+          <Form.Control
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            placeholder="End Date"
+          />
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setModalShow(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={confirmDelete}>
-            Delete
+          <Button variant="primary" onClick={handleSave} disabled={!endDate}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={courseModalShow} onHide={() => setCourseModalShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign New Teaching Assignment</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <fieldset style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
+            <legend style={{ paddingLeft: '5px', paddingRight: '5px' }}>Filter Options</legend>
+            <div className="d-flex justify-content-between">
+              <div>
+                <Form.Group controlId="filterAcademicYear">
+                  <Form.Label>Academic Year</Form.Label>
+                  <Form.Control type="text" placeholder="Academic Year" name="academic_year" value={filters.academic_year} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterSession">
+                  <Form.Label>Session</Form.Label>
+                  <Form.Control type="text" placeholder="Session" name="session" value={filters.session} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterTerm">
+                  <Form.Label>Term</Form.Label>
+                  <Form.Control type="text" placeholder="Term" name="term" value={filters.term} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterSubjectCode">
+                  <Form.Label>Subject Code</Form.Label>
+                  <Form.Control type="text" placeholder="Subject Code" name="subject_code" value={filters.subject_code} onChange={handleFilterChange} />
+                </Form.Group>
+                <Form.Group controlId="filterCourseNum">
+                  <Form.Label>Course Number</Form.Label>
+                  <Form.Control type="text" placeholder="Course Number" name="course_num" value={filters.course_num} onChange={handleFilterChange} />
+                </Form.Group>
+              </div>
+              <div className="ml-3">
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCourses.map((course) => (
+                      <tr
+                        key={course.course_id}
+                        onClick={() => handleRowClick(course.course_id)}
+                        className={selectedCourse === course.course_id ? "table-primary" : ""}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <td>{course.full_course_name}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            </div>
+          </fieldset>
+          <Form.Group controlId="selectPosition">
+            <Form.Label>Position</Form.Label>
+            <Form.Select value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}>
+              <option value="Instructor">Instructor</option>
+              <option value="TA">TA</option>
+            </Form.Select>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setCourseModalShow(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleCourseAssignmentSave} disabled={!selectedCourse || !selectedPosition}>
+            Save
           </Button>
         </Modal.Footer>
       </Modal>

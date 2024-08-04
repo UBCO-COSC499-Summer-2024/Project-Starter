@@ -466,6 +466,50 @@ FROM
     instructor;
 
 CREATE OR REPLACE VIEW
+    v_teaching_assignments AS
+SELECT
+    course_assign.assignment_id as id,
+    course.course_id,
+    course.subject_code,
+    course.course_num,
+    course.section_num,
+    course.academic_year,
+    course.session,
+    course.term,
+    course.course_title,
+    CONCAT(
+        course.subject_code,
+        ' ',
+        course.course_num,
+        ' ',
+        course.section_num,
+        ' ',
+        course.academic_year,
+        CASE
+            WHEN course.session = 'Winter' THEN 'W'
+            ELSE 'S'
+        END,
+        CASE
+            WHEN course.term = 'Term 1' THEN '1'
+            WHEN course.term = 'Term 2' THEN '2'
+            ELSE '1-2'
+        END,
+        ' - ',
+        course.course_title
+    ) as full_course_name,
+    instructor.instructor_id,
+    instructor.prefix,
+    instructor.first_name,
+    instructor.last_name,
+    instructor.suffix,
+    instructor.ubc_employee_num,
+    course_assign.position
+FROM
+    course_assign
+    JOIN instructor ON instructor.instructor_id = course_assign.instructor_id
+    JOIN course ON course.course_id = course_assign.course_id;
+
+CREATE OR REPLACE VIEW
     v_service_role_assign AS
 SELECT
     service_role_assign_id,
@@ -574,6 +618,24 @@ SELECT
     num_students,
     subject_code,
     section_num,
+    CONCAT(
+        course.subject_code,
+        ' ',
+        course.course_num,
+        ' ',
+        course.section_num,
+        ', ',
+        course.academic_year,
+        CASE
+            WHEN course.session = 'Winter' THEN 'W'
+            ELSE 'S'
+        END,
+        CASE
+            WHEN course.term = 'Term 1' THEN '1'
+            WHEN course.term = 'Term 2' THEN '2'
+            ELSE '1-2'
+        END
+    ) as full_course_name,
     num_TAs,
     average_grade,
     year_level,
@@ -622,7 +684,14 @@ GROUP BY
     num_tas,
     average_grade,
     building,
-    room_num;
+    room_num
+ORDER BY
+    academic_year DESC,
+    session DESC,
+    term DESC,
+    subject_code,
+    course_num,
+    section_num;
 
 CREATE OR REPLACE VIEW
     v_timetracking
