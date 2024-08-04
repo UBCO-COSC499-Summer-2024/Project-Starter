@@ -156,18 +156,81 @@ const getUserRole = async (setUserRoleCallback) => {
     }
 };
 
-const handleUpsertRows = async (rows, tableName, uniqueColumns) => {
-    const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : ['id'];
+const handleUpsertRows = async (rows, tableName, uniqueColumns, idColumn) => {
+    const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
 
-    if (rows.length > 0) {
-        const { error } = await supabase.from(tableName).upsert(rows, { onConflict: onConflictColumns });
+    // Fetch existing rows based on the unique columns and id column
+    const { data: existingRows, error: fetchError } = await supabase.from(tableName).select(`${idColumn}, ${uniqueColumns.join(', ')}`);
+    if (fetchError) {
+        console.error("Error fetching existing rows:", fetchError);
+        return fetchError.message;
+    }
+
+    const existingRowsMap = new Map(existingRows.map(row => [row[idColumn], row]));
+
+    const unmodifiedUnique = [];
+    const modifiedUnique = [];
+    const rowsWithEmptyId = [];
+
+    rows.forEach(row => {
+        // Convert empty strings to null
+        Object.keys(row).forEach(key => {
+            if (row[key] === "" && typeof row[key] === 'string') {
+                row[key] = null; // Or you can set a default integer value
+            }
+        });
+
+        if (!row[idColumn]) {
+            // If idColumn is empty, add to rowsWithEmptyId
+            delete row[idColumn];
+            rowsWithEmptyId.push(row);
+        } else {
+            const existingRow = existingRowsMap.get(row[idColumn]);
+            if (existingRow) {
+                const uniqueColumnsModified = uniqueColumns.some(col => row[col] !== existingRow[col]);
+                if (uniqueColumnsModified) {
+                    modifiedUnique.push(row);
+                } else {
+                    unmodifiedUnique.push(row);
+                }
+            } else {
+                unmodifiedUnique.push(row);
+            }
+        }
+    });
+
+    let upsertError = null;
+
+    // Upsert rows whose unique columns have been modified
+    if (modifiedUnique.length > 0) {
+        const { error } = await supabase.from(tableName).upsert(modifiedUnique, { onConflict: idColumn });
         if (error) {
-            console.error("Error upserting rows:", error);
-            return error.message;
+            console.error("Error upserting row with modified unique columns:", error);
+            upsertError = error;
         }
     }
 
-    return null;
+    // Upsert rows whose unique columns have not been modified
+    if (unmodifiedUnique.length > 0) {
+        const { error } = await supabase.from(tableName).upsert(unmodifiedUnique, { onConflict: onConflictColumns });
+        if (error) {
+            console.error("Error upserting row with unmodified unique columns:", error);
+            upsertError = error;
+        }
+    }
+
+    // Insert rows with empty idColumn. This had to be done separately because
+    // supabase's .upsert() can't handle doing it at the same time
+    // as rows that do have an idColumn
+    if (rowsWithEmptyId.length > 0) {
+        const { error } = await supabase.from(tableName).upsert(rowsWithEmptyId, { onConflict: onConflictColumns });
+        if (error) {
+            console.error("Error inserting rows with empty idColumn:", error);
+            upsertError = error;
+        }
+    }
+
+    return upsertError;
 };
 
 const handleDeleteRows = async (deletedIds, tableName, idColumn) => {
@@ -305,7 +368,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             const deletedIds = selectedRows;
             const deleteError = await handleDeleteRows(deletedIds, tableName, idColumn);
             if (deleteError) {
-                setErrorMessages([`Error deleting records: ${deleteError}`]);
+                setErrorMessages([deleteError]);
                 setErrorOpen(true);
                 return;
             }
@@ -314,7 +377,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setSelectedRows([]);
         } catch (error) {
             console.error("Error during deletion:", error);
-            setErrorMessages([`Error during deletion: ${error.message}`]);
+            setErrorMessages([error]);
             setErrorOpen(true);
         }
     };
@@ -374,7 +437,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             handleShowBeforeAfter(originalData, jsonData);
         } catch (error) {
             console.error("Error processing CSV data:", error);
-            setErrorMessages([`Error processing CSV file: ${error.message}`]);
+            setErrorMessages([error]);
             setErrorOpen(true);
         }
     };
@@ -389,33 +452,15 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
             const deleteError = await handleDeleteRows(deletedIds, tableName, idColumn);
             if (deleteError) {
-                setErrorMessages([`Error deleting rows: ${deleteError}`]);
+                setErrorMessages([deleteError]);
                 setErrorOpen(true);
                 return;
             }
 
-            const newRows = [];
-            const existingRows = [];
-
-            jsonData.forEach(row => {
-                if (!row[idColumn] || row[idColumn] === null || row[idColumn] === "") {
-                    const { [idColumn]: _, ...newRow } = row;
-                    newRows.push(newRow);
-                } else {
-                    existingRows.push(row);
-                }
-            });
-
-            const newRowsError = await handleUpsertRows(newRows, tableName, uniqueColumns);
-            if (newRowsError) {
-                setErrorMessages([`Error upserting new rows: ${newRowsError}`]);
-                setErrorOpen(true);
-                return;
-            }
-
-            const existingRowsError = await handleUpsertRows(existingRows, tableName, uniqueColumns);
-            if (existingRowsError) {
-                setErrorMessages([`Error upserting existing rows: ${existingRowsError}`]);
+            const upsertError = await handleUpsertRows(jsonData, tableName, uniqueColumns, idColumn);
+            if (upsertError) {
+                console.error("Error upserting rows:", upsertError);
+                setErrorMessages([upsertError]);
                 setErrorOpen(true);
                 return;
             }
@@ -425,7 +470,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             setShowBeforeAfterModal(false);
         } catch (error) {
             console.error("Error confirming changes:", error);
-            setErrorMessages([`Error confirming changes: ${error.message}`]);
+            setErrorMessages([error]);
             setErrorOpen(true);
         }
     };
@@ -458,7 +503,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     handleShowBeforeAfter(tableData, jsonData);
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
-                    setErrorMessages([`Error processing CSV file: ${error.message}`]);
+                    setErrorMessages([error]);
                     setErrorOpen(true);
                 }
             };
@@ -471,7 +516,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             const { data, error } = await supabase.from(tableName).select();
             if (error) {
                 console.error("Error fetching data for CSV download:", error);
-                setErrorMessages([`Error fetching data for CSV download: ${error.message}`]);
+                setErrorMessages([error]);
                 setErrorOpen(true);
                 return;
             }
@@ -480,7 +525,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             saveAs(blob, `${tableName}.csv`);
         } catch (error) {
             console.error("Error downloading CSV:", error);
-            setErrorMessages([`Error downloading CSV: ${error.message}`]);
+            setErrorMessages([error]);
             setErrorOpen(true);
         }
     };
