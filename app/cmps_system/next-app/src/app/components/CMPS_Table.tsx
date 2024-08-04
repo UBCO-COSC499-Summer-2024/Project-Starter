@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridSlots, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
-import { Button, Modal, Typography, Box, styled, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Button, Modal, Typography, Box, styled, TextField, Tooltip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
 import { csv2json, json2csv } from 'json-2-csv';
@@ -653,7 +653,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                                     key={column}
                                     style={
                                         (highlightCells[row[idColumn]] && highlightCells[row[idColumn]][column])
-                                            ? { backgroundColor: '#ffb3b3' }
+                                            ? { backgroundColor: '#ffd960' }
                                             : (highlightColumns[column] && row[column])
                                                 ? { backgroundColor: highlightColumns[column] }
                                                 : {}
@@ -731,8 +731,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                             inputRef={csv}
                         />
                     </Typography>
-                    <Button variant="outlined" onClick={handleCSVClose}>Discard</Button>
-                    <Button variant="contained" onClick={handleApplyCSV}>Apply</Button>
+                    <Button variant="outlined" onClick={handleCSVClose} sx={{ m: 1 }}>Discard</Button>
+                    <Button variant="contained" onClick={handleApplyCSV} sx={{ m: 1 }}>Apply</Button>
                 </Box>
             </Modal>
 
@@ -771,13 +771,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         {duplicatePKRows.length > 0 && (
                             <>
                                 <Typography variant="h6">Duplicate Rows (Primary Key):</Typography>
-                                {renderDifferencesTable(duplicatePKRows, '#ffecb3', {}, { [idColumn]: '#ffb3b3' })}
+                                {renderDifferencesTable(duplicatePKRows, '#E6E6FA', {}, { [idColumn]: '#ffb3b3' })}
                             </>
                         )}
                         {duplicateUniqueRows.length > 0 && (
                             <>
                                 <Typography variant="h6">Duplicate Rows (Unique Key):</Typography>
-                                {renderDifferencesTable(duplicateUniqueRows, '#ffecb3', {}, Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
+                                {renderDifferencesTable(duplicateUniqueRows, '#E6E6FA', {}, Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
                             </>
                         )}
                         {addedRows.length > 0 && (
@@ -802,7 +802,17 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleBeforeAfterClose} color="inherit">Cancel</Button>
-                    <Button onClick={handleConfirmChanges} color="primary" disabled={hasDuplicates}>Confirm</Button>
+                    <Tooltip title={hasDuplicates ? "Cannot confirm changes due to duplicates" : "Confirm changes"}>
+                        <span>
+                            <Button
+                                onClick={handleConfirmChanges}
+                                color="primary"
+                                disabled={hasDuplicates}
+                            >
+                                Confirm
+                            </Button>
+                        </span>
+                    </Tooltip>
                 </DialogActions>
             </Dialog>
         </div>
