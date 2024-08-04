@@ -554,6 +554,11 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             const currentIds = new Set(jsonData.map(row => row[idColumn]));
             const deletedIds = [...originalIds].filter(id => !currentIds.has(id));
 
+            // Check for deleted rows
+            if (deletedIds.length > 0) {
+                if (!confirm(deleteWarningMessage || "Are you sure you want to delete the selected records? This action is not recoverable!")) return;
+            }
+
             const deleteError = await handleDeleteRows(deletedIds, tableName, idColumn);
             if (deleteError) {
                 setErrorMessages([deleteError]);
