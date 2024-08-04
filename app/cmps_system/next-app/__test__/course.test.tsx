@@ -26,7 +26,8 @@ const testData = {
   status: null
 };
 
-const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.ANON_KEY);
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
+
 test('read_from_supabase_course', async () => {
   const { data, error } = await supabase.from("course").select();
   expect(data).not.toBeNull()

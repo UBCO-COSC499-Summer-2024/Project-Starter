@@ -1,147 +1,2009 @@
 -- Instructors
-INSERT INTO instructor (ubc_employee_num, email, prefix, first_name, last_name, suffix, title, hire_date) VALUES
-(123456789, 'head@email.com', 'Dr.', 'Ramon', 'Lawrence', NULL, 'Department Head', '2015-08-15'),
-(987654321, 'staff@email.com', 'Prof.', 'Jane', 'McStaff', NULL, 'Associate Professor', '2017-05-12'),
-(112233445, 'emilyjohnson@ubc.ca', 'Dr.', 'Emily', 'Johnson', NULL, 'Assistant Professor', '2020-01-10'),
-(223344556, 'michaelbrown@ubc.ca', 'Dr.', 'Michael', 'Brown', NULL, 'Lecturer', '2018-03-25'),
-(334455667, 'sarahdavis@ubc.ca', 'Prof.', 'Sarah', 'Davis', NULL, 'Professor', '2016-07-19'),
-(445566778, 'davidwilson@ubc.ca', 'Dr.', 'David', 'Wilson', NULL, 'Lecturer', '2019-02-11'),
-(556677889, 'jessicataylor@ubc.ca', 'Prof.', 'Jessica', 'Taylor', NULL, 'Associate Professor', '2014-11-23'),
-(667788990, 'danielmoore@ubc.ca', 'Dr.', 'Daniel', 'Moore', NULL, 'Assistant Professor', '2021-04-10');
+INSERT INTO
+    instructor (
+        ubc_employee_num,
+        email,
+        prefix,
+        first_name,
+        last_name,
+        suffix,
+        title,
+        hire_date
+    )
+VALUES
+    (
+        123456789,
+        'head@email.com',
+        'Dr.',
+        'Ramon',
+        'Lawrence',
+        NULL,
+        'Department Head',
+        '2015-08-15'
+    ),
+    (
+        987654321,
+        'staff@email.com',
+        'Prof.',
+        'Jane',
+        'McStaff',
+        NULL,
+        'Associate Professor',
+        '2017-05-12'
+    ),
+    (
+        112233445,
+        'emilyjohnson@ubc.ca',
+        'Dr.',
+        'Emily',
+        'Johnson',
+        NULL,
+        'Assistant Professor',
+        '2020-01-10'
+    ),
+    (
+        223344556,
+        'michaelbrown@ubc.ca',
+        'Dr.',
+        'Michael',
+        'Brown',
+        NULL,
+        'Lecturer',
+        '2018-03-25'
+    ),
+    (
+        334455667,
+        'sarahdavis@ubc.ca',
+        'Prof.',
+        'Sarah',
+        'Davis',
+        NULL,
+        'Professor',
+        '2016-07-19'
+    ),
+    (
+        445566778,
+        'davidwilson@ubc.ca',
+        'Dr.',
+        'David',
+        'Wilson',
+        NULL,
+        'Lecturer',
+        '2019-02-11'
+    ),
+    (
+        556677889,
+        'jessicataylor@ubc.ca',
+        'Prof.',
+        'Jessica',
+        'Taylor',
+        NULL,
+        'Associate Professor',
+        '2014-11-23'
+    ),
+    (
+        667788990,
+        'danielmoore@ubc.ca',
+        'Dr.',
+        'Daniel',
+        'Moore',
+        NULL,
+        'Assistant Professor',
+        '2021-04-10'
+    ),
+    -- New instructors
+    (
+        778899001,
+        'carolwhite@ubc.ca',
+        'Dr.',
+        'Carol',
+        'White',
+        NULL,
+        'Assistant Professor',
+        '2022-08-15'
+    ),
+    (
+        889900112,
+        'johnsmith@ubc.ca',
+        'Prof.',
+        'John',
+        'Smith',
+        NULL,
+        'Professor',
+        '2013-06-30'
+    ),
+    (
+        990011223,
+        'annewilliams@ubc.ca',
+        'Dr.',
+        'Anne',
+        'Williams',
+        NULL,
+        'Lecturer',
+        '2019-10-12'
+    ),
+    (
+        101112233,
+        'peterjohnson@ubc.ca',
+        'Prof.',
+        'Peter',
+        'Johnson',
+        NULL,
+        'Associate Professor',
+        '2015-03-27'
+    ),
+    (
+        111213314,
+        'marybrown@ubc.ca',
+        'Dr.',
+        'Mary',
+        'Brown',
+        NULL,
+        'Assistant Professor',
+        '2021-11-05'
+    ),
+    (
+        121314415,
+        'robertjones@ubc.ca',
+        'Prof.',
+        'Robert',
+        'Jones',
+        NULL,
+        'Professor',
+        '2010-09-14'
+    ),
+    (
+        131415516,
+        'nancywilson@ubc.ca',
+        'Dr.',
+        'Nancy',
+        'Wilson',
+        NULL,
+        'Lecturer',
+        '2017-07-23'
+    ),
+    (
+        141516617,
+        'larrymartin@ubc.ca',
+        'Prof.',
+        'Larry',
+        'Martin',
+        NULL,
+        'Associate Professor',
+        '2016-02-02'
+    );
 
 -- Evaluation types
-INSERT INTO "evaluation_type" ("evaluation_type_name", "description", "requires_course", "requires_instructor", "requires_service_role") VALUES
-('Employee Evaluation', 'General evaluation of employee', FALSE, TRUE, FALSE),
-('Course Evaluation', 'Evaluation of course content and delivery', TRUE, FALSE, FALSE),
-('SEI', 'Student Evaluation of Instruction', TRUE, TRUE, FALSE),
-('Peer Review', 'Evaluation by peers', FALSE, TRUE, FALSE),
-('Integrated Evaluation', 'Comprehensive assessment focusing on an instructor with optional evaluation of course or service role', NULL, TRUE, NULL),
-('Administrative Review', 'Review of administrative duties', FALSE, TRUE, TRUE);
+INSERT INTO
+    "evaluation_type" (
+        "evaluation_type_name",
+        "description",
+        "requires_course",
+        "requires_instructor",
+        "requires_service_role"
+    )
+VALUES
+    (
+        'Employee Evaluation',
+        'General evaluation of employee',
+        FALSE,
+        TRUE,
+        FALSE
+    ),
+    (
+        'Course Evaluation',
+        'Evaluation of course content and delivery',
+        TRUE,
+        FALSE,
+        FALSE
+    ),
+    (
+        'SEI',
+        'Student Evaluation of Instruction',
+        TRUE,
+        TRUE,
+        FALSE
+    ),
+    (
+        'Peer Review',
+        'Evaluation by peers',
+        FALSE,
+        TRUE,
+        FALSE
+    ),
+    (
+        'Integrated Evaluation',
+        'Comprehensive assessment focusing on an instructor with optional evaluation of course or service role',
+        NULL,
+        TRUE,
+        NULL
+    ),
+    (
+        'Administrative Review',
+        'Review of administrative duties',
+        FALSE,
+        TRUE,
+        TRUE
+    );
 
 -- Evaluation metrics
-INSERT INTO "evaluation_metric" ("evaluation_type_id", "metric_num", "metric_description", "min_value", "max_value") VALUES
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Employee Evaluation'), 1, 'Clarity of instruction', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Employee Evaluation'), 2, 'Engagement with students', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 1, 'Course content relevance', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 2, 'Assessment fairness', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 1, 'Throughout the term, the instructor explained course requirements so it was clear to me what I was expected to learn.', 1, 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 2, 'The instructor conducted this course in such a way that I was motivated to learn.', 1, 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 3, 'The instructor presented the course material in a way that I could understand.', 1, 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 4, 'Considering the type of class (e.g., large lecture, seminar, studio, etc.), the instructor provided useful feedback that helped me understand how my learning progressed during this course.', 1, 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 5, 'The instructor showed genuine interest in supporting my learning throughout this course.', 1, 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 6, 'Overall, I learned a great deal from this instructor.', 1, 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 1, 'Contribution to research', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 2, 'Collaboration with colleagues', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 1, 'Efficiency in duties', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 2, 'Punctuality and attendance', 0, 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Integrated Evaluation'), 1, 'Miscellaneous rating', 0, 100);
+INSERT INTO
+    "evaluation_metric" (
+        "evaluation_type_id",
+        "metric_num",
+        "metric_description",
+        "min_value",
+        "max_value"
+    )
+VALUES
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Employee Evaluation'
+        ),
+        1,
+        'Clarity of instruction',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Employee Evaluation'
+        ),
+        2,
+        'Engagement with students',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Course Evaluation'
+        ),
+        1,
+        'Course content relevance',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Course Evaluation'
+        ),
+        2,
+        'Assessment fairness',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'SEI'
+        ),
+        1,
+        'Throughout the term, the instructor explained course requirements so it was clear to me what I was expected to learn.',
+        1,
+        5
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'SEI'
+        ),
+        2,
+        'The instructor conducted this course in such a way that I was motivated to learn.',
+        1,
+        5
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'SEI'
+        ),
+        3,
+        'The instructor presented the course material in a way that I could understand.',
+        1,
+        5
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'SEI'
+        ),
+        4,
+        'Considering the type of class (e.g., large lecture, seminar, studio, etc.), the instructor provided useful feedback that helped me understand how my learning progressed during this course.',
+        1,
+        5
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'SEI'
+        ),
+        5,
+        'The instructor showed genuine interest in supporting my learning throughout this course.',
+        1,
+        5
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'SEI'
+        ),
+        6,
+        'Overall, I learned a great deal from this instructor.',
+        1,
+        5
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Peer Review'
+        ),
+        1,
+        'Contribution to research',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Peer Review'
+        ),
+        2,
+        'Collaboration with colleagues',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Administrative Review'
+        ),
+        1,
+        'Efficiency in duties',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Administrative Review'
+        ),
+        2,
+        'Punctuality and attendance',
+        0,
+        100
+    ),
+    (
+        (
+            SELECT
+                evaluation_type_id
+            FROM
+                evaluation_type
+            WHERE
+                evaluation_type_name = 'Integrated Evaluation'
+        ),
+        1,
+        'Miscellaneous rating',
+        0,
+        100
+    );
 
 -- Courses
-INSERT INTO "course" ("academic_year", "session", "term", "subject_code", "course_num", "section_num", "course_title", "mode_of_delivery", "req_in_person_attendance", "building", "room_num", "section_comments", "activity", "days", "start_time", "end_time", "num_students", "num_tas", "average_grade", "credits", "year_level", "registration_status", "status") VALUES
-(2024, 'Winter', 'Term 1', 'COSC', '110', '001', 'Computation, Programs, and Programming', 'In-Person', TRUE, 'EME', '1150', NULL, 'Lecture', 'Mon, Wed, Fri', '09:00', '10:00', 200, 10, 85.5, 3, 1, 'Open', 'Active'),
-(2024, 'Winter', 'Term 2', 'MATH', '200', '001', 'Calculus III', 'Hybrid', FALSE, 'SCI', '112', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 150, 5, 78.2, 3, 2, 'Open', 'Active'),
-(2023, 'Summer', 'Term 1', 'PHYS', '201', '001', 'Physics of Cats', 'Online', TRUE, 'EME', '1150', 'This course is cool', 'Lecture', 'Mon, Wed, Fri', '03:00', '23:00', 500, 1, 40.5, 3, 2, 'Open', 'Active'),
-(2023, 'Summer', 'Term 2', 'STAT', '401', '001', 'Probability and Statistical Inference', 'Hybrid', FALSE, 'ART', '110', NULL, 'Lecture', 'Tue, Thu', '11:00', '12:30', 10, 5, 78.2, 3, 4, 'Open', 'Active'),
-(2024, 'Winter', 'Term 1', 'STAT', '101', '001', 'Introduction to Statistics', 'In-Person', TRUE, 'SCI', '101', NULL, 'Lecture', 'Mon, Wed', '14:00', '15:30', 100, 3, 88.0, 3, 1, 'Open', 'Active'),
-(2024, 'Winter', 'Term 2', 'MATH', '101', '002', 'General Math', 'In-Person', TRUE, 'SCI', '200', NULL, 'Lecture', 'Mon, Wed, Fri', '10:00', '11:00', 180, 8, 82.0, 3, 1, 'Open', 'Active'),
-(2023, 'Summer', 'Term 1', 'PHYS', '150', '001', 'Introduction to Fizzicks', 'Hybrid', FALSE, 'EME', '101', 'Introductory course', 'Lecture', 'Tue, Thu', '08:00', '09:30', 120, 4, 75.0, 3, 1, 'Open', 'Active');
+INSERT INTO
+    "course" (
+        "academic_year",
+        "session",
+        "term",
+        "subject_code",
+        "course_num",
+        "section_num",
+        "course_title",
+        "mode_of_delivery",
+        "req_in_person_attendance",
+        "building",
+        "room_num",
+        "section_comments",
+        "activity",
+        "days",
+        "start_time",
+        "end_time",
+        "num_students",
+        "num_tas",
+        "average_grade",
+        "credits",
+        "year_level",
+        "registration_status",
+        "status"
+    )
+VALUES
+    (
+        2024,
+        'Winter',
+        'Term 1',
+        'COSC',
+        '110',
+        '001',
+        'Computation, Programs, and Programming',
+        'In-Person',
+        TRUE,
+        'EME',
+        '1150',
+        NULL,
+        'Lecture',
+        'Mon, Wed, Fri',
+        '09:00',
+        '10:00',
+        200,
+        10,
+        85.5,
+        3,
+        1,
+        'Open',
+        'Active'
+    ),
+    (
+        2024,
+        'Winter',
+        'Term 2',
+        'MATH',
+        '200',
+        '001',
+        'Calculus III',
+        'Hybrid',
+        FALSE,
+        'SCI',
+        '112',
+        NULL,
+        'Lecture',
+        'Tue, Thu',
+        '11:00',
+        '12:30',
+        150,
+        5,
+        78.2,
+        3,
+        2,
+        'Open',
+        'Active'
+    ),
+    (
+        2024,
+        'Summer',
+        'Term 1',
+        'PHYS',
+        '201',
+        '001',
+        'Physics of Cats',
+        'Online',
+        TRUE,
+        'EME',
+        '1150',
+        'This course is cool',
+        'Lecture',
+        'Mon, Wed, Fri',
+        '03:00',
+        '23:00',
+        500,
+        1,
+        40.5,
+        3,
+        2,
+        'Open',
+        'Active'
+    ),
+    (
+        2024,
+        'Summer',
+        'Term 2',
+        'STAT',
+        '401',
+        '001',
+        'Probability and Statistical Inference',
+        'Hybrid',
+        FALSE,
+        'ART',
+        '110',
+        NULL,
+        'Lecture',
+        'Tue, Thu',
+        '11:00',
+        '12:30',
+        10,
+        5,
+        78.2,
+        3,
+        4,
+        'Open',
+        'Active'
+    ),
+    (
+        2024,
+        'Winter',
+        'Term 1',
+        'STAT',
+        '101',
+        '001',
+        'Introduction to Statistics',
+        'In-Person',
+        TRUE,
+        'SCI',
+        '101',
+        NULL,
+        'Lecture',
+        'Mon, Wed',
+        '14:00',
+        '15:30',
+        100,
+        3,
+        88.0,
+        3,
+        1,
+        'Open',
+        'Active'
+    ),
+    (
+        2024,
+        'Winter',
+        'Term 2',
+        'MATH',
+        '101',
+        '002',
+        'General Math',
+        'In-Person',
+        TRUE,
+        'SCI',
+        '200',
+        NULL,
+        'Lecture',
+        'Mon, Wed, Fri',
+        '10:00',
+        '11:00',
+        180,
+        8,
+        82.0,
+        3,
+        1,
+        'Open',
+        'Active'
+    ),
+    (
+        2024,
+        'Summer',
+        'Term 1',
+        'PHYS',
+        '150',
+        '001',
+        'Introduction to Fizzicks',
+        'Hybrid',
+        FALSE,
+        'EME',
+        '101',
+        'Introductory course',
+        'Lecture',
+        'Tue, Thu',
+        '08:00',
+        '09:30',
+        120,
+        4,
+        75.0,
+        3,
+        1,
+        'Open',
+        'Active'
+    );
 
 -- Teaching assignments
-INSERT INTO "course_assign" ("instructor_id", "course_id", "position", "start_date", "end_date") VALUES
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789), 1, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 987654321), 2, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 123456789), 3, 'Instructor', '2023-05-01', '2023-06-30'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 987654321), 4, 'Instructor', '2023-07-01', '2023-08-30'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 112233445), 4, 'TA', '2023-07-01', '2023-08-30'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 223344556), 5, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 334455667), 6, 'Instructor', '2024-09-01', '2024-12-15'),
-((SELECT instructor_id FROM instructor WHERE ubc_employee_num = 445566778), 7, 'Instructor', '2023-05-01', '2023-06-30');
+INSERT INTO
+    "course_assign" ("instructor_id", "course_id", "position")
+VALUES
+    (1, 1, 'Instructor'),
+    (2, 2, 'Instructor'),
+    (1, 3, 'Instructor'),
+    (2, 4, 'Instructor'),
+    (3, 4, 'TA'),
+    (4, 5, 'Instructor'),
+    (5, 6, 'Instructor'),
+    (6, 2, 'TA'),
+    (9, 3, 'TA'),
+    (10, 1, 'TA'),
+    (11, 5, 'TA'),
+    (12, 4, 'TA'),
+    (13, 2, 'TA'),
+    (14, 3, 'TA'),
+    (15, 1, 'TA'),
+    (16, 6, 'TA');
 
 -- Service roles
-INSERT INTO "service_role" ("title", "description", "default_expected_hours", "building", "room_num") VALUES
-('Undergraduate Advisor', 'Academic advisor for undergraduate students', 20, 'EME', '202'),
-('Graduate Advisor', 'Academic advisor for graduate students', 20, 'EME', '202'),
-('Research Coordinator', 'Coordinator for research activities', 15, 'ENG', '303'),
-('Lab Supervisor', 'Supervisor for engineering labs', 25, 'ENG', '104'),
-('Faculty Senate Member', 'Member of the faculty senate', 10, 'MAIN', '305'),
-('Curriculum Committee Chair', 'Chair of the curriculum committee', 18, 'MAIN', '310');
+INSERT INTO
+    "service_role" (
+        "title",
+        "description",
+        "default_expected_hours",
+        "building",
+        "room_num"
+    )
+VALUES
+    (
+        'Undergraduate Advisor',
+        'Academic advisor for undergraduate students',
+        20,
+        'EME',
+        '202'
+    ),
+    (
+        'Graduate Advisor',
+        'Academic advisor for graduate students',
+        20,
+        'EME',
+        '202'
+    ),
+    (
+        'Research Coordinator',
+        'Coordinator for research activities',
+        15,
+        'ENG',
+        '303'
+    ),
+    (
+        'Lab Supervisor',
+        'Supervisor for engineering labs',
+        25,
+        'ENG',
+        '104'
+    ),
+    (
+        'Faculty Senate Member',
+        'Member of the faculty senate',
+        10,
+        'MAIN',
+        '305'
+    ),
+    (
+        'Curriculum Committee Chair',
+        'Chair of the curriculum committee',
+        18,
+        'MAIN',
+        '310'
+    );
 
 -- Service role assignments
-INSERT INTO "service_role_assign" ("instructor_id", "service_role_id", "start_date", "end_date", "expected_hours") VALUES
-(1, 1, '2024-01-01', '2024-12-31', 20),
-(2, 2, '2024-01-01', '2024-12-31', 10),
-(3, 1, '2024-01-01', '2024-12-31', 15),
-(4, 3, '2024-01-01', '2024-12-31', 20),
-(5, 4, '2024-01-01', '2024-12-31', 25),
-(6, 5, '2024-01-01', '2024-12-31', 10),
-(7, 6, '2024-01-01', '2024-12-31', 18),
-(8, 1, '2024-01-01', '2024-12-31', 15);
+INSERT INTO
+    "service_role_assign" (
+        "instructor_id",
+        "service_role_id",
+        "start_date",
+        "end_date",
+        "expected_hours"
+    )
+VALUES
+    (1, 1, '2024-01-01', '2024-12-31', 20),
+    (2, 2, '2024-01-01', '2024-12-31', 10),
+    (3, 1, '2024-01-01', '2024-12-31', 15),
+    (4, 3, '2024-01-01', '2024-12-31', 20),
+    (5, 4, '2024-01-01', '2024-12-31', 25),
+    (6, 5, '2024-01-01', '2024-12-31', 10),
+    (7, 6, '2024-01-01', '2024-12-31', 18),
+    (8, 1, '2024-01-01', '2024-12-31', 15),
+    (9, 2, '2024-01-01', '2024-12-31', 12),
+    (10, 3, '2024-01-01', '2024-12-31', 20),
+    (11, 4, '2024-01-01', '2024-12-31', 15),
+    (12, 5, '2024-01-01', '2024-12-31', 10),
+    (13, 6, '2024-01-01', '2024-12-31', 14),
+    (14, 1, '2024-01-01', '2024-12-31', 18),
+    (15, 2, '2024-01-01', '2024-12-31', 15),
+    (16, 3, '2024-01-01', '2024-12-31', 20);
 
 -- Evaluation entries
-INSERT INTO "evaluation_entry" ("evaluation_type_id", "metric_num", "course_id", "instructor_id", "service_role_id", "evaluation_date", "answer") VALUES
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Employee Evaluation'), 1, NULL, 1, NULL, '2023-12-15', 80),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Employee Evaluation'), 2, NULL, 1, NULL, '2023-12-15', 100),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 1, 2, NULL, NULL, '2023-12-16', 60),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Course Evaluation'), 2, 2, NULL, NULL, '2023-12-16', 80),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 1, 3, 1, NULL, '2023-12-17', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 2, 3, 1, NULL, '2023-12-17', 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 3, 3, 1, NULL, '2023-12-17', 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 4, 3, 1, NULL, '2023-12-17', 3),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 5, 3, 1, NULL, '2023-12-17', 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'SEI'), 6, 3, 1, NULL, '2023-12-17', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 1, NULL, 2, NULL, '2023-12-18', 3),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Peer Review'), 2, NULL, 2, NULL, '2023-12-18', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 1, NULL, 3, (SELECT service_role_id FROM service_role_assign WHERE instructor_id = 3 LIMIT 1), '2023-12-19', 4),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Administrative Review'), 2, NULL, 3, (SELECT service_role_id FROM service_role_assign WHERE instructor_id = 3 LIMIT 1), '2023-12-19', 5),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Integrated Evaluation'), 1, NULL, 2, NULL, '2023-12-20', 75),
-((SELECT evaluation_type_id FROM evaluation_type WHERE evaluation_type_name = 'Integrated Evaluation'), 1, NULL, 2, (SELECT service_role_id FROM service_role_assign WHERE instructor_id = 2 LIMIT 1), '2023-12-21', 80);
+INSERT INTO
+    "evaluation_entry" (
+        "evaluation_type_id",
+        "metric_num",
+        "course_id",
+        "instructor_id",
+        "service_role_id",
+        "evaluation_date",
+        "answer"
+    )
+VALUES
+    -- Employee Evaluation for Instructor 1
+    (1, 1, NULL, 1, NULL, '2023-12-15', 80),
+    (1, 2, NULL, 1, NULL, '2023-12-15', 100),
+    -- Course Evaluation for Course 2
+    (2, 1, 2, NULL, NULL, '2023-12-16', 60),
+    (2, 2, 2, NULL, NULL, '2023-12-16', 80),
+    -- SEI for Course 3 by Instructor 1
+    (3, 1, 3, 1, NULL, '2023-12-17', 4),
+    (3, 2, 3, 1, NULL, '2023-12-17', 5),
+    (3, 3, 3, 1, NULL, '2023-12-17', 5),
+    (3, 4, 3, 1, NULL, '2023-12-17', 3),
+    (3, 5, 3, 1, NULL, '2023-12-17', 5),
+    (3, 6, 3, 1, NULL, '2023-12-17', 4),
+    -- Peer Review for Instructor 2
+    (4, 1, NULL, 2, NULL, '2023-12-18', 3),
+    (4, 2, NULL, 2, NULL, '2023-12-18', 4),
+    -- Administrative Review for Instructor 3
+    (6, 1, NULL, 3, 1, '2023-12-19', 4),
+    (6, 2, NULL, 3, 1, '2023-12-19', 5),
+    -- Integrated Evaluation for Instructor 2
+    (5, 1, NULL, 2, NULL, '2023-12-20', 75),
+    (5, 1, NULL, 2, 2, '2023-12-21', 80),
+    -- New evaluation entries
+    -- Employee Evaluation for Instructor 4
+    (1, 1, NULL, 4, NULL, '2023-12-22', 85),
+    (1, 2, NULL, 4, NULL, '2023-12-22', 90),
+    -- Course Evaluation for Course 5
+    (2, 1, 5, NULL, NULL, '2023-12-23', 70),
+    (2, 2, 5, NULL, NULL, '2023-12-23', 75),
+    -- SEI for Course 6 by Instructor 5
+    (3, 1, 6, 5, NULL, '2023-12-24', 4),
+    (3, 2, 6, 5, NULL, '2023-12-24', 5),
+    (3, 3, 6, 5, NULL, '2023-12-24', 4),
+    (3, 4, 6, 5, NULL, '2023-12-24', 5),
+    (3, 5, 6, 5, NULL, '2023-12-24', 4),
+    (3, 6, 6, 5, NULL, '2023-12-24', 5),
+    -- Peer Review for Instructor 6
+    (4, 1, NULL, 6, NULL, '2023-12-25', 4),
+    (4, 2, NULL, 6, NULL, '2023-12-25', 3),
+    -- Administrative Review for Instructor 7
+    (6, 1, NULL, 7, 1, '2023-12-26', 3),
+    (6, 2, NULL, 7, 1, '2023-12-26', 4),
+    -- Integrated Evaluation for Instructor 8
+    (5, 1, NULL, 8, NULL, '2023-12-27', 70),
+    (5, 1, NULL, 8, 2, '2023-12-28', 75),
+    -- Additional evaluation entries for instructors 9 to 16
+    -- Employee Evaluation for Instructor 9
+    (1, 1, NULL, 9, NULL, '2024-01-01', 88),
+    (1, 2, NULL, 9, NULL, '2024-01-01', 92),
+    -- Course Evaluation for Course 1
+    (2, 1, 1, NULL, NULL, '2024-01-02', 78),
+    (2, 2, 1, NULL, NULL, '2024-01-02', 82),
+    -- SEI for Course 2 by Instructor 10
+    (3, 1, 2, 10, NULL, '2024-01-03', 4),
+    (3, 2, 2, 10, NULL, '2024-01-03', 5),
+    (3, 3, 2, 10, NULL, '2024-01-03', 4),
+    (3, 4, 2, 10, NULL, '2024-01-03', 5),
+    (3, 5, 2, 10, NULL, '2024-01-03', 4),
+    (3, 6, 2, 10, NULL, '2024-01-03', 5),
+    -- Peer Review for Instructor 11
+    (4, 1, NULL, 11, NULL, '2024-01-04', 4),
+    (4, 2, NULL, 11, NULL, '2024-01-04', 3),
+    -- Administrative Review for Instructor 12
+    (6, 1, NULL, 12, 2, '2024-01-05', 4),
+    (6, 2, NULL, 12, 2, '2024-01-05', 5),
+    -- Integrated Evaluation for Instructor 13
+    (5, 1, NULL, 13, NULL, '2024-01-06', 72),
+    (5, 1, NULL, 13, 3, '2024-01-06', 77),
+    -- Employee Evaluation for Instructor 14
+    (1, 1, NULL, 14, NULL, '2024-01-07', 86),
+    (1, 2, NULL, 14, NULL, '2024-01-07', 89),
+    -- Course Evaluation for Course 3
+    (2, 1, 3, NULL, NULL, '2024-01-08', 80),
+    (2, 2, 3, NULL, NULL, '2024-01-08', 83),
+    -- SEI for Course 4 by Instructor 15
+    (3, 1, 4, 15, NULL, '2024-01-09', 4),
+    (3, 2, 4, 15, NULL, '2024-01-09', 5),
+    (3, 3, 4, 15, NULL, '2024-01-09', 4),
+    (3, 4, 4, 15, NULL, '2024-01-09', 5),
+    (3, 5, 4, 15, NULL, '2024-01-09', 4),
+    (3, 6, 4, 15, NULL, '2024-01-09', 5),
+    -- Peer Review for Instructor 16
+    (4, 1, NULL, 16, NULL, '2024-01-10', 5),
+    (4, 2, NULL, 16, NULL, '2024-01-10', 4),
+    -- Administrative Review for Instructor 9
+    (6, 1, NULL, 9, 1, '2024-01-11', 5),
+    (6, 2, NULL, 9, 1, '2024-01-11', 4),
+    -- Integrated Evaluation for Instructor 10
+    (5, 1, NULL, 10, NULL, '2024-01-12', 75),
+    (5, 1, NULL, 10, 2, '2024-01-12', 78);
 
 -- Events
-INSERT INTO "event" ("event_datetime", "is_meeting", "duration", "description", "location") VALUES
-('2024-07-01 10:00:00', TRUE, '01:00:00', 'Department meeting', 'SCI 257'),
-('2024-07-02 15:00:00', FALSE, '02:00:00', 'Guest lecture', 'Basement'),
-('2024-07-03 02:00:00', FALSE, '03:00:00', 'Pizza party', 'Bathroom'),
-('2024-07-04 09:00:00', TRUE, '01:30:00', 'Research symposium', 'ENG 101'),
-('2024-07-05 14:00:00', FALSE, '02:00:00', 'Lab safety training', 'ENG 104'),
-('2024-07-06 11:00:00', TRUE, '02:00:00', 'Team building exercise', 'Park'),
-('2024-07-07 16:00:00', FALSE, '01:00:00', 'Project presentation', 'Conference Room');
+INSERT INTO
+    "event" (
+        "event_datetime",
+        "is_meeting",
+        "duration",
+        "description",
+        "location"
+    )
+VALUES
+    (
+        '2024-07-01 10:00:00',
+        TRUE,
+        '01:00:00',
+        'Department meeting',
+        'SCI 257'
+    ),
+    (
+        '2024-07-02 15:00:00',
+        FALSE,
+        '02:00:00',
+        'Guest lecture',
+        'Basement'
+    ),
+    (
+        '2024-07-03 02:00:00',
+        FALSE,
+        '03:00:00',
+        'Pizza party',
+        'Bathroom'
+    ),
+    (
+        '2024-07-04 09:00:00',
+        TRUE,
+        '01:30:00',
+        'Research symposium',
+        'ENG 101'
+    ),
+    (
+        '2024-07-05 14:00:00',
+        FALSE,
+        '02:00:00',
+        'Lab safety training',
+        'ENG 104'
+    ),
+    (
+        '2024-07-06 11:00:00',
+        TRUE,
+        '02:00:00',
+        'Team building exercise',
+        'Park'
+    ),
+    (
+        '2024-07-07 16:00:00',
+        FALSE,
+        '01:00:00',
+        'Project presentation',
+        'Conference Room'
+    ),
+    -- Extended events
+    (
+        '2024-07-08 10:00:00',
+        TRUE,
+        '01:00:00',
+        'Strategy meeting',
+        'SCI 258'
+    ),
+    (
+        '2024-07-09 13:00:00',
+        FALSE,
+        '02:30:00',
+        'Workshop on AI',
+        'Computer Lab'
+    ),
+    (
+        '2024-07-10 14:30:00',
+        FALSE,
+        '01:00:00',
+        'Career fair',
+        'Main Hall'
+    ),
+    (
+        '2024-07-11 09:00:00',
+        TRUE,
+        '01:30:00',
+        'Weekly review',
+        'ENG 102'
+    ),
+    (
+        '2024-07-12 14:00:00',
+        FALSE,
+        '02:00:00',
+        'Technical seminar',
+        'ENG 103'
+    ),
+    (
+        '2024-07-13 11:00:00',
+        TRUE,
+        '02:00:00',
+        'Management meeting',
+        'Library'
+    ),
+    (
+        '2024-07-14 16:00:00',
+        FALSE,
+        '01:00:00',
+        'Student showcase',
+        'Auditorium'
+    ),
+    (
+        '2024-07-15 10:00:00',
+        TRUE,
+        '01:00:00',
+        'Budget planning',
+        'SCI 259'
+    ),
+    (
+        '2024-07-16 15:00:00',
+        FALSE,
+        '02:00:00',
+        'Industry panel',
+        'Conference Hall'
+    ),
+    (
+        '2024-07-17 02:00:00',
+        FALSE,
+        '03:00:00',
+        'Networking event',
+        'Lobby'
+    ),
+    (
+        '2024-07-18 09:00:00',
+        TRUE,
+        '01:30:00',
+        'Team meeting',
+        'ENG 201'
+    ),
+    (
+        '2024-07-19 14:00:00',
+        FALSE,
+        '02:00:00',
+        'Coding marathon',
+        'Computer Lab'
+    ),
+    (
+        '2024-07-20 11:00:00',
+        TRUE,
+        '02:00:00',
+        'Annual planning',
+        'Park'
+    ),
+    (
+        '2024-07-21 16:00:00',
+        FALSE,
+        '01:00:00',
+        'Thesis defense',
+        'Conference Room'
+    ),
+    (
+        '2024-07-22 10:00:00',
+        TRUE,
+        '01:00:00',
+        'Team briefing',
+        'SCI 260'
+    ),
+    (
+        '2024-07-23 15:00:00',
+        FALSE,
+        '02:00:00',
+        'Alumni talk',
+        'Auditorium'
+    ),
+    (
+        '2024-07-24 02:00:00',
+        FALSE,
+        '03:00:00',
+        'Hackathon',
+        'Main Hall'
+    ),
+    (
+        '2024-07-25 09:00:00',
+        TRUE,
+        '01:30:00',
+        'Staff meeting',
+        'ENG 202'
+    ),
+    (
+        '2024-07-26 14:00:00',
+        FALSE,
+        '02:00:00',
+        'Design sprint',
+        'Design Lab'
+    ),
+    (
+        '2024-08-11 11:00:00',
+        TRUE,
+        '02:00:00',
+        'Project kickoff',
+        'Library'
+    ),
+    (
+        '2024-08-09 16:00:00',
+        FALSE,
+        '01:00:00',
+        'Research presentation',
+        'Lecture Hall'
+    ),
+    (
+        '2024-08-05 10:00:00',
+        TRUE,
+        '01:00:00',
+        'Executive meeting',
+        'SCI 261'
+    ),
+    (
+        '2024-08-10 15:00:00',
+        FALSE,
+        '02:00:00',
+        'Community outreach',
+        'Town Hall'
+    ),
+    (
+        '2024-08-07 02:00:00',
+        FALSE,
+        '03:00:00',
+        'Fundraising event',
+        'Gymnasium'
+    );
 
 -- Event attendance
-INSERT INTO "event_attendance" ("event_id", "instructor_id", "attendance_duration") VALUES
-(1, 1, '01:00:00'),
-(1, 2, '01:00:00'),
-(1, 3, '01:00:00'),
-(2, 1, '02:00:00'),
-(2, 2, '02:00:00'),
-(2, 3, '02:00:00'),
-(3, 1, '03:00:00'),
-(3, 2, '03:00:00'),
-(3, 3, '03:00:00'),
-(4, 4, '01:30:00'),
-(4, 5, '01:30:00'),
-(5, 4, '02:00:00'),
-(5, 5, '02:00:00'),
-(6, 6, '02:00:00'),
-(7, 7, '01:00:00');
+INSERT INTO
+    "event_attendance" (
+        "event_id",
+        "instructor_id",
+        "attendance_duration"
+    )
+VALUES
+    (1, 1, '01:00:00'),
+    (1, 2, '01:00:00'),
+    (1, 3, '01:00:00'),
+    (1, 4, '01:00:00'),
+    (1, 5, '01:00:00'),
+    (1, 6, '01:00:00'),
+    (1, 7, '01:00:00'),
+    (1, 8, '01:00:00'),
+    (2, 1, '02:00:00'),
+    (2, 2, '02:00:00'),
+    (2, 3, '02:00:00'),
+    (2, 4, '01:30:00'),
+    (2, 5, '02:00:00'),
+    (2, 6, '02:00:00'),
+    (2, 7, '01:00:00'),
+    (2, 8, '01:30:00'),
+    (3, 1, '03:00:00'),
+    (3, 2, '03:00:00'),
+    (3, 3, '03:00:00'),
+    (3, 4, '02:30:00'),
+    (3, 5, '02:00:00'),
+    (3, 6, '02:00:00'),
+    (3, 7, '01:00:00'),
+    (3, 8, '02:30:00'),
+    (4, 4, '01:30:00'),
+    (4, 5, '01:30:00'),
+    (4, 6, '01:30:00'),
+    (4, 7, '01:30:00'),
+    (4, 8, '01:30:00'),
+    (4, 1, '01:00:00'),
+    (4, 2, '01:00:00'),
+    (5, 4, '02:00:00'),
+    (5, 5, '02:00:00'),
+    (5, 6, '02:00:00'),
+    (5, 7, '01:00:00'),
+    (5, 8, '02:00:00'),
+    (5, 1, '01:30:00'),
+    (5, 2, '01:30:00'),
+    (6, 6, '02:00:00'),
+    (6, 7, '02:00:00'),
+    (6, 8, '02:00:00'),
+    (6, 1, '01:00:00'),
+    (6, 2, '01:00:00'),
+    (6, 3, '01:00:00'),
+    (6, 4, '01:30:00'),
+    (7, 7, '01:00:00'),
+    (7, 8, '01:00:00'),
+    (7, 1, '01:00:00'),
+    (7, 2, '01:00:00'),
+    (7, 3, '01:00:00'),
+    (7, 4, '01:00:00'),
+    (7, 5, '01:00:00'),
+    (7, 6, '01:00:00'),
+    -- New attendance entries for existing and new instructors
+    (8, 9, '01:00:00'),
+    (8, 10, '00:45:00'),
+    (8, 11, '01:00:00'),
+    (8, 12, '01:00:00'),
+    (8, 13, '01:00:00'),
+    (8, 14, '01:00:00'),
+    (8, 15, '01:00:00'),
+    (8, 16, '01:00:00'),
+    (9, 9, '02:30:00'),
+    (9, 10, '02:00:00'),
+    (9, 11, '02:30:00'),
+    (9, 12, '02:30:00'),
+    (9, 13, '02:30:00'),
+    (9, 14, '02:30:00'),
+    (9, 15, '02:30:00'),
+    (9, 16, '02:30:00'),
+    (10, 11, '01:00:00'),
+    (10, 12, '00:45:00'),
+    (10, 13, '01:00:00'),
+    (10, 14, '01:00:00'),
+    (10, 15, '01:00:00'),
+    (10, 16, '01:00:00'),
+    (10, 1, '01:00:00'),
+    (10, 2, '01:00:00'),
+    (11, 10, '01:30:00'),
+    (11, 12, '01:00:00'),
+    (11, 13, '01:30:00'),
+    (11, 14, '01:30:00'),
+    (11, 15, '01:30:00'),
+    (11, 16, '01:30:00'),
+    (11, 3, '01:00:00'),
+    (11, 4, '01:00:00'),
+    (12, 13, '02:00:00'),
+    (12, 14, '01:30:00'),
+    (12, 15, '02:00:00'),
+    (12, 16, '02:00:00'),
+    (12, 1, '01:00:00'),
+    (12, 2, '01:00:00'),
+    (12, 3, '01:00:00'),
+    (12, 4, '01:00:00'),
+    (13, 13, '02:00:00'),
+    (13, 15, '01:00:00'),
+    (13, 16, '02:00:00'),
+    (13, 1, '01:00:00'),
+    (13, 2, '01:00:00'),
+    (13, 3, '01:00:00'),
+    (13, 4, '01:00:00'),
+    (13, 5, '01:00:00'),
+    (13, 6, '01:00:00'),
+    (14, 12, '01:00:00'),
+    (14, 16, '00:45:00'),
+    (14, 1, '01:00:00'),
+    (14, 2, '01:00:00'),
+    (14, 3, '01:00:00'),
+    (14, 4, '01:00:00'),
+    (14, 5, '01:00:00'),
+    (14, 6, '01:00:00'),
+    (15, 9, '01:00:00'),
+    (15, 10, '01:00:00'),
+    (15, 11, '01:00:00'),
+    (15, 12, '01:00:00'),
+    (15, 13, '01:00:00'),
+    (15, 14, '01:00:00'),
+    (15, 15, '01:00:00'),
+    (15, 16, '01:00:00'),
+    (16, 11, '02:00:00'),
+    (16, 12, '02:00:00'),
+    (16, 13, '02:00:00'),
+    (16, 14, '02:00:00'),
+    (16, 15, '02:00:00'),
+    (16, 16, '02:00:00'),
+    (16, 1, '01:00:00'),
+    (16, 2, '01:00:00'),
+    (17, 13, '03:00:00'),
+    (17, 14, '02:00:00'),
+    (17, 15, '03:00:00'),
+    (17, 16, '03:00:00'),
+    (17, 1, '01:00:00'),
+    (17, 2, '01:00:00'),
+    (17, 3, '01:00:00'),
+    (17, 4, '01:00:00'),
+    (18, 15, '01:30:00'),
+    (18, 16, '01:30:00'),
+    (18, 9, '01:00:00'),
+    (18, 10, '01:00:00'),
+    (18, 11, '01:00:00'),
+    (18, 12, '01:00:00'),
+    (18, 13, '01:00:00'),
+    (18, 14, '01:00:00'),
+    (19, 10, '02:00:00'),
+    (19, 11, '01:30:00'),
+    (19, 12, '02:00:00'),
+    (19, 13, '02:00:00'),
+    (19, 14, '02:00:00'),
+    (19, 15, '02:00:00'),
+    (19, 16, '02:00:00'),
+    (19, 1, '01:00:00'),
+    (19, 2, '01:00:00'),
+    (20, 12, '02:00:00'),
+    (20, 13, '01:00:00'),
+    (20, 14, '02:00:00'),
+    (20, 15, '02:00:00'),
+    (20, 16, '02:00:00'),
+    (20, 1, '01:00:00'),
+    (20, 2, '01:00:00'),
+    (20, 3, '01:00:00'),
+    (20, 4, '01:00:00'),
+    (21, 14, '01:00:00'),
+    (21, 15, '01:00:00'),
+    (21, 16, '01:00:00'),
+    (21, 9, '01:00:00'),
+    (21, 10, '01:00:00'),
+    (21, 11, '01:00:00'),
+    (21, 12, '01:00:00'),
+    (21, 13, '01:00:00'),
+    (21, 1, '01:00:00'),
+    (22, 16, '01:00:00'),
+    (22, 9, '00:45:00'),
+    (22, 10, '01:00:00'),
+    (22, 11, '01:00:00'),
+    (22, 12, '01:00:00'),
+    (22, 13, '01:00:00'),
+    (22, 14, '01:00:00'),
+    (22, 15, '01:00:00'),
+    (23, 10, '02:00:00'),
+    (23, 11, '02:00:00'),
+    (23, 12, '02:00:00'),
+    (23, 13, '02:00:00'),
+    (23, 14, '02:00:00'),
+    (23, 15, '02:00:00'),
+    (23, 16, '02:00:00'),
+    (23, 1, '01:00:00'),
+    (24, 12, '03:00:00'),
+    (24, 13, '02:30:00'),
+    (24, 14, '03:00:00'),
+    (24, 15, '03:00:00'),
+    (24, 16, '03:00:00'),
+    (24, 1, '01:00:00'),
+    (24, 2, '01:00:00'),
+    (24, 3, '01:00:00'),
+    (24, 4, '01:00:00'),
+    (25, 14, '01:30:00'),
+    (25, 15, '01:30:00'),
+    (25, 16, '01:30:00'),
+    (25, 9, '01:00:00'),
+    (25, 10, '01:00:00'),
+    (25, 11, '01:00:00'),
+    (25, 12, '01:00:00'),
+    (25, 13, '01:00:00'),
+    (25, 1, '01:00:00'),
+    (26, 16, '02:00:00'),
+    (26, 9, '01:30:00'),
+    (26, 10, '02:00:00'),
+    (26, 11, '02:00:00'),
+    (26, 12, '02:00:00'),
+    (26, 13, '02:00:00'),
+    (26, 14, '02:00:00'),
+    (26, 15, '02:00:00'),
+    (27, 10, '02:00:00'),
+    (27, 11, '02:00:00'),
+    (27, 12, '02:00:00'),
+    (27, 13, '02:00:00'),
+    (27, 14, '02:00:00'),
+    (27, 15, '02:00:00'),
+    (27, 16, '02:00:00'),
+    (27, 1, '01:00:00'),
+    (28, 12, '01:00:00'),
+    (28, 13, '00:45:00'),
+    (28, 14, '01:00:00'),
+    (28, 15, '01:00:00'),
+    (28, 16, '01:00:00'),
+    (28, 9, '01:00:00'),
+    (28, 10, '01:00:00'),
+    (28, 11, '01:00:00'),
+    (29, 14, '01:00:00'),
+    (29, 15, '01:00:00'),
+    (29, 16, '01:00:00'),
+    (29, 1, '01:00:00'),
+    (29, 2, '01:00:00'),
+    (29, 3, '01:00:00'),
+    (29, 4, '01:00:00'),
+    (29, 5, '01:00:00'),
+    (29, 6, '01:00:00'),
+    (30, 16, '02:00:00'),
+    (30, 9, '01:00:00'),
+    (30, 10, '02:00:00'),
+    (30, 11, '02:00:00'),
+    (30, 12, '02:00:00'),
+    (30, 13, '02:00:00'),
+    (30, 14, '02:00:00'),
+    (30, 15, '02:00:00'),
+    (31, 10, '03:00:00'),
+    (31, 11, '02:30:00'),
+    (31, 12, '03:00:00'),
+    (31, 13, '03:00:00'),
+    (31, 14, '03:00:00'),
+    (31, 15, '03:00:00'),
+    (31, 16, '03:00:00'),
+    (31, 1, '01:00:00'),
+    (31, 2, '01:00:00'),
+    (31, 3, '01:00:00'),
+    (31, 4, '01:00:00');
 
 -- Service hours
-INSERT INTO "service_hours_entry" ("instructor_id", "service_role_id", "year", "month", "hours") VALUES
-(1, 1, 2024, 5, 15),
-(2, 2, 2024, 6, 10),
-(3, 1, 2024, 7, 1000),
-(4, 3, 2024, 8, 20),
-(5, 4, 2024, 9, 25),
-(6, 5, 2024, 10, 30),
-(7, 6, 2024, 11, 35),
-(8, 1, 2024, 12, 40);
+INSERT INTO
+    "service_hours_entry" (
+        "instructor_id",
+        "service_role_id",
+        "year",
+        "month",
+        "hours"
+    )
+VALUES
+    -- Instructor 1 (Benchmark: 360, 380, 200)
+    (1, 1, 2022, 1, 30),
+    (1, 1, 2022, 2, 28),
+    (1, 1, 2022, 3, 31),
+    (1, 1, 2022, 4, 30),
+    (1, 1, 2022, 5, 28),
+    (1, 1, 2022, 6, 31),
+    (1, 1, 2022, 7, 30),
+    (1, 1, 2022, 8, 31),
+    (1, 1, 2022, 9, 30),
+    (1, 1, 2022, 10, 28),
+    (1, 1, 2022, 11, 30),
+    (1, 1, 2022, 12, 33),
+    (1, 1, 2023, 1, 32),
+    (1, 1, 2023, 2, 31),
+    (1, 1, 2023, 3, 30),
+    (1, 1, 2023, 4, 32),
+    (1, 1, 2023, 5, 31),
+    (1, 1, 2023, 6, 30),
+    (1, 1, 2023, 7, 32),
+    (1, 1, 2023, 8, 31),
+    (1, 1, 2023, 9, 30),
+    (1, 1, 2023, 10, 32),
+    (1, 1, 2023, 11, 31),
+    (1, 1, 2023, 12, 32),
+    (1, 1, 2024, 1, 15),
+    (1, 1, 2024, 2, 17),
+    (1, 1, 2024, 3, 16),
+    (1, 1, 2024, 4, 18),
+    (1, 1, 2024, 5, 17),
+    (1, 1, 2024, 6, 16),
+    (1, 1, 2024, 7, 18),
+    (1, 1, 2024, 8, 17),
+    (1, 1, 2024, 9, 16),
+    (1, 1, 2024, 10, 18),
+    (1, 1, 2024, 11, 17),
+    (1, 1, 2024, 12, 17),
+    -- Instructor 2 (Benchmark: 180, 190, 100)
+    (2, 2, 2022, 1, 15),
+    (2, 2, 2022, 2, 14),
+    (2, 2, 2022, 3, 16),
+    (2, 2, 2022, 4, 15),
+    (2, 2, 2022, 5, 14),
+    (2, 2, 2022, 6, 15),
+    (2, 2, 2022, 7, 14),
+    (2, 2, 2022, 8, 16),
+    (2, 2, 2022, 9, 15),
+    (2, 2, 2022, 10, 14),
+    (2, 2, 2022, 11, 15),
+    (2, 2, 2022, 12, 15),
+    (2, 2, 2023, 1, 16),
+    (2, 2, 2023, 2, 15),
+    (2, 2, 2023, 3, 14),
+    (2, 2, 2023, 4, 16),
+    (2, 2, 2023, 5, 15),
+    (2, 2, 2023, 6, 16),
+    (2, 2, 2023, 7, 15),
+    (2, 2, 2023, 8, 16),
+    (2, 2, 2023, 9, 15),
+    (2, 2, 2023, 10, 14),
+    (2, 2, 2023, 11, 15),
+    (2, 2, 2023, 12, 15),
+    (2, 2, 2024, 1, 10),
+    (2, 2, 2024, 2, 9),
+    (2, 2, 2024, 3, 8),
+    (2, 2, 2024, 4, 10),
+    (2, 2, 2024, 5, 9),
+    (2, 2, 2024, 6, 10),
+    (2, 2, 2024, 7, 9),
+    (2, 2, 2024, 8, 8),
+    (2, 2, 2024, 9, 10),
+    (2, 2, 2024, 10, 9),
+    (2, 2, 2024, 11, 10),
+    (2, 2, 2024, 12, 8),
+    -- Instructor 3 (Benchmark: 300, 310, 300)
+    (3, 1, 2022, 1, 26),
+    (3, 1, 2022, 2, 25),
+    (3, 1, 2022, 3, 27),
+    (3, 1, 2022, 4, 26),
+    (3, 1, 2022, 5, 25),
+    (3, 1, 2022, 6, 26),
+    (3, 1, 2022, 7, 27),
+    (3, 1, 2022, 8, 25),
+    (3, 1, 2022, 9, 26),
+    (3, 1, 2022, 10, 27),
+    (3, 1, 2022, 11, 25),
+    (3, 1, 2022, 12, 27),
+    (3, 1, 2023, 1, 26),
+    (3, 1, 2023, 2, 25),
+    (3, 1, 2023, 3, 27),
+    (3, 1, 2023, 4, 26),
+    (3, 1, 2023, 5, 25),
+    (3, 1, 2023, 6, 26),
+    (3, 1, 2023, 7, 27),
+    (3, 1, 2023, 8, 25),
+    (3, 1, 2023, 9, 26),
+    (3, 1, 2023, 10, 27),
+    (3, 1, 2023, 11, 25),
+    (3, 1, 2023, 12, 27),
+    (3, 1, 2024, 1, 27),
+    (3, 1, 2024, 2, 26),
+    (3, 1, 2024, 3, 27),
+    (3, 1, 2024, 4, 28),
+    (3, 1, 2024, 5, 27),
+    (3, 1, 2024, 6, 26),
+    (3, 1, 2024, 7, 28),
+    (3, 1, 2024, 8, 21),
+    (3, 1, 2024, 9, 26),
+    (3, 1, 2024, 10, 28),
+    (3, 1, 2024, 11, 27),
+    (3, 1, 2024, 12, 26),
+    -- Instructor 4 (Benchmark: 200, 210, 150)
+    (4, 3, 2022, 1, 18),
+    (4, 3, 2022, 2, 17),
+    (4, 3, 2022, 3, 19),
+    (4, 3, 2022, 4, 18),
+    (4, 3, 2022, 5, 17),
+    (4, 3, 2022, 6, 18),
+    (4, 3, 2022, 7, 19),
+    (4, 3, 2022, 8, 17),
+    (4, 3, 2022, 9, 18),
+    (4, 3, 2022, 10, 19),
+    (4, 3, 2022, 11, 17),
+    (4, 3, 2022, 12, 18),
+    (4, 3, 2023, 1, 18),
+    (4, 3, 2023, 2, 17),
+    (4, 3, 2023, 3, 19),
+    (4, 3, 2023, 4, 18),
+    (4, 3, 2023, 5, 17),
+    (4, 3, 2023, 6, 18),
+    (4, 3, 2023, 7, 19),
+    (4, 3, 2023, 8, 17),
+    (4, 3, 2023, 9, 18),
+    (4, 3, 2023, 10, 19),
+    (4, 3, 2023, 11, 17),
+    (4, 3, 2023, 12, 18),
+    (4, 3, 2024, 1, 13),
+    (4, 3, 2024, 2, 12),
+    (4, 3, 2024, 3, 14),
+    (4, 3, 2024, 4, 13),
+    (4, 3, 2024, 5, 12),
+    (4, 3, 2024, 6, 13),
+    (4, 3, 2024, 7, 14),
+    (4, 3, 2024, 8, 9),
+    (4, 3, 2024, 9, 13),
+    (4, 3, 2024, 10, 14),
+    (4, 3, 2024, 11, 12),
+    (4, 3, 2024, 12, 13),
+    -- Instructor 5 (Benchmark: 300, 310, 250)
+    (5, 4, 2022, 1, 27),
+    (5, 4, 2022, 2, 26),
+    (5, 4, 2022, 3, 28),
+    (5, 4, 2022, 4, 27),
+    (5, 4, 2022, 5, 26),
+    (5, 4, 2022, 6, 27),
+    (5, 4, 2022, 7, 28),
+    (5, 4, 2022, 8, 26),
+    (5, 4, 2022, 9, 27),
+    (5, 4, 2022, 10, 28),
+    (5, 4, 2022, 11, 26),
+    (5, 4, 2022, 12, 27),
+    (5, 4, 2023, 1, 28),
+    (5, 4, 2023, 2, 27),
+    (5, 4, 2023, 3, 26),
+    (5, 4, 2023, 4, 28),
+    (5, 4, 2023, 5, 27),
+    (5, 4, 2023, 6, 28),
+    (5, 4, 2023, 7, 27),
+    (5, 4, 2023, 8, 28),
+    (5, 4, 2023, 9, 26),
+    (5, 4, 2023, 10, 27),
+    (5, 4, 2023, 11, 28),
+    (5, 4, 2023, 12, 27),
+    (5, 4, 2024, 1, 21),
+    (5, 4, 2024, 2, 20),
+    (5, 4, 2024, 3, 22),
+    (5, 4, 2024, 4, 21),
+    (5, 4, 2024, 5, 20),
+    (5, 4, 2024, 6, 21),
+    (5, 4, 2024, 7, 22),
+    (5, 4, 2024, 8, 20),
+    (5, 4, 2024, 9, 21),
+    (5, 4, 2024, 10, 22),
+    (5, 4, 2024, 11, 20),
+    (5, 4, 2024, 12, 21),
+    -- Instructor 6 (Benchmark: 240, 250, 180)
+    (6, 5, 2022, 1, 22),
+    (6, 5, 2022, 2, 20),
+    (6, 5, 2022, 3, 22),
+    (6, 5, 2022, 4, 21),
+    (6, 5, 2022, 5, 20),
+    (6, 5, 2022, 6, 21),
+    (6, 5, 2022, 7, 22),
+    (6, 5, 2022, 8, 20),
+    (6, 5, 2022, 9, 21),
+    (6, 5, 2022, 10, 22),
+    (6, 5, 2022, 11, 20),
+    (6, 5, 2022, 12, 21),
+    (6, 5, 2023, 1, 22),
+    (6, 5, 2023, 2, 21),
+    (6, 5, 2023, 3, 20),
+    (6, 5, 2023, 4, 22),
+    (6, 5, 2023, 5, 21),
+    (6, 5, 2023, 6, 22),
+    (6, 5, 2023, 7, 21),
+    (6, 5, 2023, 8, 22),
+    (6, 5, 2023, 9, 20),
+    (6, 5, 2023, 10, 21),
+    (6, 5, 2023, 11, 22),
+    (6, 5, 2023, 12, 21),
+    (6, 5, 2024, 1, 14),
+    (6, 5, 2024, 2, 13),
+    (6, 5, 2024, 3, 15),
+    (6, 5, 2024, 4, 14),
+    (6, 5, 2024, 5, 13),
+    (6, 5, 2024, 6, 14),
+    (6, 5, 2024, 7, 15),
+    (6, 5, 2024, 8, 13),
+    (6, 5, 2024, 9, 14),
+    (6, 5, 2024, 10, 15),
+    (6, 5, 2024, 11, 13),
+    (6, 5, 2024, 12, 14),
+    -- Instructor 7 (Benchmark: 312, 322, 220)
+    (7, 6, 2022, 1, 26),
+    (7, 6, 2022, 2, 25),
+    (7, 6, 2022, 3, 27),
+    (7, 6, 2022, 4, 26),
+    (7, 6, 2022, 5, 25),
+    (7, 6, 2022, 6, 26),
+    (7, 6, 2022, 7, 27),
+    (7, 6, 2022, 8, 25),
+    (7, 6, 2022, 9, 26),
+    (7, 6, 2022, 10, 27),
+    (7, 6, 2022, 11, 25),
+    (7, 6, 2022, 12, 27),
+    (7, 6, 2023, 1, 28),
+    (7, 6, 2023, 2, 27),
+    (7, 6, 2023, 3, 26),
+    (7, 6, 2023, 4, 28),
+    (7, 6, 2023, 5, 27),
+    (7, 6, 2023, 6, 28),
+    (7, 6, 2023, 7, 27),
+    (7, 6, 2023, 8, 28),
+    (7, 6, 2023, 9, 26),
+    (7, 6, 2023, 10, 27),
+    (7, 6, 2023, 11, 28),
+    (7, 6, 2023, 12, 27),
+    (7, 6, 2024, 1, 19),
+    (7, 6, 2024, 2, 18),
+    (7, 6, 2024, 3, 20),
+    (7, 6, 2024, 4, 19),
+    (7, 6, 2024, 5, 18),
+    (7, 6, 2024, 6, 19),
+    (7, 6, 2024, 7, 20),
+    (7, 6, 2024, 8, 18),
+    (7, 6, 2024, 9, 19),
+    (7, 6, 2024, 10, 20),
+    (7, 6, 2024, 11, 18),
+    (7, 6, 2024, 12, 19),
+    -- Instructor 8 (Benchmark: 192, 202, 160)
+    (8, 1, 2022, 1, 17),
+    (8, 1, 2022, 2, 16),
+    (8, 1, 2022, 3, 18),
+    (8, 1, 2022, 4, 17),
+    (8, 1, 2022, 5, 16),
+    (8, 1, 2022, 6, 17),
+    (8, 1, 2022, 7, 18),
+    (8, 1, 2022, 8, 16),
+    (8, 1, 2022, 9, 17),
+    (8, 1, 2022, 10, 18),
+    (8, 1, 2022, 11, 16),
+    (8, 1, 2022, 12, 17),
+    (8, 1, 2023, 1, 18),
+    (8, 1, 2023, 2, 17),
+    (8, 1, 2023, 3, 16),
+    (8, 1, 2023, 4, 18),
+    (8, 1, 2023, 5, 17),
+    (8, 1, 2023, 6, 18),
+    (8, 1, 2023, 7, 17),
+    (8, 1, 2023, 8, 18),
+    (8, 1, 2023, 9, 16),
+    (8, 1, 2023, 10, 17),
+    (8, 1, 2023, 11, 18),
+    (8, 1, 2023, 12, 17),
+    (8, 1, 2024, 1, 14),
+    (8, 1, 2024, 2, 13),
+    (8, 1, 2024, 3, 15),
+    (8, 1, 2024, 4, 14),
+    (8, 1, 2024, 5, 13),
+    (8, 1, 2024, 6, 14),
+    (8, 1, 2024, 7, 15),
+    (8, 1, 2024, 8, 13),
+    (8, 1, 2024, 9, 14),
+    (8, 1, 2024, 10, 15),
+    (8, 1, 2024, 11, 13),
+    (8, 1, 2024, 12, 14),
+    -- Instructor 9 (Benchmark: 350, 360, 370)
+    (9, 2, 2022, 1, 30),
+    (9, 2, 2022, 2, 28),
+    (9, 2, 2022, 3, 29),
+    (9, 2, 2022, 4, 30),
+    (9, 2, 2022, 5, 29),
+    (9, 2, 2022, 6, 28),
+    (9, 2, 2022, 7, 30),
+    (9, 2, 2022, 8, 28),
+    (9, 2, 2022, 9, 29),
+    (9, 2, 2022, 10, 30),
+    (9, 2, 2022, 11, 28),
+    (9, 2, 2022, 12, 29),
+    (9, 2, 2023, 1, 30),
+    (9, 2, 2023, 2, 28),
+    (9, 2, 2023, 3, 29),
+    (9, 2, 2023, 4, 30),
+    (9, 2, 2023, 5, 29),
+    (9, 2, 2023, 6, 28),
+    (9, 2, 2023, 7, 30),
+    (9, 2, 2023, 8, 28),
+    (9, 2, 2023, 9, 29),
+    (9, 2, 2023, 10, 30),
+    (9, 2, 2023, 11, 28),
+    (9, 2, 2023, 12, 29),
+    (9, 2, 2024, 1, 31),
+    (9, 2, 2024, 2, 30),
+    (9, 2, 2024, 3, 31),
+    (9, 2, 2024, 4, 30),
+    (9, 2, 2024, 5, 31),
+    (9, 2, 2024, 6, 30),
+    (9, 2, 2024, 7, 31),
+    (9, 2, 2024, 8, 30),
+    (9, 2, 2024, 9, 31),
+    (9, 2, 2024, 10, 30),
+    (9, 2, 2024, 11, 31),
+    (9, 2, 2024, 12, 30),
+    -- Instructor 10 (Benchmark: 156, 166, 176)
+    (10, 3, 2022, 1, 13),
+    (10, 3, 2022, 2, 12),
+    (10, 3, 2022, 3, 14),
+    (10, 3, 2022, 4, 13),
+    (10, 3, 2022, 5, 12),
+    (10, 3, 2022, 6, 13),
+    (10, 3, 2022, 7, 14),
+    (10, 3, 2022, 8, 12),
+    (10, 3, 2022, 9, 13),
+    (10, 3, 2022, 10, 14),
+    (10, 3, 2022, 11, 12),
+    (10, 3, 2022, 12, 13),
+    (10, 3, 2023, 1, 14),
+    (10, 3, 2023, 2, 13),
+    (10, 3, 2023, 3, 12),
+    (10, 3, 2023, 4, 14),
+    (10, 3, 2023, 5, 13),
+    (10, 3, 2023, 6, 14),
+    (10, 3, 2023, 7, 13),
+    (10, 3, 2023, 8, 14),
+    (10, 3, 2023, 9, 12),
+    (10, 3, 2023, 10, 13),
+    (10, 3, 2023, 11, 14),
+    (10, 3, 2023, 12, 13),
+    (10, 3, 2024, 1, 15),
+    (10, 3, 2024, 2, 14),
+    (10, 3, 2024, 3, 16),
+    (10, 3, 2024, 4, 15),
+    (10, 3, 2024, 5, 14),
+    (10, 3, 2024, 6, 15),
+    (10, 3, 2024, 7, 16),
+    (10, 3, 2024, 8, 14),
+    (10, 3, 2024, 9, 15),
+    (10, 3, 2024, 10, 16),
+    (10, 3, 2024, 11, 14),
+    (10, 3, 2024, 12, 15),
+    -- Instructor 11 (Benchmark: 400, 410, 420)
+    (11, 4, 2022, 1, 34),
+    (11, 4, 2022, 2, 33),
+    (11, 4, 2022, 3, 35),
+    (11, 4, 2022, 4, 34),
+    (11, 4, 2022, 5, 33),
+    (11, 4, 2022, 6, 34),
+    (11, 4, 2022, 7, 35),
+    (11, 4, 2022, 8, 33),
+    (11, 4, 2022, 9, 34),
+    (11, 4, 2022, 10, 35),
+    (11, 4, 2022, 11, 33),
+    (11, 4, 2022, 12, 34),
+    (11, 4, 2023, 1, 35),
+    (11, 4, 2023, 2, 34),
+    (11, 4, 2023, 3, 33),
+    (11, 4, 2023, 4, 35),
+    (11, 4, 2023, 5, 34),
+    (11, 4, 2023, 6, 35),
+    (11, 4, 2023, 7, 34),
+    (11, 4, 2023, 8, 35),
+    (11, 4, 2023, 9, 33),
+    (11, 4, 2023, 10, 34),
+    (11, 4, 2023, 11, 35),
+    (11, 4, 2023, 12, 34),
+    (11, 4, 2024, 1, 35),
+    (11, 4, 2024, 2, 34),
+    (11, 4, 2024, 3, 36),
+    (11, 4, 2024, 4, 35),
+    (11, 4, 2024, 5, 34),
+    (11, 4, 2024, 6, 35),
+    (11, 4, 2024, 7, 36),
+    (11, 4, 2024, 8, 34),
+    (11, 4, 2024, 9, 35),
+    (11, 4, 2024, 10, 36),
+    (11, 4, 2024, 11, 34),
+    (11, 4, 2024, 12, 35),
+    -- Instructor 12 (Benchmark: 260, 270, 280)
+    (12, 5, 2022, 1, 22),
+    (12, 5, 2022, 2, 21),
+    (12, 5, 2022, 3, 23),
+    (12, 5, 2022, 4, 22),
+    (12, 5, 2022, 5, 21),
+    (12, 5, 2022, 6, 22),
+    (12, 5, 2022, 7, 23),
+    (12, 5, 2022, 8, 21),
+    (12, 5, 2022, 9, 22),
+    (12, 5, 2022, 10, 23),
+    (12, 5, 2022, 11, 21),
+    (12, 5, 2022, 12, 22),
+    (12, 5, 2023, 1, 23),
+    (12, 5, 2023, 2, 22),
+    (12, 5, 2023, 3, 21),
+    (12, 5, 2023, 4, 23),
+    (12, 5, 2023, 5, 22),
+    (12, 5, 2023, 6, 23),
+    (12, 5, 2023, 7, 22),
+    (12, 5, 2023, 8, 23),
+    (12, 5, 2023, 9, 21),
+    (12, 5, 2023, 10, 22),
+    (12, 5, 2023, 11, 23),
+    (12, 5, 2023, 12, 22),
+    (12, 5, 2024, 1, 24),
+    (12, 5, 2024, 2, 23),
+    (12, 5, 2024, 3, 25),
+    (12, 5, 2024, 4, 21),
+    (12, 5, 2024, 5, 23),
+    (12, 5, 2024, 6, 24),
+    (12, 5, 2024, 7, 25),
+    (12, 5, 2024, 8, 23),
+    (12, 5, 2024, 9, 24),
+    (12, 5, 2024, 10, 23),
+    (12, 5, 2024, 11, 23),
+    (12, 5, 2024, 12, 24),
+    -- Instructor 13 (Benchmark: 290, 300, 310)
+    (13, 6, 2022, 1, 24),
+    (13, 6, 2022, 2, 23),
+    (13, 6, 2022, 3, 25),
+    (13, 6, 2022, 4, 24),
+    (13, 6, 2022, 5, 23),
+    (13, 6, 2022, 6, 24),
+    (13, 6, 2022, 7, 25),
+    (13, 6, 2022, 8, 23),
+    (13, 6, 2022, 9, 24),
+    (13, 6, 2022, 10, 25),
+    (13, 6, 2022, 11, 23),
+    (13, 6, 2022, 12, 24),
+    (13, 6, 2023, 1, 25),
+    (13, 6, 2023, 2, 24),
+    (13, 6, 2023, 3, 23),
+    (13, 6, 2023, 4, 25),
+    (13, 6, 2023, 5, 24),
+    (13, 6, 2023, 6, 25),
+    (13, 6, 2023, 7, 24),
+    (13, 6, 2023, 8, 25),
+    (13, 6, 2023, 9, 23),
+    (13, 6, 2023, 10, 24),
+    (13, 6, 2023, 11, 25),
+    (13, 6, 2023, 12, 24),
+    (13, 6, 2024, 1, 26),
+    (13, 6, 2024, 2, 25),
+    (13, 6, 2024, 3, 21),
+    (13, 6, 2024, 4, 26),
+    (13, 6, 2024, 5, 25),
+    (13, 6, 2024, 6, 26),
+    (13, 6, 2024, 7, 27),
+    (13, 6, 2024, 8, 25),
+    (13, 6, 2024, 9, 26),
+    (13, 6, 2024, 10, 27),
+    (13, 6, 2024, 11, 23),
+    (13, 6, 2024, 12, 26),
+    -- Instructor 14 (Benchmark: 320, 330, 340)
+    (14, 1, 2022, 1, 27),
+    (14, 1, 2022, 2, 26),
+    (14, 1, 2022, 3, 28),
+    (14, 1, 2022, 4, 27),
+    (14, 1, 2022, 5, 26),
+    (14, 1, 2022, 6, 27),
+    (14, 1, 2022, 7, 28),
+    (14, 1, 2022, 8, 26),
+    (14, 1, 2022, 9, 27),
+    (14, 1, 2022, 10, 28),
+    (14, 1, 2022, 11, 26),
+    (14, 1, 2022, 12, 27),
+    (14, 1, 2023, 1, 28),
+    (14, 1, 2023, 2, 27),
+    (14, 1, 2023, 3, 26),
+    (14, 1, 2023, 4, 23),
+    (14, 1, 2023, 5, 27),
+    (14, 1, 2023, 6, 28),
+    (14, 1, 2023, 7, 27),
+    (14, 1, 2023, 8, 28),
+    (14, 1, 2023, 9, 26),
+    (14, 1, 2023, 10, 27),
+    (14, 1, 2023, 11, 28),
+    (14, 1, 2023, 12, 27),
+    (14, 1, 2024, 1, 29),
+    (14, 1, 2024, 2, 28),
+    (14, 1, 2024, 3, 30),
+    (14, 1, 2024, 4, 29),
+    (14, 1, 2024, 5, 28),
+    (14, 1, 2024, 6, 29),
+    (14, 1, 2024, 7, 30),
+    (14, 1, 2024, 8, 28),
+    (14, 1, 2024, 9, 29),
+    (14, 1, 2024, 10, 30),
+    (14, 1, 2024, 11, 28),
+    (14, 1, 2024, 12, 29),
+    -- Instructor 15 (Benchmark: 416, 426, 436)
+    (15, 2, 2022, 1, 36),
+    (15, 2, 2022, 2, 35),
+    (15, 2, 2022, 3, 37),
+    (15, 2, 2022, 4, 36),
+    (15, 2, 2022, 5, 35),
+    (15, 2, 2022, 6, 36),
+    (15, 2, 2022, 7, 37),
+    (15, 2, 2022, 8, 35),
+    (15, 2, 2022, 9, 36),
+    (15, 2, 2022, 10, 33),
+    (15, 2, 2022, 11, 35),
+    (15, 2, 2022, 12, 36),
+    (15, 2, 2023, 1, 37),
+    (15, 2, 2023, 2, 36),
+    (15, 2, 2023, 3, 35),
+    (15, 2, 2023, 4, 37),
+    (15, 2, 2023, 5, 36),
+    (15, 2, 2023, 6, 37),
+    (15, 2, 2023, 7, 36),
+    (15, 2, 2023, 8, 37),
+    (15, 2, 2023, 9, 35),
+    (15, 2, 2023, 10, 36),
+    (15, 2, 2023, 11, 37),
+    (15, 2, 2023, 12, 36),
+    (15, 2, 2024, 1, 38),
+    (15, 2, 2024, 2, 37),
+    (15, 2, 2024, 3, 39),
+    (15, 2, 2024, 4, 38),
+    (15, 2, 2024, 5, 37),
+    (15, 2, 2024, 6, 38),
+    (15, 2, 2024, 7, 39),
+    (15, 2, 2024, 8, 37),
+    (15, 2, 2024, 9, 38),
+    (15, 2, 2024, 10, 39),
+    (15, 2, 2024, 11, 37),
+    (15, 2, 2024, 12, 38),
+    -- Instructor 16 (Benchmark: 280, 290, 300)
+    (16, 3, 2022, 1, 23),
+    (16, 3, 2022, 2, 22),
+    (16, 3, 2022, 3, 24),
+    (16, 3, 2022, 4, 23),
+    (16, 3, 2022, 5, 22),
+    (16, 3, 2022, 6, 23),
+    (16, 3, 2022, 7, 24),
+    (16, 3, 2022, 8, 22),
+    (16, 3, 2022, 9, 23),
+    (16, 3, 2022, 10, 24),
+    (16, 3, 2022, 11, 22),
+    (16, 3, 2022, 12, 23),
+    (16, 3, 2023, 1, 24),
+    (16, 3, 2023, 2, 23),
+    (16, 3, 2023, 3, 22),
+    (16, 3, 2023, 4, 24),
+    (16, 3, 2023, 5, 23),
+    (16, 3, 2023, 6, 24),
+    (16, 3, 2023, 7, 23),
+    (16, 3, 2023, 8, 24),
+    (16, 3, 2023, 9, 22),
+    (16, 3, 2023, 10, 23),
+    (16, 3, 2023, 11, 24),
+    (16, 3, 2023, 12, 23),
+    (16, 3, 2024, 1, 25),
+    (16, 3, 2024, 2, 24),
+    (16, 3, 2024, 3, 26),
+    (16, 3, 2024, 4, 25),
+    (16, 3, 2024, 5, 24),
+    (16, 3, 2024, 6, 25),
+    (16, 3, 2024, 7, 26),
+    (16, 3, 2024, 8, 24),
+    (16, 3, 2024, 9, 25),
+    (16, 3, 2024, 10, 26),
+    (16, 3, 2024, 11, 24),
+    (16, 3, 2024, 12, 25);
 
 -- Service hours benchmarks
-INSERT INTO "service_hours_benchmark" ("instructor_id", "year", "hours") VALUES
-(1, 2024, 200),
-(2, 2024, 100),
-(3, 2024, 300),
-(4, 2024, 150),
-(5, 2024, 250),
-(6, 2024, 180),
-(7, 2024, 220),
-(8, 2024, 160);
+INSERT INTO
+    "service_hours_benchmark" ("instructor_id", "year", "hours")
+VALUES
+    -- Year 2022
+    (1, 2022, 360),
+    (2, 2022, 180),
+    (3, 2022, 300),
+    (4, 2022, 200),
+    (5, 2022, 300),
+    (6, 2022, 240),
+    (7, 2022, 312),
+    (8, 2022, 192),
+    (9, 2022, 350),
+    (10, 2022, 156),
+    (11, 2022, 400),
+    (12, 2022, 260),
+    (13, 2022, 290),
+    (14, 2022, 320),
+    (15, 2022, 416),
+    (16, 2022, 280),
+    -- Year 2023
+    (1, 2023, 380),
+    (2, 2023, 190),
+    (3, 2023, 310),
+    (4, 2023, 210),
+    (5, 2023, 310),
+    (6, 2023, 250),
+    (7, 2023, 322),
+    (8, 2023, 202),
+    (9, 2023, 360),
+    (10, 2023, 166),
+    (11, 2023, 410),
+    (12, 2023, 270),
+    (13, 2023, 300),
+    (14, 2023, 330),
+    (15, 2023, 426),
+    (16, 2023, 290),
+    -- Year 2024
+    (1, 2024, 200),
+    (2, 2024, 100),
+    (3, 2024, 300),
+    (4, 2024, 150),
+    (5, 2024, 250),
+    (6, 2024, 180),
+    (7, 2024, 220),
+    (8, 2024, 160),
+    (9, 2024, 370),
+    (10, 2024, 176),
+    (11, 2024, 420),
+    (12, 2024, 280),
+    (13, 2024, 310),
+    (14, 2024, 340),
+    (15, 2024, 436),
+    (16, 2024, 300);

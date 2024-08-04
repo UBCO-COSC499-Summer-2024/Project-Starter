@@ -13,6 +13,7 @@ import '../style.css';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
+import supabase from "@/app/components/supabaseClient";
 
 const InstructorInfo = () => {
   const searchParams = useSearchParams();
@@ -54,6 +55,22 @@ const InstructorInfo = () => {
   });
 
   useEffect(() => {
+    async function fetchUserRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('user_role')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        if (error) {
+          console.error('Error fetching user role:', error);
+        } else {
+          setUserRole(data.role); // Set userRole state
+        }
+      }
+    }
+
     if (id) {
       const fetchData = async () => {
         try {

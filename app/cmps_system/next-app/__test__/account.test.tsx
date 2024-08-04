@@ -4,12 +4,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { jest } from '@jest/globals';
 
-// Environment variables (replace with your actual values)
-const SUPABASE_URL = "http://localhost:8000"; // Replace with your actual Supabase URL
-const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q";
-
 // Create a Supabase client instance
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
 
 describe('Supabase Mock Tests', () => {
   beforeEach(() => {

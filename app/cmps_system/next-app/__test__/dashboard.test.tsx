@@ -1,7 +1,7 @@
 // Import necessary libraries and methods for testing
 import { createClient } from '@supabase/supabase-js'
- 
-const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.ANON_KEY);
+
+const supabase = createClient(process.env.SUPABASE_PUBLIC_URL, process.env.SERVICE_ROLE_KEY);
 
 // Tests for checking time tracking data retrieval from Supabase
 describe('Supabase Data Fetching', () => {

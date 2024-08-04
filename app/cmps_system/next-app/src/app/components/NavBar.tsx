@@ -2,12 +2,31 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './NavBar.module.css';
-import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
-
+import supabase from "@/app/components/supabaseClient";
+import getUserType from "@/app/components/getUserType";
 const NavBar = () => {
+    /**
+     * This component is the navigation bar that is displayed at the top of the page. It contains the UBC logo, the title of the page, 
+     * the user's profile picture and name, and the navigation buttons. The current page will be shown based on current url matching with the tabs using 
+     * a light blue color. The hover effect is bold and underscrore. It also shows user's email. It is conditionally rendered based on the user type.
+     * When the user is an instructor, the navigation bar will hide the tool page. Note that this is only frontend validation and the backend will 
+     * need RLS to prevent instructors from accessing the tool page data. 
+     */
+    const [isInstructor, setIsInstructor] = useState(true);
+
+    useEffect(() => {
+        (async () => {
+            const usertype = await getUserType()
+            if (usertype === 'instructor') {
+                setIsInstructor(true)
+            }
+            else {
+                setIsInstructor(false)
+            }
+        })()
+    }, [])
     const [userName, setUserName] = useState('Username');
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
 
     useEffect(() => {
         (async function () {
@@ -23,7 +42,14 @@ const NavBar = () => {
             }
         })();
     }, [supabase]);
-
+    const [page, setPage] = useState('');
+    useEffect(() => {
+        const currentPath = window.location.pathname;
+        // console.log(currentPath);
+        setPage(currentPath.substring(1).toUpperCase().replace("_", " "));
+    })
+    const tabs = isInstructor ? ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING"]
+        : ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "TOOLS"];
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -36,42 +62,15 @@ const NavBar = () => {
                     <span>{userName}</span>
                 </Link>
             </div>
-            <ul className={styles.navbarButtonsList}>
-                <li className={styles.navbarButton}>
-                    <Link href="/dashboard" className={styles.navbarButtonText}>
-                        DASHBOARD
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/instructors" className={styles.navbarButtonText}>
-                        INSTRUCTORS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/courses" className={styles.navbarButtonText}>
-                        COURSES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/service_roles" className={styles.navbarButtonText}>
-                        SERVICE ROLES
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/evaluations" className={styles.navbarButtonText}>
-                        EVALUATIONS
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/time_tracking" className={styles.navbarButtonText}>
-                        TIME TRACKING
-                    </Link>
-                </li>
-                <li className={styles.navbarButton}>
-                    <Link href="/tools" className={styles.navbarButtonText}>
-                        TOOLS
-                    </Link>
-                </li>
+            <ul className={styles.navbarButtonsList} style={{ fontSize: "small" }}>
+                {tabs.map((tab, index) => (
+                    <li key={index} className={styles.navbarButton}>
+                        <Link href={"/"+tab.toLowerCase().replace(" ","_")} onClick={()=>{setPage(tab)}}className={styles.navbarButtonText}>
+                            {tab==page ? <b style={{color:"#97D4E9"}}>{tab}</b> : tab}
+                        </Link>
+                    </li>
+                ))}
+
             </ul>
         </nav>
     );

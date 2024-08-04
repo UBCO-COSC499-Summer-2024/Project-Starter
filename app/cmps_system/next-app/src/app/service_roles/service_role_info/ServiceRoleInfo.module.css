@@ -1,0 +1,8 @@
+.nonEditable input {
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+    opacity: 1 !important;
+    pointer-events: none;
+    border: none !important;
+    background: none !important;
+}

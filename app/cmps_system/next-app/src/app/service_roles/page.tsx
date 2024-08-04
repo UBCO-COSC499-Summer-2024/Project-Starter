@@ -1,129 +1,64 @@
 'use client';
 
-import Container from 'react-bootstrap/Container';
+import React from 'react';
+import CMPS_Table from '@/app/components/CMPS_Table';
+import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
-import Link from 'next/link';
-import Image from 'next/image';
-import { Row } from "react-bootstrap";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
-import { useState, useEffect } from "react";
-import { DataGrid } from '@mui/x-data-grid';
-import React from "react";
-import { createClient } from '@supabase/supabase-js'
 
+export default function ServiceRoles() {
+    const fetchUrl = "v_service_roles_page";
+    const tableName = "service_role";
+    const initialSortModel = [
+        { field: 'title', sort: 'asc' },
+    ];
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-);
-
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL, process.env.NEXT_PUBLIC_ANON_KEY);
-
-export default function Home() {
-    const tableColumns = [
+    const columnsConfig = [
+        { field: 'id', headerName: 'ID', width: 50, editable: false },
         {
             field: 'title',
             headerName: 'Service Role',
-            width: 200,
-            editable: false,
-            renderCell: (params) => (
-                <Link href={`/service_roles/service_role_info?title=${params.row.title}&description=${params.row.description}&default_expected_hours=${params.row.default_expected_hours}&building=${params.row.building}&room_num=${params.row.room_num}`} legacyBehavior>
-                    {params.value}
-                </Link>
-            )
+            flex: 1,
+            editable: true,
+            linkConfig: { prefix: '/service_roles/service_role_info?id=', idField: 'id' }
         },
-        { field: 'description', headerName: 'Description', width: 300, editable: true },
-        { field: 'default_expected_hours', headerName: 'Default Monthly Hours', width: 200, editable: true },
-        { field: 'assignees', headerName: 'Number of Assignees', width: 200, editable: true }
+        { field: 'description', headerName: 'Description', flex: 1, editable: true },
+        { field: 'default_expected_hours', headerName: 'Default Monthly Hours', flex: 1, editable: true },
+        { field: 'assignees', headerName: 'Number of Assignees', flex: 1, editable: false },
+        { field: 'building', headerName: 'Building', flex: 1, editable: true },
+        { field: 'room_num', headerName: 'Room', flex: 1, editable: true }
     ];
 
-    const [serviceRoles, setServiceRoles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const rowUpdateHandler = async (row) => {
+        const { error } = await supabase
+            .from('service_role')
+            .update({
+                title: row.title,
+                description: row.description,
+                default_expected_hours: row.default_expected_hours,
+                building: row.building,
+                room_num: row.room_num
+            })
+            .eq('service_role_id', row.id);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('service_role')
-                    .select(`
-                        service_role_id,
-                        title,
-                        description,
-                        default_expected_hours,
-                        building,
-                        room_num,
-                        service_role_assign (instructor_id)
-                    `);
-                if (error) throw error;
-
-                const transformedData = data.map((role) => ({
-                    id: role.service_role_id,
-                    title: role.title,
-                    description: role.description,
-                    default_expected_hours: role.default_expected_hours,
-                    building: role.building,
-                    room_num: role.room_num,
-                    assignees: role.service_role_assign.length
-                }));
-
-                setServiceRoles(transformedData);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    const renderTable = () => {
-        if (loading) {
-            return <p>Loading...</p>;
-        }
         if (error) {
-            return <p>Error fetching service roles: {error}</p>;
+            return { error };
         }
-        return (
-            <Container>
-                <Row className="h-32">
-                    <div className="tw-p-3">
-                        <DataGrid
-                            editMode="row"
-                            rows={serviceRoles}
-                            columns={tableColumns}
-                            pageSizeOptions={[10000]}
-                        />
-                    </div>
-                </Row>
-            </Container>
-        );
     };
 
     return (
-        <main>
+        <>
             <Navbar />
-            <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <h1 style={{ marginRight: "10px" }}>Service Roles</h1>
-                <Link href="/service_roles/create_new_service_role" style={{ display: "flex", alignItems: "center", margin: "0 3em", fontSize: "1.5em" }}>
-                    <Image src="/plus.svg" alt="Add new service roles plus icon" width={20} height={20} style={{ margin: '20px' }} />
-                    Create new service role
-                </Link>
-            </span>
-            {renderTable()}
-        </main >
+            <h1>Service Roles</h1>
+            <CMPS_Table
+                fetchUrl={fetchUrl}
+                columnsConfig={columnsConfig}
+                initialSortModel={initialSortModel}
+                tableName={tableName}
+                rowUpdateHandler={rowUpdateHandler}
+                idColumn="service_role_id"
+                deleteWarningMessage="Are you sure you want to delete the selected service roles? All associated service role assignments AND service hours entries will be deleted as well. This action is not recoverable!"
+                newRecordURL="/service_roles/create_new_service_role"
+            />
+        </>
     );
 }
