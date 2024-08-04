@@ -97,7 +97,7 @@ const processColumnConfig = (columnsConfig, rowModesModel, handleOpenModal) => {
                 );
             }
 
-            return <span>{params.value}</span>;
+            return <span>{params.value !== undefined && params.value !== null ? params.value.toString() : 'N/A'}</span>;
         }
     }));
 };
@@ -653,7 +653,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                                     key={column}
                                     style={highlightCells[row[idColumn]] && highlightCells[row[idColumn]][column] ? { backgroundColor: '#ffb3b3' } : {}}
                                 >
-                                    {row[column] !== undefined ? row[column] : 'N/A'}
+                                    {row[column] !== undefined && row[column] !== null ? row[column].toString() : 'N/A'}
                                 </TableCell>
                             ))}
                         </TableRow>
