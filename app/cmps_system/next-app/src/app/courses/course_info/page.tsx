@@ -1,182 +1,257 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
-import Container from 'react-bootstrap/Container';
+import Container from '@mui/material/Container';
 import NavBar from '@/app/components/NavBar';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import supabase from "@/app/components/supabaseClient";
-import { useRouter } from 'next/navigation';
 
 const CourseInfo = () => {
-  const [course, setCourse] = useState([]);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const id = searchParams.get('id');
+
+  const [course, setCourse] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [modalShow, setModalShow] = useState(false);
-  const searchParams = new URLSearchParams(window.location.search);
-  const courseId = searchParams.get('id');
-  const router = useRouter();
+  const [instructors, setInstructors] = useState([]);
+  const [tas, setTas] = useState([]);
+  const [editMode, setEditMode] = useState({});
+  const [editCourseMode, setEditCourseMode] = useState({});
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [userRole, setUserRole] = useState('');
 
   useEffect(() => {
-    const fetchCourse = async () => {
-      if (!courseId) {
-        setError('Course ID not found');
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        // Fetch course details
-        const { data: courseData, error: courseError } = await supabase
-          .from('course')
-          .select('*')
-          .eq('course_id', courseId)
+    async function fetchUserRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('user_role')
+          .select('role')
+          .eq('user_id', user.id)
           .single();
-
-        if (courseError) {
-          throw courseError;
+        if (error) {
+          console.error('Error fetching user role:', error);
+        } else {
+          setUserRole(data.role);
         }
-
-        // Fetch assigned instructors with positions
-        const { data: assignData, error: assignError } = await supabase
-          .from('course_assign')
-          .select('instructor_id, position')
-          .eq('course_id', courseId);
-
-        if (assignError) {
-          throw assignError;
-        }
-
-        // Fetch instructor details
-        const instructorIds = assignData.map(assign => assign.instructor_id);
-        const { data: instructorData, error: instructorError } = await supabase
-          .from('instructor')
-          .select('instructor_id, first_name, last_name')
-          .in('instructor_id', instructorIds);
-
-        if (instructorError) {
-          throw instructorError;
-        }
-
-        // Format course data
-        const formattedCourseData = Object.entries(courseData).reduce((acc, [key, value]) => {
-          if (key !== 'course_id') {
-            let formattedValue = value;
-            if (key === 'req_in_person_attendance') {
-              formattedValue = value ? 'Yes' : 'No';
-            }
-            acc.push({
-              id: key,
-              field: key,
-              label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-              value: formattedValue
-            });
-          }
-          return acc;
-        }, []);
-
-        // Add instructor names with positions to course data
-        assignData.forEach((assign, index) => {
-          const instructor = instructorData.find(inst => inst.instructor_id === assign.instructor_id);
-          if (instructor) {
-            formattedCourseData.push({
-              id: `instructor_${index}`,
-              field: `instructor_${index}`,
-              label: `${assign.position}`,
-              value: `${instructor.first_name} ${instructor.last_name}`
-            });
-          }
-        });
-
-        setCourse(formattedCourseData);
-        setError(null);  // Clear any previous errors
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchCourse();
-  }, [courseId]);
-
-  const handleProcessRowUpdate = async (newRow) => {
-    try {
-      const { error: updateError } = await supabase
-        .from('course')
-        .update({ [newRow.field]: newRow.value })
-        .eq('course_id', courseId);
-
-      if (updateError) {
-        throw new Error(updateError.message);
-      }
-
-      setCourse(course.map(row => (row.id === newRow.id ? { ...row, value: newRow.value } : row)));
-      return newRow;
-    } catch (error) {
-      setError(error.message);
-      console.error('Update error:', error);
-      throw error;
     }
-  };
+
+    if (id) {
+      const fetchCourseData = async () => {
+        try {
+          const { data: courseData, error: courseError } = await supabase
+            .from('course')
+            .select('*')
+            .eq('course_id', id)
+            .single();
+
+          if (courseError) throw courseError;
+          setCourse(courseData);
+
+          const { data: assigneeData, error: assigneeError } = await supabase
+            .from('v_course_info_assignees')
+            .select('*')
+            .eq('course_id', id);
+
+          if (assigneeError) throw assigneeError;
+
+          setInstructors(assigneeData.filter(assignee => assignee.position === 'Instructor'));
+          setTas(assigneeData.filter(assignee => assignee.position === 'TA'));
+
+        } catch (error) {
+          setError(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchUserRole();
+      fetchCourseData();
+    }
+  }, [id]);
 
   const handleDelete = async () => {
     try {
       const { error } = await supabase
         .from('course')
         .delete()
-        .eq('course_id', courseId);
+        .eq('course_id', id);
       if (error) throw error;
-      alert('Course removed successfully');
       router.push('/courses');
-      setModalShow(false);
     } catch (error) {
       setError(error.message);
-      console.error('Delete error:', error);
     }
   };
 
-  const columns: GridColDef[] = [
-    { field: 'label', headerName: 'Attribute', width: 200, editable: false },
-    { field: 'value', headerName: 'Value', width: 300, editable: true }
-  ];
+  const handleEdit = (field) => {
+    setEditMode((prevState) => ({ ...prevState, [field]: !prevState[field] }));
+  };
+
+  const handleCourseEdit = (field) => {
+    setEditCourseMode((prevState) => ({ ...prevState, [field]: !prevState[field] }));
+  };
+
+  const handleSave = async (field, value) => {
+    try {
+      const { error } = await supabase
+        .from('course')
+        .update({ [field]: value })
+        .eq('course_id', id);
+
+      if (error) throw error;
+      setCourse((prevCourse) => ({ ...prevCourse, [field]: value }));
+      setEditCourseMode((prevState) => ({ ...prevState, [field]: false }));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setCourse((prevCourse) => ({ ...prevCourse, [field]: value }));
+  };
+
+  const openDeleteConfirm = () => {
+    setDeleteConfirmOpen(true);
+  };
+
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmOpen(false);
+  };
+
+  const toTitleCase = (str) => {
+    if (!str) return '';
+    return str.replace(/\w\S*/g, (txt) => {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  };
+
+  const handleKeyDown = (event, saveAction) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      saveAction();
+    }
+  };
 
   return (
     <div>
       <NavBar />
-      <Container fluid className="banner">
-        <h2>Course Info</h2>
+      <Container maxWidth="lg" style={{ marginTop: '20px' }}>
+        <h1>Course Info: {toTitleCase(course.course_title)}</h1>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
           <p>Error fetching course: {error}</p>
+        ) : course ? (
+          <>
+            <TableContainer style={{ marginBottom: '20px' }}>
+              <Table>
+                <TableBody>
+                  {Object.entries(course).map(([field, value]) => (
+                    <TableRow key={field}>
+                      <TableCell>{toTitleCase(field.replace(/_/g, ' '))}</TableCell>
+                      <TableCell>
+                        {editCourseMode[field] ? (
+                          <TextField
+                            value={value || ''}
+                            onChange={(e) => handleChange(field, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(e, () => handleSave(field, e.target.value))}
+                          />
+                        ) : (
+                          value !== null ? value.toString() : 'N/A'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                          <IconButton onClick={() => editCourseMode[field] ? handleSave(field, course[field]) : handleCourseEdit(field)}>
+                            {editCourseMode[field] ? <SaveIcon /> : <EditIcon />}
+                          </IconButton>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <h3>Assigned Instructors</h3>
+            <TableContainer style={{ marginBottom: '20px' }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Instructor Name</TableCell>
+                    <TableCell>Position</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {instructors.map((instructor) => (
+                    <TableRow key={instructor.assignment_id}>
+                      <TableCell>{instructor.instructor_name}</TableCell>
+                      <TableCell>{instructor.position}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <h3>Assigned TAs</h3>
+            <TableContainer style={{ marginBottom: '20px' }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>TA Name</TableCell>
+                    <TableCell>Position</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {tas.map((ta) => (
+                    <TableRow key={ta.assignment_id}>
+                      <TableCell>{ta.instructor_name}</TableCell>
+                      <TableCell>{ta.position}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            {['staff', 'head'].includes(userRole.toLowerCase()) && (
+              <Button variant="contained" color="secondary" onClick={openDeleteConfirm}>Remove this course</Button>
+            )}
+            <Button variant="contained" color="primary" onClick={() => router.push('/courses')}>Back</Button>
+          </>
         ) : (
-          <DataGrid
-            rows={course}
-            columns={columns}
-            processRowUpdate={handleProcessRowUpdate}
-            experimentalFeatures={{ newEditingApi: true }}
-            autoHeight
-          />
+          <p>Course not found</p>
         )}
-        <Button variant="danger" onClick={() => setModalShow(true)}>Remove this course</Button>
-        <button className="btn btn-secondary" onClick={() => router.push('/courses')}>Back</button>
-        <button className="btn btn-primary" onClick={() => router.push('/instructors')}>Assign a new insturctor/TA</button>
       </Container>
 
-      <Modal show={modalShow} onHide={() => setModalShow(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Are you sure you want to remove this course?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setModalShow(false)}>Cancel</Button>
-          <Button variant="danger" onClick={handleDelete}>Delete</Button>
-        </Modal.Footer>
+      <Modal open={deleteConfirmOpen} onClose={closeDeleteConfirm}>
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          backgroundColor: 'white',
+          padding: '16px',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <h2>Confirm Delete</h2>
+          <p>Do you really want to remove this course? Any entries that reference this course will be deleted as well.</p>
+          <Button variant="contained" color="secondary" onClick={closeDeleteConfirm}>Cancel</Button>
+          <Button variant="contained" color="primary" onClick={handleDelete}>Delete</Button>
+        </div>
       </Modal>
     </div>
   );

@@ -954,3 +954,18 @@ WHERE
     AND event_datetime < CURRENT_TIMESTAMP + INTERVAL '2 weeks'
 ORDER BY
     event_datetime;
+
+CREATE OR REPLACE VIEW 
+    v_course_info_assignees
+WITH
+    (security_invoker) AS
+SELECT
+    course_assign.assignment_id as assignment_id,
+    course.course_id as course_id,
+    instructor.instructor_id as instructor_id,
+    CONCAT(last_name, ', ', first_name) as instructor_name,
+    course_assign.position as position
+FROM
+    course_assign
+    JOIN instructor ON course_assign.instructor_id = instructor.instructor_id
+    JOIN course ON course_assign.course_id = course.course_id;
