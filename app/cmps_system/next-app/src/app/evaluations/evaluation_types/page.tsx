@@ -99,6 +99,7 @@ export default function EvaluationTypes() {
                 rowUpdateHandler={rowUpdateHandler}
                 deleteWarningMessage="Are you sure you want to delete this evaluation type? All associated questions AND evaluation entries will also be deleted. This action is not recoverable!"
                 idColumn="evaluation_type_id"
+                uniqueColumns={["evaluation_type_name"]}
             />
         </>
     );

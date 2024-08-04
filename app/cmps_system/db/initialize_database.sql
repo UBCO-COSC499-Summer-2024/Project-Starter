@@ -150,8 +150,8 @@ ADD PRIMARY KEY ("service_role_assign_id");
 CREATE TABLE IF NOT EXISTS
     "event" (
         "event_id" SERIAL NOT NULL,
-        "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "is_meeting" BOOLEAN NOT NULL DEFAULT FALSE,
+        "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NULL DEFAULT CURRENT_TIMESTAMP,
+        "is_meeting" BOOLEAN NULL DEFAULT FALSE,
         "duration" TIME(0) WITHOUT TIME ZONE NOT NULL,
         "description" TEXT NULL,
         "location" VARCHAR(255) NULL
@@ -162,6 +162,29 @@ ADD PRIMARY KEY ("event_id");
 
 ALTER TABLE "event"
 ADD CONSTRAINT "event_unique" UNIQUE ("event_datetime", "location", "description");
+
+-- We had to make this because the supabase postgres API doesn't support
+-- not supplying values for only some rows of a batch upsert,
+-- and we wanted to make use of the DEFAULT values
+CREATE
+OR REPLACE FUNCTION set_default_event_values () RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.event_datetime IS NULL THEN
+        NEW.event_datetime := CURRENT_TIMESTAMP;
+    END IF;
+    IF NEW.is_meeting IS NULL THEN
+        NEW.is_meeting := FALSE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER before_insert_event BEFORE INSERT ON event FOR EACH ROW
+EXECUTE FUNCTION set_default_event_values ();
+
+CREATE TRIGGER before_update_event BEFORE
+UPDATE ON event FOR EACH ROW
+EXECUTE FUNCTION set_default_event_values ();
 
 CREATE TABLE IF NOT EXISTS
     "service_hours_entry" (
@@ -205,7 +228,7 @@ CREATE TABLE IF NOT EXISTS
         "evaluation_type_id" SERIAL NOT NULL,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
-        "date_added" DATE NOT NULL DEFAULT CURRENT_DATE,
+        "date_added" DATE NULL DEFAULT CURRENT_DATE,
         "requires_course" BOOLEAN NULL DEFAULT NULL,
         "requires_instructor" BOOLEAN NULL DEFAULT NULL,
         "requires_service_role" BOOLEAN NULL DEFAULT NULL
@@ -216,6 +239,26 @@ ADD PRIMARY KEY ("evaluation_type_id");
 
 ALTER TABLE "evaluation_type"
 ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
+
+-- We had to make this because the supabase postgres API doesn't support
+-- not supplying values for only some rows of a batch upsert,
+-- and we wanted to make use of the DEFAULT values
+CREATE
+OR REPLACE FUNCTION set_default_evaluation_type_values () RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.date_added IS NULL THEN
+        NEW.date_added := CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER before_insert_evaluation_type BEFORE INSERT ON evaluation_type FOR EACH ROW
+EXECUTE FUNCTION set_default_evaluation_type_values ();
+
+CREATE TRIGGER before_update_evaluation_type BEFORE
+UPDATE ON evaluation_type FOR EACH ROW
+EXECUTE FUNCTION set_default_evaluation_type_values ();
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
