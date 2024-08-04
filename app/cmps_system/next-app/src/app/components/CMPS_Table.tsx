@@ -718,18 +718,34 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={showBeforeAfterModal} onClose={handleBeforeAfterClose} maxWidth="md" fullWidth>
+            <Dialog open={showBeforeAfterModal} onClose={handleBeforeAfterClose} maxWidth="xl" fullWidth>
                 <DialogTitle>Changes Preview</DialogTitle>
                 <DialogContent dividers>
                     <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
-                        <Typography variant="h6">Added Rows (Green):</Typography>
-                        {renderDifferencesTable(addedRows, '#d4edda')}
-                        <Typography variant="h6">Deleted Rows (Red):</Typography>
-                        {renderDifferencesTable(deletedRows, '#f8d7da')}
-                        <Typography variant="h6">Modified Rows (Yellow):</Typography>
-                        {renderDifferencesTable(modifiedRows, '#fff3cd')}
-                        <Typography variant="h6">Duplicate Rows Provided (Orange):</Typography>
-                        {renderDifferencesTable(duplicateRows, '#ffecb3')}
+                        {addedRows.length > 0 && (
+                            <>
+                                <Typography variant="h6">Added Rows (Green):</Typography>
+                                {renderDifferencesTable(addedRows, '#d4edda')}
+                            </>
+                        )}
+                        {deletedRows.length > 0 && (
+                            <>
+                                <Typography variant="h6">Deleted Rows (Red):</Typography>
+                                {renderDifferencesTable(deletedRows, '#f8d7da')}
+                            </>
+                        )}
+                        {modifiedRows.length > 0 && (
+                            <>
+                                <Typography variant="h6">Modified Rows (Yellow):</Typography>
+                                {renderDifferencesTable(modifiedRows, '#fff3cd')}
+                            </>
+                        )}
+                        {duplicateRows.length > 0 && (
+                            <>
+                                <Typography variant="h6">Duplicate Rows Provided (Orange):</Typography>
+                                {renderDifferencesTable(duplicateRows, '#ffecb3')}
+                            </>
+                        )}
                     </Box>
                 </DialogContent>
                 <DialogActions>
