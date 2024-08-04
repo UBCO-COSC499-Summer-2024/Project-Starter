@@ -706,6 +706,16 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         Batch Editing
                     </Typography>
+                    {uniqueColumns && uniqueColumns.length > 0 && (
+                        <Typography id="modal-unique-keys" sx={{ mt: 1, mb: 1 }}>
+                            Unique Key Constraint: {uniqueColumns.join(', ')}.
+                        </Typography>
+                    )}
+                    {(
+                        <Typography id="modal-primary-key" sx={{ mt: 1, mb: 1 }}>
+                            Primary  Key Constraint: {idColumn}.
+                        </Typography>
+                    )}
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <TextField
                             multiline
@@ -754,31 +764,31 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     <Box sx={{ maxHeight: 600, overflowY: 'auto' }}>
                         {duplicatePKRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Duplicate Rows (Primary Key) (Orange):</Typography>
+                                <Typography variant="h6">Duplicate Rows (Primary Key):</Typography>
                                 {renderDifferencesTable(duplicatePKRows, '#ffecb3', { [idColumn]: '#ffb3b3' })}
                             </>
                         )}
                         {duplicateUniqueRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Duplicate Rows (Unique Key) (Orange):</Typography>
+                                <Typography variant="h6">Duplicate Rows (Unique Key):</Typography>
                                 {renderDifferencesTable(duplicateUniqueRows, '#ffecb3', Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
                             </>
                         )}
                         {addedRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Added Rows (Green):</Typography>
+                                <Typography variant="h6">Added Rows:</Typography>
                                 {renderDifferencesTable(addedRows, '#d4edda')}
                             </>
                         )}
                         {deletedRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Deleted Rows (Red):</Typography>
+                                <Typography variant="h6">Deleted Rows:</Typography>
                                 {renderDifferencesTable(deletedRows, '#f8d7da')}
                             </>
                         )}
                         {modifiedRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Modified Rows (Yellow):</Typography>
+                                <Typography variant="h6">Modified Rows:</Typography>
                                 {renderDifferencesTable(modifiedRows, '#fff3cd', modifiedCells)}
                             </>
                         )}
