@@ -233,6 +233,32 @@ const handleUpsertRows = async (rows, tableName, uniqueColumns, idColumn) => {
     return upsertError;
 };
 
+const detectDuplicates = async (rows, idColumn, uniqueColumns) => {
+    const idSet = new Set();
+    const uniqueSet = new Set();
+    const duplicatePKs = [];
+    const duplicateUnique = [];
+    rows.forEach(row => {
+        if (row[idColumn]) {
+            if (idSet.has(row[idColumn])) {
+                duplicatePKs.push(row);
+            } else {
+                idSet.add(row[idColumn]);
+            }
+        }
+
+        const uniqueColumnsString = uniqueColumns.map(col => `${col} = ${row[col]}`).join(', ');
+        if (uniqueColumnsString) {
+            if (uniqueSet.has(uniqueColumnsString)) {
+                duplicateUnique.push(row);
+            } else {
+                uniqueSet.add(uniqueColumnsString);
+            }
+        }
+    });
+    return { duplicatePKs, duplicateUnique };
+};
+
 const handleDeleteRows = async (deletedIds, tableName, idColumn) => {
     if (deletedIds.length > 0) {
         const { error } = await supabase.from(tableName).delete().in(idColumn, deletedIds);
@@ -281,6 +307,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [addedRows, setAddedRows] = useState([]);
     const [deletedRows, setDeletedRows] = useState([]);
     const [modifiedRows, setModifiedRows] = useState([]);
+    const [duplicateRows, setDuplicateRows] = useState([]);
     const [showBeforeAfterModal, setShowBeforeAfterModal] = useState(false);
 
     useEffect(() => {
@@ -405,7 +432,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setCsvShow(true);
     };
 
-    const calculateDifferences = (originalData, updatedData) => {
+    const calculateDifferences = async (originalData, updatedData) => {
         const originalMap = new Map(originalData.map(row => [row[idColumn], row]));
         const updatedMap = new Map(updatedData.map(row => [row[idColumn], row]));
 
@@ -416,15 +443,18 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             return originalRow && JSON.stringify(originalRow) !== JSON.stringify(row);
         });
 
+        const duplicates = await detectDuplicates(updatedData, idColumn, uniqueColumns);
+
         setAddedRows(added);
         setDeletedRows(deleted);
         setModifiedRows(modified);
+        setDuplicateRows([...duplicates.duplicatePKs, ...duplicates.duplicateUnique]);
     };
 
-    const handleShowBeforeAfter = (originalData, updatedData) => {
+    const handleShowBeforeAfter = async (originalData, updatedData) => {
         setBeforeData(originalData);
         setAfterData(updatedData);
-        calculateDifferences(originalData, updatedData);
+        await calculateDifferences(originalData, updatedData);
         setShowBeforeAfterModal(true);
     };
 
@@ -434,7 +464,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
             const jsonData = await csv2json(csvText, { delimiter: { wrap: '"' } });
             const originalData = await csv2json(defaultCSV, { delimiter: { wrap: '"' } });
 
-            handleShowBeforeAfter(originalData, jsonData);
+            await handleShowBeforeAfter(originalData, jsonData);
         } catch (error) {
             console.error("Error processing CSV data:", error);
             setErrorMessages([error]);
@@ -500,7 +530,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     const cleanCsvText = (csvText as string).split('\n').map(line => line.split(',').map(cell => cell.trim()).join(',')).join('\n');
                     const jsonData = await csv2json(cleanCsvText, { trimHeaderFields: false, trimFieldValues: false });
 
-                    handleShowBeforeAfter(tableData, jsonData);
+                    await handleShowBeforeAfter(tableData, jsonData);
                 } catch (error) {
                     console.error("Error processing CSV file:", error);
                     setErrorMessages([error]);
@@ -577,6 +607,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setAddedRows([]);
         setDeletedRows([]);
         setModifiedRows([]);
+        setDuplicateRows([]);
     };
 
     const renderDifferencesTable = (rows, color) => {
@@ -697,6 +728,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                         {renderDifferencesTable(deletedRows, '#f8d7da')}
                         <Typography variant="h6">Modified Rows (Yellow):</Typography>
                         {renderDifferencesTable(modifiedRows, '#fff3cd')}
+                        <Typography variant="h6">Duplicate Rows Provided (Orange):</Typography>
+                        {renderDifferencesTable(duplicateRows, '#ffecb3')}
                     </Box>
                 </DialogContent>
                 <DialogActions>
