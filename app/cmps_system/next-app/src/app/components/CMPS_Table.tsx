@@ -309,7 +309,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [addedRows, setAddedRows] = useState([]);
     const [deletedRows, setDeletedRows] = useState([]);
     const [modifiedRows, setModifiedRows] = useState([]);
-    const [duplicateRows, setDuplicateRows] = useState([]);
+    const [duplicatePKRows, setDuplicatePKRows] = useState([]);
+    const [duplicateUniqueRows, setDuplicateUniqueRows] = useState([]);
     const [showBeforeAfterModal, setShowBeforeAfterModal] = useState(false);
 
     useEffect(() => {
@@ -447,12 +448,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
         const duplicates = await detectDuplicates(updatedData, idColumn, uniqueColumns);
 
-        const uniqueDuplicateRows = new Set(duplicates.duplicatePKs.concat(duplicates.duplicateUnique));
+        const uniqueDuplicateRows = new Set([...duplicates.duplicatePKs, ...duplicates.duplicateUnique].map(row => row[idColumn]));
 
-        setAddedRows(added.filter(row => !uniqueDuplicateRows.has(row)));
-        setDeletedRows(deleted.filter(row => !uniqueDuplicateRows.has(row)));
-        setModifiedRows(modified.filter(row => !uniqueDuplicateRows.has(row)));
-        setDuplicateRows([...duplicates.duplicatePKs, ...duplicates.duplicateUnique]);
+        setAddedRows(added.filter(row => !uniqueDuplicateRows.has(row[idColumn])));
+        setDeletedRows(deleted.filter(row => !uniqueDuplicateRows.has(row[idColumn])));
+        setModifiedRows(modified.filter(row => !uniqueDuplicateRows.has(row[idColumn])));
+        setDuplicatePKRows(duplicates.duplicatePKs);
+        setDuplicateUniqueRows(duplicates.duplicateUnique);
     };
 
     const handleShowBeforeAfter = async (originalData, updatedData) => {
@@ -611,7 +613,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         setAddedRows([]);
         setDeletedRows([]);
         setModifiedRows([]);
-        setDuplicateRows([]);
+        setDuplicatePKRows([]);
+        setDuplicateUniqueRows([]);
     };
 
     const renderDifferencesTable = (rows, color, highlightCells = {}) => {
@@ -729,10 +732,16 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 <DialogTitle>Changes Preview</DialogTitle>
                 <DialogContent dividers>
                     <Box sx={{ maxHeight: 600, overflowY: 'auto' }}>
-                        {duplicateRows.length > 0 && (
+                        {duplicatePKRows.length > 0 && (
                             <>
-                                <Typography variant="h6">Duplicate Rows Provided (Orange):</Typography>
-                                {renderDifferencesTable(duplicateRows, '#ffecb3', { [idColumn]: '#ffb3b3', ...Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])) })}
+                                <Typography variant="h6">Duplicate Rows (Primary Key) (Orange):</Typography>
+                                {renderDifferencesTable(duplicatePKRows, '#ffecb3', { [idColumn]: '#ffb3b3' })}
+                            </>
+                        )}
+                        {duplicateUniqueRows.length > 0 && (
+                            <>
+                                <Typography variant="h6">Duplicate Rows (Unique Key) (Orange):</Typography>
+                                {renderDifferencesTable(duplicateUniqueRows, '#ffecb3', Object.fromEntries(uniqueColumns.map(col => [col, '#ffb3b3'])))}
                             </>
                         )}
                         {addedRows.length > 0 && (
