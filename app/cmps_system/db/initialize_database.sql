@@ -306,6 +306,12 @@ CREATE TABLE IF NOT EXISTS
         "hours" INTEGER NOT NULL
     );
 
+ALTER TABLE "service_hours_benchmark"
+ADD PRIMARY KEY ("benchmark_id");
+
+ALTER TABLE "service_hours_benchmark"
+ADD CONSTRAINT "service_hours_benchmark_unique" UNIQUE ("instructor_id", "year");
+
 -- Trigger function to enforce evaluation requirements
 CREATE
 OR REPLACE FUNCTION enforce_evaluation_requirements () RETURNS TRIGGER AS $$
@@ -384,9 +390,6 @@ CREATE TRIGGER trg_enforce_evaluation_requirements BEFORE INSERT
 OR
 UPDATE ON evaluation_entry FOR EACH ROW
 EXECUTE FUNCTION enforce_evaluation_requirements ();
-
-ALTER TABLE "service_hours_benchmark"
-ADD PRIMARY KEY ("benchmark_id");
 
 ALTER TABLE "evaluation_entry"
 ADD CONSTRAINT "evaluation_entry_service_role_id_foreign" FOREIGN KEY ("service_role_id") REFERENCES "service_role" ("service_role_id") ON DELETE CASCADE;
@@ -641,38 +644,6 @@ from
     JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
 
 CREATE OR REPLACE VIEW
-    list_of_instructors
-WITH
-    (security_invoker) AS
-SELECT
-    instructor_id,
-    CONCAT(instructor.last_name, ', ', instructor.first_name) AS name
-FROM
-    instructor;
-
-CREATE OR REPLACE VIEW
-    v_benchmark
-WITH
-    (security_invoker) AS
-SELECT
-    benchmark_id as id,
-    CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor,
-    year,
-    hours
-from
-    service_hours_benchmark
-    JOIN instructor ON instructor.instructor_id = service_hours_benchmark.instructor_id;
-
-CREATE OR REPLACE VIEW
-    list_of_course_sections
-WITH
-    (security_invoker) AS
-SELECT
-    CONCAT(subject_code, ' ', course_num, ' ', section_num)
-FROM
-    course;
-
-CREATE OR REPLACE VIEW
     v_evaluations_page
 WITH
     (security_invoker) AS
@@ -741,15 +712,19 @@ GROUP BY
     requires_instructor,
     requires_service_role;
 
-CREATE VIEW
-    list_all_service_roles
+CREATE OR REPLACE VIEW
+    v_benchmarks_page
 WITH
     (security_invoker) AS
 SELECT
-    service_role.service_role_id,
-    CONCAT(service_role.title) AS service_role_name
+    benchmark_id AS id,
+    instructor.instructor_id,
+    CONCAT(instructor.last_name, ', ', instructor.first_name) AS instructor_full_name,
+    year,
+    hours
 FROM
-    service_role;
+    service_hours_benchmark
+    JOIN instructor ON service_hours_benchmark.instructor_id = instructor.instructor_id;
 
 CREATE OR REPLACE VIEW
     v_dashboard_progress AS
