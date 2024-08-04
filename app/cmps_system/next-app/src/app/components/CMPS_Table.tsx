@@ -158,8 +158,8 @@ const getUserRole = async (setUserRoleCallback) => {
 
 const handleUpsertRows = async (rows, tableName, uniqueColumns, idColumn) => {
     const onConflictColumns = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns : [idColumn];
-
-    const { data: existingRows, error: fetchError } = await supabase.from(tableName).select(`${idColumn}, ${uniqueColumns.join(', ')}`);
+    const columnsToSelect = uniqueColumns && uniqueColumns.length > 0 ? `${idColumn}, ${uniqueColumns.join(', ')}` : `${idColumn}`;
+    const { data: existingRows, error: fetchError } = await supabase.from(tableName).select(columnsToSelect);
     if (fetchError) {
         console.error("Error fetching existing rows:", fetchError);
         return fetchError.message;
@@ -184,7 +184,7 @@ const handleUpsertRows = async (rows, tableName, uniqueColumns, idColumn) => {
         } else {
             const existingRow = existingRowsMap.get(row[idColumn]);
             if (existingRow) {
-                const uniqueColumnsModified = uniqueColumns.some(col => row[col] !== existingRow[col]);
+                const uniqueColumnsModified = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns.some(col => row[col] !== existingRow[col]) : false;
                 if (uniqueColumnsModified) {
                     modifiedUnique.push(row);
                 } else {
@@ -245,7 +245,7 @@ const detectDuplicates = async (rows, idColumn, uniqueColumns) => {
             }
         }
 
-        const uniqueColumnsString = uniqueColumns.map(col => `${col}=${row[col]}`).join('|');
+        const uniqueColumnsString = uniqueColumns && uniqueColumns.length > 0 ? uniqueColumns.map(col => `${col}=${row[col]}`).join('|') : null;
         if (uniqueColumnsString) {
             if (uniqueSet.has(uniqueColumnsString)) {
                 duplicateUnique.push(row, uniqueSet.get(uniqueColumnsString));
@@ -259,6 +259,10 @@ const detectDuplicates = async (rows, idColumn, uniqueColumns) => {
 };
 
 const detectUniqueCollisions = (existingData, importedData, idColumn: string, uniqueColumns: string[]) => {
+    if (!uniqueColumns || uniqueColumns.length === 0) {
+        return [];
+    }
+
     const getUniqueKey = (row) => uniqueColumns.map(col => `${col}=${row[col]}`).join('|');
 
     const existingUniqueKeyMap = new Map(existingData.map(row => [getUniqueKey(row), row]));

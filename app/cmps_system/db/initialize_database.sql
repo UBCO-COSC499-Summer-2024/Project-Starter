@@ -506,7 +506,7 @@ SELECT
     room_num
 FROM
     service_role
-    JOIN v_service_role_assign ON service_role.service_role_id = v_service_role_assign.service_role_id
+    LEFT JOIN v_service_role_assign ON service_role.service_role_id = v_service_role_assign.service_role_id
 GROUP BY
     service_role.service_role_id,
     title,
