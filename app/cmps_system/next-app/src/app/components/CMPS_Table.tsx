@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { DataGrid, GridToolbarContainer, GridRowModes, useGridApiRef, gridFilteredSortedRowIdsSelector } from '@mui/x-data-grid';
 import { Button, Modal, Typography, Box, styled, TextField, Tooltip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import supabase from '@/app/components/supabaseClient';
 import SearchModal from '@/app/components/SearchModal';
 import { saveAs } from 'file-saver';
+import debounce from 'lodash/debounce';
 
 const StyledButton = styled(Button)(
     ({ theme }) => `
@@ -272,7 +273,7 @@ const detectUniqueCollisions = (existingData, importedData, idColumn: string, un
     importedData.forEach(row => {
         if (row[idColumn]) {
             const uniqueKey = getUniqueKey(row);
-            const existingUniqueRow = existingUniqueUniqueKeyMap.get(uniqueKey);
+            const existingUniqueRow = existingUniqueKeyMap.get(uniqueKey);
             // If we are updating a row's unique key to one that already exists IN ANOTHER ROW, that is a collision.
             if (existingUniqueRow && existingUniqueRow[idColumn] !== row[idColumn]) {
                 collisionRows.push({
@@ -344,28 +345,31 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const apiRef = useGridApiRef(); // Use useGridApiRef hook
 
     useEffect(() => {
-        const fetchData = async () => {
-            await fetchTableData(fetchUrl, setTableData);
-            await fetchTableData(fetchUrl, setInitialTableData);
-            fetchTableColumns(tableName, setTableColumns);
-
-            // Call handleFilterChange to set the initial filtered data
-            handleFilterChange();
-        };
-
-        fetchData();
+        fetchTableData(fetchUrl, setTableData);
+        fetchTableData(fetchUrl, setInitialTableData);
+        fetchTableColumns(tableName, setTableColumns);
     }, [fetchUrl, tableName]);
 
     useEffect(() => {
         getUserRole(setUserRole);
     }, []);
 
-    const handleFilterChange = () => {
+    useEffect(() => {
+        if (onFilteredDataChange) {
+            handleFilterChange(); // Trigger initial filtering
+        }
+    }, [tableData, onFilteredDataChange]);
+
+    const debouncedHandleFilterChange = useCallback(debounce(() => {
         if (onFilteredDataChange && apiRef.current) {
             const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef.current.state);
             const filteredRows = filteredSortedRowIds.map(id => apiRef.current.getRow(id));
             onFilteredDataChange(filteredRows);
         }
+    }, 300), [onFilteredDataChange, apiRef]);
+
+    const handleFilterChange = () => {
+        debouncedHandleFilterChange();
     };
 
     const handleOpenModal = (type, row) => {
