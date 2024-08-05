@@ -76,7 +76,7 @@ export default function Evaluations() {
     const [independentVariable, setIndependentVariable] = useState('evaluation_date');
     const [aggregationMethod, setAggregationMethod] = useState('Average');
     const [errorMessage, setErrorMessage] = useState('');
-    const [showVisualization, setShowVisualization] = useState(true);
+    const [showVisualization, setShowVisualization] = useState(false);
 
     const handleFilteredDataChange = (data) => {
         setFilteredData(data);
@@ -86,7 +86,7 @@ export default function Evaluations() {
         if (filteredData.length > 0) {
             const evaluationTypes = new Set(filteredData.map(item => item.evaluation_type));
             if (evaluationTypes.size > 1) {
-                setErrorMessage('All rows must have the same "Evaluation Type" to visualize.');
+                setErrorMessage('All table rows must be filtered down to the same "Evaluation Type" to visualize.');
             } else {
                 setErrorMessage('');
             }
@@ -198,20 +198,27 @@ export default function Evaluations() {
                     </Button>
                 </div>
             </div>
-            {errorMessage ? (
-                <Alert severity="info">{errorMessage}</Alert>
-            ) : showVisualization && (
-                <div>
-                    <Box
-                        sx={{
-                            height: '50vh',
-                            width: '100%',
-                            padding: '10px'
-                        }}
-                    >
-                        <Bar data={chartData} options={{ maintainAspectRatio: false }} />
-                    </Box>
-                </div>
+            {showVisualization && (
+                <>
+                    {errorMessage ? (
+                        <Alert severity="info">{errorMessage}</Alert>
+                    ) : (
+                        <div>
+                            <Box
+                                sx={{
+                                    height: '50vh',
+                                    width: '100%',
+                                    padding: '10px'
+                                }}
+                            >
+                                <Typography variant="h6" align="center" gutterBottom>
+                                    {`${filteredData[0]?.evaluation_type || ''} vs. ${independentVariable}`}
+                                </Typography>
+                                <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+                            </Box>
+                        </div>
+                    )}
+                </>
             )}
             <CMPS_Table
                 fetchUrl={fetchUrl}
