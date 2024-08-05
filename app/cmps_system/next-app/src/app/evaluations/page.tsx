@@ -103,6 +103,13 @@ export default function Evaluations() {
         setFilteredData(data);
     };
 
+    const handleIndependentVariableChange = (e) => {
+        const value = e.target.value;
+        if (filteredData.some(item => item[value] !== undefined && item[value] !== null)) {
+            setIndependentVariable(value);
+        }
+    };
+
     useEffect(() => {
         if (filteredData.length > 0) {
             const evaluationTypes = new Set(filteredData.map(item => item.evaluation_type));
@@ -135,11 +142,13 @@ export default function Evaluations() {
 
         let labels = [];
         let data = [];
+        let counts = [];
 
         if (isSingleMetric) {
             labels = Array.from(new Set(filteredData.map(item => item[independentVariable]))).sort();
             data = labels.map(label => {
                 const items = filteredData.filter(item => item[independentVariable] === label);
+                counts.push(items.length);
                 switch (aggregationMethod) {
                     case 'Count':
                         return items.length;
@@ -158,6 +167,7 @@ export default function Evaluations() {
             labels = Array.from(metricNums).sort((a, b) => a - b);
             data = labels.map(metric => {
                 const items = filteredData.filter(item => item.question_num === metric);
+                counts.push(items.length);
                 switch (aggregationMethod) {
                     case 'Count':
                         return items.length;
@@ -178,17 +188,38 @@ export default function Evaluations() {
             labels,
             datasets: [
                 {
-                    label: `${filteredData[0].evaluation_type} ${isSingleMetric ? `vs. ${independentVariable}` : 'Results'}`,
+                    label: `${filteredData[0]?.evaluation_type ?? ''} ${isSingleMetric ? `vs. ${independentVariable}` : 'Results'}`,
                     data,
                     backgroundColor: 'rgba(75,192,192,0.6)',
                     borderColor: 'rgba(75,192,192,1)',
                     borderWidth: 1,
                 }
-            ]
+            ],
+            counts // Include counts for each bar
         };
     };
 
     const chartData = getChartData();
+
+    const chartOptions = {
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const index = context.dataIndex;
+                        const count = chartData.counts[index];
+                        return `${context.dataset.label}: ${context.raw} (N=${count})`;
+                    }
+                }
+            }
+        },
+        layout: {
+            padding: {
+                bottom: 20
+            }
+        }
+    };
 
     return (
         <>
@@ -206,7 +237,7 @@ export default function Evaluations() {
                                     <InputLabel>Independent Variable</InputLabel>
                                     <Select
                                         value={mode === 2 ? 'question_num' : independentVariable}
-                                        onChange={(e) => setIndependentVariable(e.target.value)}
+                                        onChange={handleIndependentVariableChange}
                                         label="Independent Variable"
                                         disabled={mode === 2}
                                     >
@@ -245,7 +276,7 @@ export default function Evaluations() {
                             <Typography variant="h6" align="center">
                                 {`${filteredData[0]?.evaluation_type ?? ''} ${mode === 1 ? `vs. ${independentVariable}` : 'Results'}`}
                             </Typography>
-                            <Bar key={`${independentVariable}-${aggregationMethod}`} data={chartData} options={{ maintainAspectRatio: false }} />
+                            <Bar key={`${independentVariable}-${aggregationMethod}`} data={chartData} options={chartOptions} />
                         </Box>
                     )}
                 </>
