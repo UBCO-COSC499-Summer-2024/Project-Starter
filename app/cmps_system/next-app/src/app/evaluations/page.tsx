@@ -86,23 +86,28 @@ export default function Evaluations() {
     useEffect(() => {
         if (filteredData.length > 0) {
             const evaluationTypes = new Set(filteredData.map(item => item.evaluation_type));
-            const metricNums = new Set(filteredData.map(item => item.metric_num));
+            const metricNums = new Set(filteredData.map(item => item.question_num));
+            console.log('Filtered Data:', filteredData);
+            console.log('Evaluation Types:', evaluationTypes);
+            console.log('Metric Numbers:', metricNums);
             if (evaluationTypes.size > 1) {
                 setErrorMessage('All table rows must be filtered down to the same "Evaluation Type" to visualize.');
             } else {
                 setErrorMessage('');
                 setMode(metricNums.size > 1 ? 2 : 1);
                 if (metricNums.size > 1) {
-                    setIndependentVariable('metric_num');
+                    setIndependentVariable('question_num');
                 }
             }
+        } else {
+            setErrorMessage('No data available.');
         }
     }, [filteredData]);
 
     const getChartData = () => {
         if (errorMessage || filteredData.length === 0) return { labels: [], datasets: [] };
 
-        const metricNums = new Set(filteredData.map(item => item.metric_num));
+        const metricNums = new Set(filteredData.map(item => item.question_num));
         const isSingleMetric = metricNums.size === 1;
 
         let labels = [];
@@ -129,7 +134,7 @@ export default function Evaluations() {
         } else {
             labels = Array.from(metricNums).sort((a, b) => a - b);
             data = labels.map(metric => {
-                const items = filteredData.filter(item => item.metric_num === metric);
+                const items = filteredData.filter(item => item.question_num === metric);
                 switch (aggregationMethod) {
                     case 'Count':
                         return items.length;
@@ -211,20 +216,12 @@ export default function Evaluations() {
                     {errorMessage ? (
                         <Alert severity="info">{errorMessage}</Alert>
                     ) : (
-                        <div>
-                            <Box
-                                sx={{
-                                    height: '50vh',
-                                    width: '100%',
-                                    padding: '10px'
-                                }}
-                            >
-                                <Typography variant="h6" align="center" gutterBottom>
-                                    {`${filteredData[0]?.evaluation_type || ''} vs. ${independentVariable}`}
-                                </Typography>
-                                <Bar data={chartData} options={{ maintainAspectRatio: false }} />
-                            </Box>
-                        </div>
+                        <Box sx={{ height: '50vh', width: '100%', padding: '10px' }}>
+                            <Typography variant="h6" align="center">
+                                {`${filteredData[0].evaluation_type} vs. ${independentVariable}`}
+                            </Typography>
+                            <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+                        </Box>
                     )}
                 </>
             )}
