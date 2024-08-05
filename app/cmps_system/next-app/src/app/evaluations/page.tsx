@@ -1,11 +1,30 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
 import { Button, Box, Typography, FormControl, InputLabel, Select, MenuItem, Alert, Tooltip } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip as ChartTooltip,
+    Legend
+} from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    ChartTooltip,
+    Legend
+);
 
 const aggregationMethods = ['Average', 'Count', 'Sum', 'Max', 'Min'];
 
@@ -78,6 +97,9 @@ export default function Evaluations() {
     const [errorMessage, setErrorMessage] = useState('');
     const [showVisualization, setShowVisualization] = useState(false);
     const [mode, setMode] = useState(1);
+    const [prevMode, setPrevMode] = useState(1); // Track previous mode
+
+    const chartRef = useRef(null); // Chart reference for handling destruction
 
     const handleFilteredDataChange = (data) => {
         setFilteredData(data);
@@ -91,17 +113,21 @@ export default function Evaluations() {
                 setErrorMessage('All table rows must be filtered down to the same "Evaluation Type" to visualize.');
             } else {
                 setErrorMessage('');
-                setMode(metricNums.size > 1 ? 2 : 1);
-                if (metricNums.size > 1) {
+                const newMode = metricNums.size > 1 ? 2 : 1;
+                setMode(newMode);
+
+                if (newMode === 2) {
                     setIndependentVariable('question_num');
-                } else {
+                } else if (newMode === 1 && prevMode !== 1) {
                     setIndependentVariable('evaluation_date');
                 }
+
+                setPrevMode(newMode); // Update previous mode
             }
         } else {
             setErrorMessage('No data available.');
         }
-    }, [filteredData]);
+    }, [filteredData, prevMode]);
 
     const getChartData = () => {
         if (errorMessage || filteredData.length === 0) return { labels: [], datasets: [] };
@@ -166,6 +192,13 @@ export default function Evaluations() {
 
     const chartData = getChartData();
 
+    useEffect(() => {
+        // Ensure the chart is destroyed before re-rendering
+        if (chartRef.current) {
+            chartRef.current.destroy();
+        }
+    }, [showVisualization, independentVariable, aggregationMethod]);
+
     return (
         <>
             <Navbar />
@@ -219,9 +252,9 @@ export default function Evaluations() {
                     ) : (
                         <Box sx={{ height: '50vh', width: '100%', padding: '10px' }}>
                             <Typography variant="h6" align="center">
-                                {`${filteredData[0].evaluation_type} vs. ${independentVariable}`}
+                                {`${filteredData[0]?.evaluation_type ?? ''} vs. ${independentVariable}`}
                             </Typography>
-                            <Bar data={chartData} options={{ maintainAspectRatio: false }} />
+                            <Bar ref={chartRef} data={chartData} options={{ maintainAspectRatio: false }} />
                         </Box>
                     )}
                 </>
