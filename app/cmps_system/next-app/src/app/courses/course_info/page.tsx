@@ -363,7 +363,7 @@ const CourseInfo = () => {
               <Button
                 variant="primary"
                 className="my-3"
-                onClick={() => { setSearchType('instructor'); setSearchModalOpen(true); }}
+                onClick={() => { setSearchType('ta'); setSearchModalOpen(true); }}
                 style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
               >
                 ➕ Assign New TA
