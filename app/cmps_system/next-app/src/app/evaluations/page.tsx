@@ -77,6 +77,7 @@ export default function Evaluations() {
     const [aggregationMethod, setAggregationMethod] = useState('Average');
     const [errorMessage, setErrorMessage] = useState('');
     const [showVisualization, setShowVisualization] = useState(false);
+    const [mode, setMode] = useState(1);
 
     const handleFilteredDataChange = (data) => {
         setFilteredData(data);
@@ -85,10 +86,15 @@ export default function Evaluations() {
     useEffect(() => {
         if (filteredData.length > 0) {
             const evaluationTypes = new Set(filteredData.map(item => item.evaluation_type));
+            const metricNums = new Set(filteredData.map(item => item.metric_num));
             if (evaluationTypes.size > 1) {
                 setErrorMessage('All table rows must be filtered down to the same "Evaluation Type" to visualize.');
             } else {
                 setErrorMessage('');
+                setMode(metricNums.size > 1 ? 2 : 1);
+                if (metricNums.size > 1) {
+                    setIndependentVariable('metric_num');
+                }
             }
         }
     }, [filteredData]);
@@ -173,10 +179,12 @@ export default function Evaluations() {
                                     value={independentVariable}
                                     onChange={(e) => setIndependentVariable(e.target.value)}
                                     label="Independent Variable"
-                                    disabled={filteredData.length > 0 && new Set(filteredData.map(item => item.metric_num)).size > 1}
+                                    disabled={mode === 2}
                                 >
                                     <MenuItem value="evaluation_date">Date</MenuItem>
-                                    {/* Add more independent variables if needed */}
+                                    <MenuItem value="instructor_full_name">Instructor</MenuItem>
+                                    <MenuItem value="course">Course</MenuItem>
+                                    <MenuItem value="service_role">Service Role</MenuItem>
                                 </Select>
                             </FormControl>
                             <FormControl variant="outlined" style={{ minWidth: 120 }}>
