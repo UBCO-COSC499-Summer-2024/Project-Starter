@@ -9,6 +9,10 @@ import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 import supabase from "@/app/components/supabaseClient";
@@ -24,6 +28,9 @@ const CourseInfo = () => {
   const [modalShow, setModalShow] = useState(false);
   const [instructors, setInstructors] = useState([]);
   const [tas, setTas] = useState([]);
+  const [editMode, setEditMode] = useState({});
+  const [editCourseMode, setEditCourseMode] = useState({});
+  const [editableFields] = useState(['academic_year', 'session', 'term', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'num_tas', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
 
   useEffect(() => {
     if (courseId) {
@@ -77,11 +84,108 @@ const CourseInfo = () => {
     }
   };
 
+  const handleEdit = (field) => {
+    setEditMode((prevState) => ({ ...prevState, [field]: !prevState[field] }));
+  };
+
+  const handleCourseEdit = (field) => {
+    setEditCourseMode((prevState) => ({ ...prevState, [field]: !prevState[field] }));
+  };
+
+  const handleSave = async (field, value) => {
+    try {
+      const { error } = await supabase
+        .from('course')
+        .update({ [field]: value })
+        .eq('course_id', courseId);
+
+      if (error) throw error;
+      setCourse((prevCourse) => ({ ...prevCourse, [field]: value }));
+      setEditCourseMode((prevState) => ({ ...prevState, [field]: false }));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setCourse((prevCourse) => ({ ...prevCourse, [field]: value }));
+  };
+
   const toTitleCase = (str) => {
     if (!str) return '';
     return str.replace(/\w\S*/g, (txt) => {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
+  };
+
+  const handleKeyDown = (event, saveAction) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      saveAction();
+    }
+  };
+
+  const renderField = (field, value) => {
+    if (field === 'session') {
+      return (
+        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+          <option value="Winter">Winter</option>
+          <option value="Summer">Summer</option>
+        </Form.Select>
+      );
+    }
+    if (field === 'term') {
+      return (
+        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+          <option value="Term 1">Term 1</option>
+          <option value="Term 2">Term 2</option>
+          <option value="Term 1-2">Term 1-2</option>
+        </Form.Select>
+      );
+    }
+    if (field === 'mode_of_delivery') {
+      return (
+        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+          <option value="Online">Online</option>
+          <option value="In-Person">In-Person</option>
+          <option value="Hybrid">Hybrid</option>
+          <option value="Multi-access">Multi-access</option>
+        </Form.Select>
+      );
+    }
+    if (field === 'req_in_person_attendance') {
+      return (
+        <Form.Select value={value ? 'Yes' : 'No'} onChange={(e) => handleChange(field, e.target.value === 'Yes')} size="sm">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </Form.Select>
+      );
+    }
+    if (field === 'start_time' || field === 'end_time') {
+      return (
+        <Form.Control
+          type="time"
+          value={value || ''}
+          onChange={(e) => handleChange(field, e.target.value)}
+          size="sm"
+        />
+      );
+    }
+    if (typeof value === 'boolean') {
+      return (
+        <Form.Select value={value ? 'Yes' : 'No'} onChange={(e) => handleChange(field, e.target.value === 'Yes')} size="sm">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </Form.Select>
+      );
+    }
+    return (
+      <Form.Control
+        value={value || ''}
+        onChange={(e) => handleChange(field, e.target.value)}
+        size="sm"
+      />
+    );
   };
 
   return (
@@ -101,7 +205,14 @@ const CourseInfo = () => {
                   {Object.entries(course).map(([field, value]) => (
                     <tr key={field}>
                       <td style={{ width: '30%' }}>{toTitleCase(field.replace(/_/g, ' '))}</td>
-                      <td>{value !== null ? value.toString() : 'N/A'}</td>
+                      <td>{editCourseMode[field] ? renderField(field, value) : (value !== null ? value.toString() : 'N/A')}</td>
+                      <td style={{ width: '1px' }}>
+                        {editableFields.includes(field) && (
+                          <IconButton onClick={() => editCourseMode[field] ? handleSave(field, course[field]) : handleCourseEdit(field)} size="small">
+                            {editCourseMode[field] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                          </IconButton>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
