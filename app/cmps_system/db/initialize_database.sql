@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS
     );
 
 ALTER TABLE "course_assign"
-ADD CONSTRAINT "course_assign_unique" UNIQUE ("instructor_id", "course_id");
+ADD CONSTRAINT "course_assign_unique" UNIQUE ("instructor_id", "course_id", "position");
 
 ALTER TABLE "course_assign"
 ADD PRIMARY KEY ("assignment_id");
