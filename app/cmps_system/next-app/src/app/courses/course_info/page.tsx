@@ -13,9 +13,11 @@ import Form from 'react-bootstrap/Form';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 import supabase from "@/app/components/supabaseClient";
+import SearchModal from "@/app/components/SearchModal"; // Adjust the path as needed
 
 const CourseInfo = () => {
   const searchParams = useSearchParams();
@@ -30,6 +32,8 @@ const CourseInfo = () => {
   const [tas, setTas] = useState([]);
   const [editMode, setEditMode] = useState({});
   const [editCourseMode, setEditCourseMode] = useState({});
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [searchType, setSearchType] = useState('');
   const [editableFields] = useState(['academic_year', 'session', 'term', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'num_tas', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
 
   const fieldTypes = {
@@ -137,6 +141,52 @@ const CourseInfo = () => {
     setCourse((prevCourse) => ({ ...prevCourse, [field]: value }));
   };
 
+  const handleSelect = async (selected) => {
+    try {
+      const { error } = await supabase
+        .from('course_assign')
+        .insert({
+          instructor_id: selected.id,
+          course_id: courseId,
+          position: searchType === 'instructor' ? 'Instructor' : 'TA'
+        });
+
+      if (error) throw error;
+
+      // Fetch the updated list of assignees
+      const { data: assigneeData, error: fetchError } = await supabase
+        .from('v_course_info_assignees')
+        .select('*')
+        .eq('course_id', courseId);
+
+      if (fetchError) throw fetchError;
+
+      setInstructors(assigneeData.filter(assignee => assignee.position === 'Instructor'));
+      setTas(assigneeData.filter(assignee => assignee.position === 'TA'));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleAssigneeDelete = async (assignmentId, type) => {
+    try {
+      const { error } = await supabase
+        .from('course_assign')
+        .delete()
+        .eq('assignment_id', assignmentId);
+
+      if (error) throw error;
+
+      if (type === 'instructor') {
+        setInstructors(instructors.filter(instructor => instructor.assignment_id !== assignmentId));
+      } else {
+        setTas(tas.filter(ta => ta.assignment_id !== assignmentId));
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   const toTitleCase = (str) => {
     if (!str) return '';
     return str.replace(/\w\S*/g, (txt) => {
@@ -195,6 +245,7 @@ const CourseInfo = () => {
           type="time"
           value={value || ''}
           onChange={(e) => handleChange(field, e.target.value)}
+          step="60" // Ensure minute resolution
           size="sm"
         />
       );
@@ -256,6 +307,7 @@ const CourseInfo = () => {
                   <tr>
                     <th>Instructor Name</th>
                     <th>Position</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -263,16 +315,31 @@ const CourseInfo = () => {
                     <tr key={instructor.assignment_id}>
                       <td>{instructor.instructor_name}</td>
                       <td>{instructor.position}</td>
+                      <td>
+                        <IconButton onClick={() => handleAssigneeDelete(instructor.assignment_id, 'instructor')} size="small">
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
+              <Button
+                variant="primary"
+                className="my-3"
+                onClick={() => { setSearchType('instructor'); setSearchModalOpen(true); }}
+                style={{ width: '100%', backgroundColor: 'navy', color: 'white' }}
+              >
+                ➕ Assign New Instructor
+              </Button>
+
               <h3>Assigned TAs</h3>
               <Table className="table table-bordered">
                 <thead>
                   <tr>
                     <th>TA Name</th>
                     <th>Position</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -280,10 +347,23 @@ const CourseInfo = () => {
                     <tr key={ta.assignment_id}>
                       <td>{ta.instructor_name}</td>
                       <td>{ta.position}</td>
+                      <td>
+                        <IconButton onClick={() => handleAssigneeDelete(ta.assignment_id, 'ta')} size="small">
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
+              <Button
+                variant="primary"
+                className="my-3"
+                onClick={() => { setSearchType('ta'); setSearchModalOpen(true); }}
+                style={{ width: '100%', backgroundColor: 'navy', color: 'white' }}
+              >
+                ➕ Assign New TA
+              </Button>
             </Col>
           </Row>
         ) : (
@@ -305,6 +385,13 @@ const CourseInfo = () => {
           <Button variant="danger" onClick={confirmDelete}>Delete</Button>
         </Modal.Footer>
       </Modal>
+
+      <SearchModal
+        open={searchModalOpen}
+        handleClose={() => setSearchModalOpen(false)}
+        handleSelect={handleSelect}
+        type={searchType}
+      />
     </div>
   );
 };
