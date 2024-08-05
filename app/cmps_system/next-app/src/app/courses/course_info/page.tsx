@@ -32,6 +32,32 @@ const CourseInfo = () => {
   const [editCourseMode, setEditCourseMode] = useState({});
   const [editableFields] = useState(['academic_year', 'session', 'term', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'num_tas', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
 
+  const fieldTypes = {
+    academic_year: 'number',
+    session: 'select',
+    term: 'select',
+    subject_code: 'text',
+    course_num: 'text',
+    section_num: 'text',
+    course_title: 'text',
+    mode_of_delivery: 'select',
+    req_in_person_attendance: 'select',
+    building: 'text',
+    room_num: 'text',
+    section_comments: 'text',
+    activity: 'text',
+    days: 'text',
+    start_time: 'time',
+    end_time: 'time',
+    num_students: 'number',
+    num_tas: 'number',
+    average_grade: 'number',
+    credits: 'number',
+    year_level: 'number',
+    registration_status: 'text',
+    status: 'text'
+  };
+
   useEffect(() => {
     if (courseId) {
       const fetchCourseData = async () => {
@@ -126,42 +152,44 @@ const CourseInfo = () => {
   };
 
   const renderField = (field, value) => {
-    if (field === 'session') {
-      return (
-        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
-          <option value="Winter">Winter</option>
-          <option value="Summer">Summer</option>
-        </Form.Select>
-      );
-    }
-    if (field === 'term') {
-      return (
-        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
-          <option value="Term 1">Term 1</option>
-          <option value="Term 2">Term 2</option>
-          <option value="Term 1-2">Term 1-2</option>
-        </Form.Select>
-      );
-    }
-    if (field === 'mode_of_delivery') {
-      return (
-        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
-          <option value="Online">Online</option>
-          <option value="In-Person">In-Person</option>
-          <option value="Hybrid">Hybrid</option>
-          <option value="Multi-access">Multi-access</option>
-        </Form.Select>
-      );
-    }
-    if (field === 'req_in_person_attendance') {
-      return (
-        <Form.Select value={value ? 'Yes' : 'No'} onChange={(e) => handleChange(field, e.target.value === 'Yes')} size="sm">
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </Form.Select>
-      );
-    }
-    if (field === 'start_time' || field === 'end_time') {
+    const type = fieldTypes[field];
+    if (type === 'select') {
+      if (field === 'session') {
+        return (
+          <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+            <option value="Winter">Winter</option>
+            <option value="Summer">Summer</option>
+          </Form.Select>
+        );
+      }
+      if (field === 'term') {
+        return (
+          <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+            <option value="Term 1">Term 1</option>
+            <option value="Term 2">Term 2</option>
+            <option value="Term 1-2">Term 1-2</option>
+          </Form.Select>
+        );
+      }
+      if (field === 'mode_of_delivery') {
+        return (
+          <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+            <option value="Online">Online</option>
+            <option value="In-Person">In-Person</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Multi-access">Multi-access</option>
+          </Form.Select>
+        );
+      }
+      if (field === 'req_in_person_attendance') {
+        return (
+          <Form.Select value={value ? 'Yes' : 'No'} onChange={(e) => handleChange(field, e.target.value === 'Yes')} size="sm">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </Form.Select>
+        );
+      }
+    } else if (type === 'time') {
       return (
         <Form.Control
           type="time"
@@ -170,22 +198,25 @@ const CourseInfo = () => {
           size="sm"
         />
       );
-    }
-    if (typeof value === 'boolean') {
+    } else if (type === 'number') {
       return (
-        <Form.Select value={value ? 'Yes' : 'No'} onChange={(e) => handleChange(field, e.target.value === 'Yes')} size="sm">
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </Form.Select>
+        <Form.Control
+          type="number"
+          value={value || ''}
+          onChange={(e) => handleChange(field, e.target.value)}
+          size="sm"
+        />
+      );
+    } else {
+      return (
+        <Form.Control
+          type={type}
+          value={value || ''}
+          onChange={(e) => handleChange(field, e.target.value)}
+          size="sm"
+        />
       );
     }
-    return (
-      <Form.Control
-        value={value || ''}
-        onChange={(e) => handleChange(field, e.target.value)}
-        size="sm"
-      />
-    );
   };
 
   return (
