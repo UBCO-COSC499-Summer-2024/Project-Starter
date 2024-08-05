@@ -18,6 +18,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 import supabase from "@/app/components/supabaseClient";
 import SearchModal from "@/app/components/SearchModal"; // Adjust the path as needed
+import getUserType from "@/app/components/getUserType";
 
 const CourseInfo = () => {
   const searchParams = useSearchParams();
@@ -34,6 +35,7 @@ const CourseInfo = () => {
   const [editCourseMode, setEditCourseMode] = useState({});
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchType, setSearchType] = useState('');
+  const [userRole, setUserRole] = useState(null);
   const [editableFields] = useState(['academic_year', 'session', 'term', 'subject_code', 'course_num', 'section_num', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'num_tas', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
 
   const fieldTypes = {
@@ -63,8 +65,8 @@ const CourseInfo = () => {
   };
 
   useEffect(() => {
-    if (courseId) {
-      const fetchCourseData = async () => {
+    const fetchData = async () => {
+      if (courseId) {
         try {
           const { data: courseData, error: courseError } = await supabase
             .from('course')
@@ -85,15 +87,17 @@ const CourseInfo = () => {
           setInstructors(assigneeData.filter(assignee => assignee.position === 'Instructor'));
           setTas(assigneeData.filter(assignee => assignee.position === 'TA'));
 
+          const role = await getUserType();
+          setUserRole(role);
         } catch (error) {
           setError(error.message);
         } finally {
           setLoading(false);
         }
-      };
+      }
+    };
 
-      fetchCourseData();
-    }
+    fetchData();
   }, [courseId]);
 
   const handleDelete = async () => {
@@ -293,7 +297,7 @@ const CourseInfo = () => {
                       <td style={{ width: '30%' }}>{toTitleCase(field.replace(/_/g, ' '))}</td>
                       <td>{editCourseMode[field] ? renderField(field, value) : (value !== null ? value.toString() : 'N/A')}</td>
                       <td style={{ width: '1px' }}>
-                        {editableFields.includes(field) && (
+                        {editableFields.includes(field) && ['head', 'staff'].includes(userRole) && (
                           <IconButton onClick={() => editCourseMode[field] ? handleSave(field, course[field]) : handleCourseEdit(field)} size="small">
                             {editCourseMode[field] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
                           </IconButton>
@@ -320,23 +324,26 @@ const CourseInfo = () => {
                       <td>{instructor.instructor_name}</td>
                       <td>{instructor.position}</td>
                       <td>
-                        <IconButton onClick={() => handleAssigneeDelete(instructor.assignment_id, 'instructor')} size="small">
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                        {['head', 'staff'].includes(userRole) && (
+                          <IconButton onClick={() => handleAssigneeDelete(instructor.assignment_id, 'instructor')} size="small">
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-              <Button
-                variant="primary"
-                className="my-3"
-                onClick={() => { setSearchType('instructor'); setSearchModalOpen(true); }}
-                style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
-              >
-                ➕ Assign New Instructor
-              </Button>
-
+              {['head', 'staff'].includes(userRole) && (
+                <Button
+                  variant="primary"
+                  className="my-3"
+                  onClick={() => { setSearchType('instructor'); setSearchModalOpen(true); }}
+                  style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
+                >
+                  ➕ Assign New Instructor
+                </Button>
+              )}
               <h3>Assigned TAs</h3>
               <Table className="table table-bordered">
                 <thead>
@@ -352,29 +359,35 @@ const CourseInfo = () => {
                       <td>{ta.instructor_name}</td>
                       <td>{ta.position}</td>
                       <td>
-                        <IconButton onClick={() => handleAssigneeDelete(ta.assignment_id, 'ta')} size="small">
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                        {['head', 'staff'].includes(userRole) && (
+                          <IconButton onClick={() => handleAssigneeDelete(ta.assignment_id, 'ta')} size="small">
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-              <Button
-                variant="primary"
-                className="my-3"
-                onClick={() => { setSearchType('ta'); setSearchModalOpen(true); }}
-                style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
-              >
-                ➕ Assign New TA
-              </Button>
+              {['head', 'staff'].includes(userRole) && (
+                <Button
+                  variant="primary"
+                  className="my-3"
+                  onClick={() => { setSearchType('ta'); setSearchModalOpen(true); }}
+                  style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
+                >
+                  ➕ Assign New TA
+                </Button>
+              )}
             </Col>
           </Row>
         ) : (
           <p>Course not found</p>
         )}
         <div className="course-info-footer">
-          <Button className="btn btn-danger" onClick={handleDelete}>Remove this course</Button>
+          {['head', 'staff'].includes(userRole) && (
+            <Button className="btn btn-danger" onClick={handleDelete}>Remove this course</Button>
+          )}
           <Button className="btn btn-secondary" onClick={() => router.push('/courses')}>Back</Button>
         </div>
       </Container>
