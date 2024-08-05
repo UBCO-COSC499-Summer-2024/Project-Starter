@@ -100,7 +100,7 @@ const CourseInfo = () => {
                 <tbody>
                   {Object.entries(course).map(([field, value]) => (
                     <tr key={field}>
-                      <td>{toTitleCase(field.replace(/_/g, ' '))}</td>
+                      <td style={{ width: '30%' }}>{toTitleCase(field.replace(/_/g, ' '))}</td>
                       <td>{value !== null ? value.toString() : 'N/A'}</td>
                     </tr>
                   ))}
