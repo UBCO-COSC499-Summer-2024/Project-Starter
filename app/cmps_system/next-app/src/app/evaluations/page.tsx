@@ -87,9 +87,6 @@ export default function Evaluations() {
         if (filteredData.length > 0) {
             const evaluationTypes = new Set(filteredData.map(item => item.evaluation_type));
             const metricNums = new Set(filteredData.map(item => item.question_num));
-            console.log('Filtered Data:', filteredData);
-            console.log('Evaluation Types:', evaluationTypes);
-            console.log('Metric Numbers:', metricNums);
             if (evaluationTypes.size > 1) {
                 setErrorMessage('All table rows must be filtered down to the same "Evaluation Type" to visualize.');
             } else {

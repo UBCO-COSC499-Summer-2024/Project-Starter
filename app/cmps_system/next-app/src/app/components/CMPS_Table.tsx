@@ -532,7 +532,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 Object.keys(row).forEach(col => {
                     if (String(row[col]) !== String(originalRow[col])) {
                         if (!modifiedCells[row[idColumn]]) {
-                            modifiedCells[row[idColumn]][col] = true;
+                            modifiedCells[row[idColumn]] = {};
                         }
                         modifiedCells[row[idColumn]][col] = true;
                     }
