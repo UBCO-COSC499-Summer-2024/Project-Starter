@@ -34,7 +34,7 @@ const CourseInfo = () => {
   const [editCourseMode, setEditCourseMode] = useState({});
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchType, setSearchType] = useState('');
-  const [editableFields] = useState(['academic_year', 'session', 'term', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'num_tas', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
+  const [editableFields] = useState(['academic_year', 'session', 'term', 'subject_code', 'course_num', 'section_num', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'num_tas', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
 
   const fieldTypes = {
     academic_year: 'number',
@@ -276,7 +276,9 @@ const CourseInfo = () => {
     <div>
       <NavBar />
       <Container fluid className="banner">
-        <h2>Course Info: {course.subject_code} {course.course_num} {course.section_num} - {course.academic_year}{course.session === 'Winter' ? 'W' : 'S'}{course.term.replace('Term ', '')}</h2>
+        <h2>
+          Course Info: {course.subject_code} {course.course_num} {course.section_num} - {course.academic_year}{course.session === 'Winter' ? 'W' : 'S'}{course.term ? course.term.replace('Term ', '') : ''}
+        </h2>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -361,7 +363,7 @@ const CourseInfo = () => {
               <Button
                 variant="primary"
                 className="my-3"
-                onClick={() => { setSearchType('ta'); setSearchModalOpen(true); }}
+                onClick={() => { setSearchType('instructor'); setSearchModalOpen(true); }}
                 style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
               >
                 ➕ Assign New TA
