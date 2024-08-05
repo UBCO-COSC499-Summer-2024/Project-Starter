@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
@@ -103,9 +103,13 @@ export default function Evaluations() {
         setFilteredData(data);
     };
 
+    const hasValues = (variable) => {
+        return filteredData.some(item => item[variable] !== undefined && item[variable] !== null && item[variable] !== '');
+    };
+
     const handleIndependentVariableChange = (e) => {
         const value = e.target.value;
-        if (filteredData.some(item => item[value] !== undefined && item[value] !== null)) {
+        if (hasValues(value)) {
             setIndependentVariable(value);
         }
     };
@@ -242,9 +246,9 @@ export default function Evaluations() {
                                         disabled={mode === 2}
                                     >
                                         <MenuItem value="evaluation_date">Date</MenuItem>
-                                        <MenuItem value="instructor_full_name">Instructor</MenuItem>
-                                        <MenuItem value="course">Course</MenuItem>
-                                        <MenuItem value="service_role">Service Role</MenuItem>
+                                        {hasValues('instructor_full_name') && <MenuItem value="instructor_full_name">Instructor</MenuItem>}
+                                        {hasValues('course') && <MenuItem value="course">Course</MenuItem>}
+                                        {hasValues('service_role') && <MenuItem value="service_role">Service Role</MenuItem>}
                                     </Select>
                                 </FormControl>
                             </Tooltip>
