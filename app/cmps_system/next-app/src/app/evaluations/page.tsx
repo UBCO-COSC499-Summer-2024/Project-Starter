@@ -278,7 +278,7 @@ export default function Evaluations() {
                     ) : (
                         <Box sx={{ height: '50vh', width: '100%', padding: '10px' }}>
                             <Typography variant="h6" align="center">
-                                {`${filteredData[0]?.evaluation_type ?? ''} ${mode === 1 ? `vs. ${independentVariable}` : 'Results'}`}
+                                {`${aggregationMethod} ${filteredData[0]?.evaluation_type ?? ''} ${mode === 1 ? `vs. ${independentVariable}` : 'Results'}`}
                             </Typography>
                             <Bar key={`${independentVariable}-${aggregationMethod}`} data={chartData} options={chartOptions} />
                         </Box>
