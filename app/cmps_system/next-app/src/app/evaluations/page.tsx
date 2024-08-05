@@ -1,10 +1,32 @@
 'use client'
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
-import Button from '@mui/material/Button';
+import { Button, Box, Typography, FormControl, InputLabel, Select, MenuItem, Alert, Tooltip } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip as ChartTooltip,
+    Legend
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    ChartTooltip,
+    Legend
+);
+
+const aggregationMethods = ['Average', 'Count', 'Sum', 'Max', 'Min'];
 
 export default function Evaluations() {
     const router = useRouter();
@@ -69,18 +91,200 @@ export default function Evaluations() {
         }
     };
 
+    const [filteredData, setFilteredData] = useState([]);
+    const [independentVariable, setIndependentVariable] = useState('evaluation_date');
+    const [aggregationMethod, setAggregationMethod] = useState('Average');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showVisualization, setShowVisualization] = useState(false);
+    const [mode, setMode] = useState(1);
+    const [prevMode, setPrevMode] = useState(1); // Track previous mode
+
+    const handleFilteredDataChange = (data) => {
+        setFilteredData(data);
+    };
+
+    const hasValues = (variable) => {
+        return filteredData.some(item => item[variable] !== undefined && item[variable] !== null && item[variable] !== '');
+    };
+
+    const handleIndependentVariableChange = (e) => {
+        const value = e.target.value;
+        if (hasValues(value)) {
+            setIndependentVariable(value);
+        }
+    };
+
+    useEffect(() => {
+        if (filteredData.length > 0) {
+            const evaluationTypes = new Set(filteredData.map(item => item.evaluation_type));
+            const metricNums = new Set(filteredData.map(item => item.question_num));
+            if (evaluationTypes.size > 1) {
+                setErrorMessage('All table rows must be filtered down to the same "Evaluation Type" to visualize.');
+            } else {
+                setErrorMessage('');
+                const newMode = metricNums.size > 1 ? 2 : 1;
+                setMode(newMode);
+
+                if (newMode === 2) {
+                    setIndependentVariable('question_num');
+                } else if (newMode === 1 && prevMode !== 1) {
+                    setIndependentVariable('evaluation_date');
+                }
+
+                setPrevMode(newMode); // Update previous mode
+            }
+        } else {
+            setErrorMessage('No data available.');
+        }
+    }, [filteredData, prevMode]);
+
+    const getChartData = () => {
+        if (errorMessage || filteredData.length === 0) return { labels: [], datasets: [] };
+
+        const metricNums = new Set(filteredData.map(item => item.question_num));
+        const isSingleMetric = metricNums.size === 1;
+
+        let labels = [];
+        let data = [];
+        let counts = [];
+
+        if (isSingleMetric) {
+            labels = Array.from(new Set(filteredData.map(item => item[independentVariable]))).sort();
+            data = labels.map(label => {
+                const items = filteredData.filter(item => item[independentVariable] === label);
+                counts.push(items.length);
+                switch (aggregationMethod) {
+                    case 'Count':
+                        return items.length;
+                    case 'Sum':
+                        return items.reduce((acc, curr) => acc + Number(curr.answer), 0);
+                    case 'Max':
+                        return Math.max(...items.map(item => Number(item.answer)));
+                    case 'Min':
+                        return Math.min(...items.map(item => Number(item.answer)));
+                    case 'Average':
+                    default:
+                        return items.reduce((acc, curr) => acc + Number(curr.answer), 0) / items.length;
+                }
+            });
+        } else {
+            labels = Array.from(metricNums).sort((a, b) => a - b);
+            data = labels.map(metric => {
+                const items = filteredData.filter(item => item.question_num === metric);
+                counts.push(items.length);
+                switch (aggregationMethod) {
+                    case 'Count':
+                        return items.length;
+                    case 'Sum':
+                        return items.reduce((acc, curr) => acc + Number(curr.answer), 0);
+                    case 'Max':
+                        return Math.max(...items.map(item => Number(item.answer)));
+                    case 'Min':
+                        return Math.min(...items.map(item => Number(item.answer)));
+                    case 'Average':
+                    default:
+                        return items.reduce((acc, curr) => acc + Number(curr.answer), 0) / items.length;
+                }
+            });
+        }
+
+        return {
+            labels,
+            datasets: [
+                {
+                    label: `${filteredData[0]?.evaluation_type ?? ''} ${isSingleMetric ? `vs. ${independentVariable}` : 'Results'}`,
+                    data,
+                    backgroundColor: 'rgba(75,192,192,0.6)',
+                    borderColor: 'rgba(75,192,192,1)',
+                    borderWidth: 1,
+                }
+            ],
+            counts // Include counts for each bar
+        };
+    };
+
+    const chartData = getChartData();
+
+    const chartOptions = {
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const index = context.dataIndex;
+                        const count = chartData.counts[index];
+                        return `${context.dataset.label}: ${context.raw} (N=${count})`;
+                    }
+                }
+            }
+        },
+        layout: {
+            padding: {
+                bottom: 20
+            }
+        }
+    };
 
     return (
         <>
             <Navbar />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', flexWrap: 'nowrap' }}>
                 <h1 style={{ marginRight: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}>Evaluations</h1>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Button onClick={() => setShowVisualization(!showVisualization)} variant="contained" color="primary">
+                        {showVisualization ? 'Hide Visualization' : 'Show Visualization'}
+                    </Button>
+                    {showVisualization && (
+                        <>
+                            <Tooltip title={mode === 2 ? "Independent variable is forced to be 'Question Number' because there are multiple questions in the input data, and we only have two dimensions to work with." : ""}>
+                                <FormControl variant="outlined" style={{ minWidth: 180 }}>
+                                    <InputLabel>Independent Variable</InputLabel>
+                                    <Select
+                                        value={mode === 2 ? 'question_num' : independentVariable}
+                                        onChange={handleIndependentVariableChange}
+                                        label="Independent Variable"
+                                        disabled={mode === 2}
+                                    >
+                                        <MenuItem value="evaluation_date">Date</MenuItem>
+                                        {hasValues('instructor_full_name') && <MenuItem value="instructor_full_name">Instructor</MenuItem>}
+                                        {hasValues('course') && <MenuItem value="course">Course</MenuItem>}
+                                        {hasValues('service_role') && <MenuItem value="service_role">Service Role</MenuItem>}
+                                    </Select>
+                                </FormControl>
+                            </Tooltip>
+                            <FormControl variant="outlined" style={{ minWidth: 180 }}>
+                                <InputLabel>Aggregation Method</InputLabel>
+                                <Select
+                                    value={aggregationMethod}
+                                    onChange={(e) => setAggregationMethod(e.target.value)}
+                                    label="Aggregation Method"
+                                >
+                                    {aggregationMethods.map(method => (
+                                        <MenuItem key={method} value={method}>{method}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </>
+                    )}
                     <Button onClick={() => { router.push("/evaluations/evaluation_types") }} variant="contained" color="primary">
                         View Evaluation Types
                     </Button>
                 </div>
             </div>
+            {showVisualization && (
+                <>
+                    {errorMessage ? (
+                        <Alert severity="info">{errorMessage}</Alert>
+                    ) : (
+                        <Box sx={{ height: '50vh', width: '100%', padding: '10px' }}>
+                            <Typography variant="h6" align="center">
+                                {`${aggregationMethod} ${filteredData[0]?.evaluation_type ?? ''} ${mode === 1 ? `vs. ${independentVariable}` : 'Results'}`}
+                            </Typography>
+                            <Bar key={`${independentVariable}-${aggregationMethod}`} data={chartData} options={chartOptions} />
+                        </Box>
+                    )}
+                </>
+            )}
             <CMPS_Table
                 fetchUrl={fetchUrl}
                 columnsConfig={columnsConfig}
@@ -96,6 +300,7 @@ export default function Evaluations() {
                     "instructor_id",
                     "service_role_id",
                     "evaluation_date"]}
+                onFilteredDataChange={handleFilteredDataChange}
             />
         </>
     );
