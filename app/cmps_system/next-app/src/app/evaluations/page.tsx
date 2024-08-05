@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
-import { Button, Box, Typography, FormControl, InputLabel, Select, MenuItem, Alert } from '@mui/material';
+import { Button, Box, Typography, FormControl, InputLabel, Select, MenuItem, Alert, Tooltip } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { Bar } from 'react-chartjs-2';
 
@@ -97,6 +97,8 @@ export default function Evaluations() {
                 setMode(metricNums.size > 1 ? 2 : 1);
                 if (metricNums.size > 1) {
                     setIndependentVariable('question_num');
+                } else {
+                    setIndependentVariable('evaluation_date');
                 }
             }
         } else {
@@ -178,21 +180,23 @@ export default function Evaluations() {
                     </Button>
                     {showVisualization && (
                         <>
-                            <FormControl variant="outlined" style={{ minWidth: 120 }}>
-                                <InputLabel>Independent Variable</InputLabel>
-                                <Select
-                                    value={independentVariable}
-                                    onChange={(e) => setIndependentVariable(e.target.value)}
-                                    label="Independent Variable"
-                                    disabled={mode === 2}
-                                >
-                                    <MenuItem value="evaluation_date">Date</MenuItem>
-                                    <MenuItem value="instructor_full_name">Instructor</MenuItem>
-                                    <MenuItem value="course">Course</MenuItem>
-                                    <MenuItem value="service_role">Service Role</MenuItem>
-                                </Select>
-                            </FormControl>
-                            <FormControl variant="outlined" style={{ minWidth: 120 }}>
+                            <Tooltip title={mode === 2 ? "Independent variable is forced to be 'Question Number' because there are multiple questions in the input data, and we only have two dimensions to work with." : ""}>
+                                <FormControl variant="outlined" style={{ minWidth: 180 }}>
+                                    <InputLabel>Independent Variable</InputLabel>
+                                    <Select
+                                        value={mode === 2 ? 'question_num' : independentVariable}
+                                        onChange={(e) => setIndependentVariable(e.target.value)}
+                                        label="Independent Variable"
+                                        disabled={mode === 2}
+                                    >
+                                        <MenuItem value="evaluation_date">Date</MenuItem>
+                                        <MenuItem value="instructor_full_name">Instructor</MenuItem>
+                                        <MenuItem value="course">Course</MenuItem>
+                                        <MenuItem value="service_role">Service Role</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Tooltip>
+                            <FormControl variant="outlined" style={{ minWidth: 180 }}>
                                 <InputLabel>Aggregation Method</InputLabel>
                                 <Select
                                     value={aggregationMethod}
