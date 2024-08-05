@@ -272,7 +272,7 @@ const detectUniqueCollisions = (existingData, importedData, idColumn: string, un
     importedData.forEach(row => {
         if (row[idColumn]) {
             const uniqueKey = getUniqueKey(row);
-            const existingUniqueRow = existingUniqueKeyMap.get(uniqueKey);
+            const existingUniqueRow = existingUniqueUniqueKeyMap.get(uniqueKey);
             // If we are updating a row's unique key to one that already exists IN ANOTHER ROW, that is a collision.
             if (existingUniqueRow && existingUniqueRow[idColumn] !== row[idColumn]) {
                 collisionRows.push({
@@ -344,9 +344,16 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const apiRef = useGridApiRef(); // Use useGridApiRef hook
 
     useEffect(() => {
-        fetchTableData(fetchUrl, setTableData);
-        fetchTableData(fetchUrl, setInitialTableData);
-        fetchTableColumns(tableName, setTableColumns);
+        const fetchData = async () => {
+            await fetchTableData(fetchUrl, setTableData);
+            await fetchTableData(fetchUrl, setInitialTableData);
+            fetchTableColumns(tableName, setTableColumns);
+
+            // Call handleFilterChange to set the initial filtered data
+            handleFilterChange();
+        };
+
+        fetchData();
     }, [fetchUrl, tableName]);
 
     useEffect(() => {
