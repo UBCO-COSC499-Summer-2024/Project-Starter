@@ -99,8 +99,6 @@ export default function Evaluations() {
     const [mode, setMode] = useState(1);
     const [prevMode, setPrevMode] = useState(1); // Track previous mode
 
-    const chartRef = useRef(null); // Chart reference for handling destruction
-
     const handleFilteredDataChange = (data) => {
         setFilteredData(data);
     };
@@ -180,7 +178,7 @@ export default function Evaluations() {
             labels,
             datasets: [
                 {
-                    label: `${filteredData[0].evaluation_type} vs. ${independentVariable}`,
+                    label: `${filteredData[0].evaluation_type} ${isSingleMetric ? `vs. ${independentVariable}` : 'Results'}`,
                     data,
                     backgroundColor: 'rgba(75,192,192,0.6)',
                     borderColor: 'rgba(75,192,192,1)',
@@ -191,13 +189,6 @@ export default function Evaluations() {
     };
 
     const chartData = getChartData();
-
-    useEffect(() => {
-        // Ensure the chart is destroyed before re-rendering
-        if (chartRef.current) {
-            chartRef.current.destroy();
-        }
-    }, [showVisualization, independentVariable, aggregationMethod]);
 
     return (
         <>
@@ -252,9 +243,9 @@ export default function Evaluations() {
                     ) : (
                         <Box sx={{ height: '50vh', width: '100%', padding: '10px' }}>
                             <Typography variant="h6" align="center">
-                                {`${filteredData[0]?.evaluation_type ?? ''} vs. ${independentVariable}`}
+                                {`${filteredData[0]?.evaluation_type ?? ''} ${mode === 1 ? `vs. ${independentVariable}` : 'Results'}`}
                             </Typography>
-                            <Bar ref={chartRef} data={chartData} options={{ maintainAspectRatio: false }} />
+                            <Bar key={`${independentVariable}-${aggregationMethod}`} data={chartData} options={{ maintainAspectRatio: false }} />
                         </Box>
                     )}
                 </>
