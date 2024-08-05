@@ -143,12 +143,14 @@ const CourseInfo = () => {
 
   const handleSelect = async (selected) => {
     try {
+      const position = searchType === 'instructor' ? 'Instructor' : 'TA';
+
       const { error } = await supabase
         .from('course_assign')
         .insert({
           instructor_id: selected.id,
           course_id: courseId,
-          position: searchType === 'instructor' ? 'Instructor' : 'TA'
+          position: position
         });
 
       if (error) throw error;
@@ -390,7 +392,7 @@ const CourseInfo = () => {
         open={searchModalOpen}
         handleClose={() => setSearchModalOpen(false)}
         handleSelect={handleSelect}
-        type={searchType}
+        type="instructor" // Always use 'instructor' type for SearchModal
       />
     </div>
   );
