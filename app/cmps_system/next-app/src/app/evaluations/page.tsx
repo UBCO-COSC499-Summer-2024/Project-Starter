@@ -71,6 +71,7 @@ export default function Evaluations() {
     };
 
     const [filteredData, setFilteredData] = useState([]);
+    const [showChart, setShowChart] = useState(true);
 
     const handleFilteredDataChange = (data) => {
         setFilteredData(data);
@@ -89,36 +90,47 @@ export default function Evaluations() {
         ]
     };
 
+    const toggleChartVisibility = () => {
+        setShowChart(prevShowChart => !prevShowChart);
+    };
+
     return (
         <>
             <Navbar />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', flexWrap: 'nowrap' }}>
                 <h1 style={{ marginRight: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}>Evaluations</h1>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                    <Button onClick={toggleChartVisibility} variant="contained" color="primary" style={{ marginRight: '10px' }}>
+                        {showChart ? "Hide Visualization" : "Show Visualization"}
+                    </Button>
                     <Button onClick={() => { router.push("/evaluations/evaluation_types") }} variant="contained" color="primary">
                         View Evaluation Types
                     </Button>
                 </div>
             </div>
-            <CMPS_Table
-                fetchUrl={fetchUrl}
-                columnsConfig={columnsConfig}
-                initialSortModel={initialSortModel}
-                tableName={tableName}
-                rowUpdateHandler={rowUpdateHandler}
-                deleteWarningMessage="Are you sure you want to delete this evaluation?"
-                idColumn="evaluation_entry_id"
-                newRecordURL="/evaluations/enter_evaluation"
-                uniqueColumns={["evaluation_type_id",
-                    "metric_num",
-                    "course_id",
-                    "instructor_id",
-                    "service_role_id",
-                    "evaluation_date"]}
-                onFilteredDataChange={handleFilteredDataChange}
-            />
-            <div>
-                <Bar data={dataForChart} />
+            {showChart && (
+                <div style={{ height: '50vh', width: '100%' }}>
+                    <Bar data={dataForChart} options={{ maintainAspectRatio: false }} />
+                </div>
+            )}
+            <div style={{ height: showChart ? '50vh' : '100vh', width: '100%' }}>
+                <CMPS_Table
+                    fetchUrl={fetchUrl}
+                    columnsConfig={columnsConfig}
+                    initialSortModel={initialSortModel}
+                    tableName={tableName}
+                    rowUpdateHandler={rowUpdateHandler}
+                    deleteWarningMessage="Are you sure you want to delete this evaluation?"
+                    idColumn="evaluation_entry_id"
+                    newRecordURL="/evaluations/enter_evaluation"
+                    uniqueColumns={["evaluation_type_id",
+                        "metric_num",
+                        "course_id",
+                        "instructor_id",
+                        "service_role_id",
+                        "evaluation_date"]}
+                    onFilteredDataChange={handleFilteredDataChange}
+                />
             </div>
         </>
     );

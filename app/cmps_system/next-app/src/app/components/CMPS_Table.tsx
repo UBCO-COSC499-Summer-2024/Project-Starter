@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { DataGrid, GridToolbarContainer, GridRowModes } from '@mui/x-data-grid';
+import { DataGrid, GridToolbarContainer, GridRowModes, useGridApiRef, gridFilteredSortedRowIdsSelector } from '@mui/x-data-grid';
 import { Button, Modal, Typography, Box, styled, TextField, Tooltip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import Link from 'next/link';
@@ -341,6 +341,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     const [showBeforeAfterModal, setShowBeforeAfterModal] = useState(false);
     const [uniqueCollisionRows, setUniqueCollisionRows] = useState([]);
 
+    const apiRef = useGridApiRef(); // Use useGridApiRef hook
+
     useEffect(() => {
         fetchTableData(fetchUrl, setTableData);
         fetchTableData(fetchUrl, setInitialTableData);
@@ -351,11 +353,13 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         getUserRole(setUserRole);
     }, []);
 
-    useEffect(() => {
-        if (onFilteredDataChange) {
-            onFilteredDataChange(tableData);
+    const handleFilterChange = () => {
+        if (onFilteredDataChange && apiRef.current) {
+            const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef.current.state);
+            const filteredRows = filteredSortedRowIds.map(id => apiRef.current.getRow(id));
+            onFilteredDataChange(filteredRows);
         }
-    }, [tableData, onFilteredDataChange]);
+    };
 
     const handleOpenModal = (type, row) => {
         setSearchModalType(type);
@@ -761,6 +765,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 1, padding: '1rem' }}>
                 <DataGrid
+                    apiRef={apiRef} // Add this line
                     editMode="row"
                     rows={tableData}
                     columns={processedColumns}
@@ -774,6 +779,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                     onRowSelectionModelChange={(newSelection) => setSelectedRows(newSelection)}
                     autoHeight
                     onCellClick={handleCellClick}
+                    onFilterModelChange={handleFilterChange} // Add this line
                     sx={{
                         "& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer": {
                             display: showSelectAll ? "flex" : "none"
