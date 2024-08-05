@@ -276,7 +276,7 @@ const CourseInfo = () => {
     <div>
       <NavBar />
       <Container fluid className="banner">
-        <h2>Course Info</h2>
+        <h2>Course Info: {course.subject_code} {course.course_num} {course.section_num} - {course.academic_year}{course.session === 'Winter' ? 'W' : 'S'}{course.term.replace('Term ', '')}</h2>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -330,7 +330,7 @@ const CourseInfo = () => {
                 variant="primary"
                 className="my-3"
                 onClick={() => { setSearchType('instructor'); setSearchModalOpen(true); }}
-                style={{ width: '100%', backgroundColor: 'navy', color: 'white' }}
+                style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
               >
                 ➕ Assign New Instructor
               </Button>
@@ -362,7 +362,7 @@ const CourseInfo = () => {
                 variant="primary"
                 className="my-3"
                 onClick={() => { setSearchType('ta'); setSearchModalOpen(true); }}
-                style={{ width: '100%', backgroundColor: 'navy', color: 'white' }}
+                style={{ width: '100%', backgroundColor: '#002145', color: 'white' }}
               >
                 ➕ Assign New TA
               </Button>
