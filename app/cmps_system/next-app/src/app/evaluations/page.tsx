@@ -1,10 +1,11 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
 import Button from '@mui/material/Button';
 import { useRouter } from 'next/navigation';
+import { Bar } from 'react-chartjs-2';
 
 export default function Evaluations() {
     const router = useRouter();
@@ -69,6 +70,24 @@ export default function Evaluations() {
         }
     };
 
+    const [filteredData, setFilteredData] = useState([]);
+
+    const handleFilteredDataChange = (data) => {
+        setFilteredData(data);
+    };
+
+    const dataForChart = {
+        labels: filteredData.map(item => item.evaluation_type),
+        datasets: [
+            {
+                label: 'Answers',
+                data: filteredData.map(item => item.answer),
+                backgroundColor: 'rgba(75,192,192,0.6)',
+                borderColor: 'rgba(75,192,192,1)',
+                borderWidth: 1,
+            }
+        ]
+    };
 
     return (
         <>
@@ -96,7 +115,11 @@ export default function Evaluations() {
                     "instructor_id",
                     "service_role_id",
                     "evaluation_date"]}
+                onFilteredDataChange={handleFilteredDataChange}
             />
+            <div>
+                <Bar data={dataForChart} />
+            </div>
         </>
     );
 }

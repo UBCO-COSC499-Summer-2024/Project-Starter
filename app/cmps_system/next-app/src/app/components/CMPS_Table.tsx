@@ -113,6 +113,7 @@ interface CMPS_TableProps {
     uniqueColumns?: string[];
     newRecordURL?: string;
     showSelectAll?: boolean;
+    onFilteredDataChange?: (data: any[]) => void; // Add this line
 }
 
 const fetchTableData = async (fetchUrl, setDataCallback) => {
@@ -311,7 +312,8 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     idColumn,
     uniqueColumns,
     newRecordURL,
-    showSelectAll = false
+    showSelectAll = false,
+    onFilteredDataChange // Add this line
 }) => {
     const router = useRouter();
     const [tableData, setTableData] = useState([]);
@@ -348,6 +350,12 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
     useEffect(() => {
         getUserRole(setUserRole);
     }, []);
+
+    useEffect(() => {
+        if (onFilteredDataChange) {
+            onFilteredDataChange(tableData);
+        }
+    }, [tableData, onFilteredDataChange]);
 
     const handleOpenModal = (type, row) => {
         setSearchModalType(type);
@@ -509,7 +517,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
                 Object.keys(row).forEach(col => {
                     if (String(row[col]) !== String(originalRow[col])) {
                         if (!modifiedCells[row[idColumn]]) {
-                            modifiedCells[row[idColumn]] = {};
+                            modifiedCells[row[idColumn]][col] = true;
                         }
                         modifiedCells[row[idColumn]][col] = true;
                     }
