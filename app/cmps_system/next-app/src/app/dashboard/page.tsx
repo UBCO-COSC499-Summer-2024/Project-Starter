@@ -5,6 +5,7 @@ import { Container, Row, Col, Card, Table, Dropdown, DropdownToggle, DropdownMen
 import supabase from "@/app/components/supabaseClient";
 import Link from 'next/link';
 import Navbar from '@/app/components/NavBar';
+import Alert from 'react-bootstrap/Alert';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -287,6 +288,19 @@ export default function Home() {
         <main>
             <Navbar />
             <Container>
+                <Row className="tw-pt-3">
+                    <Col xs={12}>
+                        <>
+                            {
+                                <Alert>
+                                    This is a {'info'} alert with{' '}
+                                    <Alert.Link href="#">a TA review link</Alert.Link>. Give it a click if
+                                    you like.
+                                </Alert>
+                            }
+                        </>
+                    </Col>
+                </Row>
                 <Row className="tw-pt-3">
                     <Col xs={12}>
                         <h2 className="tw-mb-4 tw-text-center">{getCurrentMonthYear()}</h2>
