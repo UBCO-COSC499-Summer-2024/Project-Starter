@@ -1,7 +1,7 @@
 'use server'
 import OpenAI from "openai";
-console.log({ key: process.env.NEXT_PUBLIC_OPENAI_API_KEY })
-const openai = new OpenAI({ apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY });
+console.log({ key: process.env.OPENAI_API_KEY })
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function main(question, userGuide) {
   console.log("userGuide: ", userGuide);
