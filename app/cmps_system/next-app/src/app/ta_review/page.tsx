@@ -21,11 +21,20 @@ const Instructor = () => {
         { field: 'review', headerName: 'Review', width: 300 },
         { field: 'score', headerName: 'Score'},
         { field: '', headerName: 'Write Review', renderCell: (params) => {
-            return <Button variant="primary" key={params.row.id} onClick={()=>{
+            return <Button variant="primary" key={params.row.id} onClick={async ()=>{
                 const review = prompt("Please Write Your Review")
                 const score = prompt("Please Enter Your Score")
-
-
+                const res = await supabase.from("ta_review").update({
+                    review: review,
+                    score: score
+                }).eq("id", params.row.id)
+                if (res.error) {
+                    console.error(res.error);
+                    alert("Failed to write review, "+res.error.message);
+                } else {
+                    // Refresh the page to reflect the updated review
+                    window.location.reload();
+                }
             }}>Write Review</Button>
         }, width: 150 },
       ];
