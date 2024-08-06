@@ -169,6 +169,79 @@ const UpcomingEventsCard = () => {
     );
 };
 
+const RecentEvaluationsCard = () => {
+    const [evaluations, setEvaluations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchEvaluations = async () => {
+            const userRes = await supabase.auth.getUser();
+            const twoWeeksAgo = new Date();
+            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+            const twoWeeksAhead = new Date();
+            twoWeeksAhead.setDate(twoWeeksAhead.getDate() + 14);
+
+            const { data, error } = await supabase
+                .from('v_evaluations_page')
+                .select('*')
+                .eq('instructor_email', userRes.data.user.email)
+                .gte('evaluation_date', twoWeeksAgo.toISOString())
+                .lte('evaluation_date', twoWeeksAhead.toISOString());
+
+            if (error) {
+                console.error('Error fetching evaluations:', error);
+                setError(error.message);
+            } else {
+                setEvaluations(data);
+            }
+            setLoading(false);
+        };
+
+        fetchEvaluations();
+    }, []);
+
+    return (
+        <Card className="tw-mb-3">
+            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Recent Evaluations</b>
+            <Table>
+                <thead>
+                    <tr>
+                        <th>Evaluation Type</th>
+                        <th>Course</th>
+                        <th>Service Role</th>
+                        <th>Question Num</th>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {loading ? (
+                        <tr><td colSpan="7">Loading...</td></tr>
+                    ) : error ? (
+                        <tr><td colSpan="7">Error fetching evaluations: {error}</td></tr>
+                    ) : evaluations.length > 0 ? (
+                        evaluations.map((x, index) => (
+                            <tr key={index}>
+                                <td>{x.evaluation_type}</td>
+                                <td>{x.course}</td>
+                                <td>{x.service_role}</td>
+                                <td>{x.question_num}</td>
+                                <td>{x.question}</td>
+                                <td>{x.answer}</td>
+                                <td>{new Date(x.evaluation_date).toLocaleDateString()}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr><td colSpan="7">No evaluations found</td></tr>
+                    )}
+                </tbody>
+            </Table>
+        </Card>
+    );
+};
+
 export default function Home() {
     const [year, setTerm] = useState("");
     const [availableYears, setAvailableYears] = useState([]);
@@ -220,7 +293,7 @@ export default function Home() {
                 .eq('instructor_email', userRes.data.user.email);
 
             if (error) {
-                console.error('Error fetching service roles:', error);
+                console.error('Error fetching service roles:', error.message);
                 setServiceError(error.message);
             } else {
                 setServiceRoles(data);
@@ -393,48 +466,15 @@ export default function Home() {
                 </Row>
                 <Row>
                     <Col className="tw-pt-3">
-                        <Card>
-                            <b className="tw-mt-2 tw-ml-2 tw-text-lg">SEI Results</b>
-                            <Dropdown className="tw-ml-2">
-                                <DropdownToggle>{ratingTerm}</DropdownToggle>
-                                <DropdownMenu>
-                                    {Object.keys(rating).map((x, index) => (
-                                        <DropdownItem key={index} onClick={() => setRatingTerm(x)}>
-                                            {x}
-                                        </DropdownItem>
-                                    ))}
-                                </DropdownMenu>
-                            </Dropdown>
-                            <Table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Term</th>
-                                        <th>Students</th>
-                                        <th>Rating</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {rating[ratingTerm].map((x, index) => (
-                                        <tr key={index}>
-                                            <td>{x.name}</td>
-                                            <td>{x.term}</td>
-                                            <td>{x.student_count}</td>
-                                            <td>{x.rating}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                        </Card>
+                        <UpcomingEventsCard />
                     </Col>
                 </Row>
                 <Row>
                     <Col className="tw-pt-3">
-                        <UpcomingEventsCard />
+                        <RecentEvaluationsCard />
                     </Col>
                 </Row>
             </Container>
         </main>
     );
 }
-
