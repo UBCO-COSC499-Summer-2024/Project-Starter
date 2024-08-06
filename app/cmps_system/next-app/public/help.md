@@ -105,7 +105,6 @@ The **CMPS Management System** allows users to efficiently manage data through b
 2. **CSV Import Process**: The system reads the uploaded CSV file and displays a before-and-after comparison of the changes that will be applied. It highlights:
    - **Additions**: New rows that will be added.
    - **Modifications**: Existing rows that will be updated.
-   - **Deletions**: Rows that will be removed (if applicable).
 3. **Unique Constraints**: The system checks for unique constraints and warns you if there are conflicts:
    - **Existing Unique Entries**: Warnings are shown if the imported CSV contains rows with fields that must be unique but already exist in the database.
    - **Duplicate Entries**: Warnings are shown if the imported CSV contains duplicate rows for fields that must be unique.
@@ -157,8 +156,6 @@ When you import a CSV file, the system compares the existing data with the new d
 - **Deletions**: Importing a CSV cannot delete existing data.
 - **Unique Constraints**: The system checks for unique constraints and warns if there are conflicts, such as duplicate entries or unique key violations.
 - **Before-and-After Comparison**: Before applying the changes, a detailed before-and-after comparison is shown, allowing users to review and confirm the changes.
-
-Disclaimer: The "before and after" result is a manually-coded forecast of what the postgres database will do.
 
 ### What are the capabilities of system administrators?
 
