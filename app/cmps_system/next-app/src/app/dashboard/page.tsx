@@ -294,7 +294,7 @@ export default function Home() {
                             {
                                 <Alert>
                                     This is a {'info'} alert with{' '}
-                                    <Alert.Link href="#">a TA review link</Alert.Link>. Give it a click if
+                                    <Alert.Link href="/ta_review">a TA review link</Alert.Link>. Give it a click if
                                     you like.
                                 </Alert>
                             }
