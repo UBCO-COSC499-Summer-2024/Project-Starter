@@ -202,7 +202,7 @@ export default function Home() {
             if (userRes.data.user && userRes.data.user.email) {
                 // Fetch the instructor ID based on the email
                 const { data: instructorData, error: instructorError } = await supabase
-                    .from('instructors')
+                    .from('instructor')
                     .select('instructor_id')
                     .eq('email', userRes.data.user.email)
                     .single();
@@ -215,7 +215,7 @@ export default function Home() {
                 // Query the ta_review table to check for active reviews
                 const { data: reviewData, error: reviewError } = await supabase
                     .from('ta_review')
-                    .select('active')
+                    .select('activate')
                     .eq('reviewer', instructorData.instructor_id)
                     .single();
 
@@ -224,7 +224,7 @@ export default function Home() {
                     return;
                 }
 
-                if (reviewData.active) {
+                if (reviewData.activate) {
                     setShowAlert(true);
                 }
             }
