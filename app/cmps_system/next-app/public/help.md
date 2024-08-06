@@ -18,6 +18,7 @@ The CMPS Management System is a comprehensive web application designed to manage
 - [Help](#help)
 - [Login](#login)
 - [FAQ](#faq)
+- [Bulk Import and CSV Editing](#bulk-import-and-csv-editing)
 
 ## Dashboard
 
@@ -94,6 +95,42 @@ These visualizations help in making informed decisions based on comprehensive ev
 - **Forgot Password:** Reset your password if you have forgotten it.
 - **Update Password:** Update your password after logging in.
 
+## Bulk Import and CSV Editing
+
+The **CMPS Management System** allows users to efficiently manage data through bulk import and direct CSV editing features.
+
+### Bulk Import
+
+1. **Upload CSV**: Navigate to the relevant page (e.g., Courses, Instructors) and look for the "Upload CSV" button. Click it to select a CSV file from your computer.
+2. **CSV Import Process**: The system reads the uploaded CSV file and displays a before-and-after comparison of the changes that will be applied. It highlights:
+   - **Additions**: New rows that will be added.
+   - **Modifications**: Existing rows that will be updated.
+   - **Deletions**: Rows that will be removed (if applicable).
+3. **Unique Constraints**: The system checks for unique constraints and warns you if there are conflicts:
+   - **Existing Unique Entries**: Warnings are shown if the imported CSV contains rows with fields that must be unique but already exist in the database.
+   - **Duplicate Entries**: Warnings are shown if the imported CSV contains duplicate rows for fields that must be unique.
+
+### CSV Editing
+
+1. **Edit as CSV**: Navigate to the relevant page and click the "Edit As CSV" button. The current data is presented in a CSV format for editing.
+2. **Make Changes**: Edit the CSV data directly in the provided text area.
+3. **Apply Changes**: After making the changes, click the "Apply" button. The system displays a before-and-after comparison similar to the bulk import process, highlighting additions, modifications, and deletions.
+
+### Download CSV
+
+1. **Download CSV**: Navigate to the relevant page and click the "Download CSV" button to download the current data in CSV format.
+2. **CSV File**: The downloaded file contains all the data visible on the page, ready for offline analysis or editing.
+
+### Detailed Comparison and Warnings
+
+- **Before-and-After View**: The system shows a detailed comparison before applying any changes, helping you review the exact differences.
+- **Unique Key Violations**: If there are any unique key violations (either in the current data or the uploaded CSV), the system provides detailed warnings and prevents the import or changes until resolved.
+
+### Error Handling
+
+- **Error Messages**: Any errors encountered during the import or editing process are displayed to the user, detailing the issues and the affected rows.
+- **Confirmation Dialogs**: The system uses confirmation dialogs to ensure that users are aware of the impact of their actions, especially for deletions or bulk changes.
+
 ## FAQ
 
 ### How can instructors use the system to get an overview of their assignments and status?
@@ -108,10 +145,21 @@ Department heads can log in and use the **Evaluations Page** to access comprehen
 
 Department staff can use the user interface to enter service assignments and can import course and TA assignments via CSV files. The system supports re-importing data for the same year and detecting changes with user approval. Course performance and SEI data can also be imported through CSV files. Staff can record department meetings and attendees quickly, export data into CSV/Excel, and request instructors to provide TA reviews.
 
+### How does the CSV import feature help with updating existing data?
+
+When you import a CSV file, the system compares the existing data with the new data from the CSV file:
+
+- **Modifications**: It detects any modifications to existing rows and highlights these changes.
+  - An existing row is modified when an imported row shares the same unique key (as listed in the Edit as CSV dialog) OR primary key (usually named `table_name_id`) as the existing row.
+  - The primary key field can be left empty for imported rows, and the existing row-to-be-updated will be detected based on the unique key, IF the table has a unique key.
+  - The primary key takes precedence over the unique key. If a row exists in the database with the primary ID being imported, then the rest of the row will be updated, including its unique key. If the existing row's unique key is being updated to a unique key which already exists elsewhere in the table, an error will be shown and the user will be prevented from continuing.
+- **Additions**: New rows that do not exist in the current data are identified (as per the primary ID or unique fields) and added.
+- **Deletions**: Importing a CSV cannot delete existing data.
+- **Unique Constraints**: The system checks for unique constraints and warns if there are conflicts, such as duplicate entries or unique key violations.
+- **Before-and-After Comparison**: Before applying the changes, a detailed before-and-after comparison is shown, allowing users to review and confirm the changes.
+
+Disclaimer: The "before and after" result is a manually-coded forecast of what the postgres database will do.
+
 ### What are the capabilities of system administrators?
 
 System administrators can add, edit, or delete accounts and perform system maintenance. If an account is not active or eligible for login, its data is retained for historical analysis. System administrators may also be department heads or staff.
-
-## Conclusion
-
-This help document provides a comprehensive guide to the CMPS Management System. For further assistance, please refer to the individual page descriptions or contact support.

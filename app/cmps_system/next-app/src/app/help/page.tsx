@@ -6,12 +6,14 @@ import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useRef, useState } from 'react';
 import { Form, FormControl, Row, Col } from 'react-bootstrap';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import main from './gpt';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 
 export default function Help() {
     const input = useRef(null);
-    const [response, setResponse] = useState("");
+    const [chatHistory, setChatHistory] = useState([]);
     const [question, setQuestion] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [markdownContent, setMarkdownContent] = useState("");
@@ -49,10 +51,10 @@ export default function Help() {
     };
 
     const sendMessage = async () => {
-        setQuestion(input.current.value);
-        setResponse("Loading...");
-        const aiResponse = await main(input.current.value, markdownContent);
-        setResponse(aiResponse.text);
+        const userQuestion = input.current.value;
+        setQuestion(userQuestion);
+        const aiResponse = await main(userQuestion, markdownContent);
+        setChatHistory([...chatHistory, { question: userQuestion, response: aiResponse.text }]);
         input.current.value = "";
     };
 
@@ -84,10 +86,19 @@ export default function Help() {
                         <Modal.Header closeButton>
                             <Modal.Title>Ask AI for help</Modal.Title>
                         </Modal.Header>
-                        <Modal.Body>
+                        <Modal.Body style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                             <Form>
-                                <div className="tw-p-10">{question}</div>
-                                <div className="tw-p-10">{response}</div>
+                                <div className="chat-history">
+                                    {chatHistory.map((entry, index) => (
+                                        <div key={index}>
+                                            <p><strong>Q:</strong> {entry.question}</p>
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {entry.response}
+                                            </ReactMarkdown>
+                                            <hr />
+                                        </div>
+                                    ))}
+                                </div>
                                 <FormControl
                                     type="text"
                                     ref={input}
