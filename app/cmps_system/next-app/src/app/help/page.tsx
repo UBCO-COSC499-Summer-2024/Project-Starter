@@ -9,7 +9,7 @@ import { Form, FormControl, Row, Col } from 'react-bootstrap';
 import main from './gpt';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 
-export default function Tools() {
+export default function Help() {
     const input = useRef(null);
     const [response, setResponse] = useState("");
     const [question, setQuestion] = useState("");
