@@ -636,7 +636,15 @@ SELECT
             ELSE '1-2'
         END
     ) as full_course_name,
-    num_TAs,
+    (
+        SELECT
+            COUNT(*)
+        FROM
+            course_assign ca
+        WHERE
+            ca.course_id = course.course_id
+            AND ca.position = 'TA'
+    ) as num_tas,
     average_grade,
     year_level,
     session,
@@ -955,7 +963,7 @@ WHERE
 ORDER BY
     event_datetime;
 
-CREATE OR REPLACE VIEW 
+CREATE OR REPLACE VIEW
     v_course_info_assignees
 WITH
     (security_invoker) AS

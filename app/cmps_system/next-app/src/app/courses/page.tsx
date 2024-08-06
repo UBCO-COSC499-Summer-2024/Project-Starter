@@ -62,7 +62,7 @@ export default function Courses() {
             }
         },
         { field: 'num_students', headerName: 'Students', flex: 1, editable: true },
-        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: true },
+        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: false },
         { field: 'average_grade', headerName: 'Avg. Grade', flex: 1, editable: true },
         { field: 'location', headerName: 'Location', flex: 1, editable: true },
     ];
