@@ -130,10 +130,19 @@ const UpcomingEventsCard = () => {
         fetchEvents();
     }, []);
 
+    const getTableHeight = () => {
+        const rowHeight = 50; // approximate height of each row
+        const maxRows = 5; // maximum number of rows to show without scrolling
+        const headerHeight = 56; // height of the table header
+        const extraSpace = 32; // padding/margin space
+        const rowsToShow = events.length > maxRows ? maxRows : events.length;
+        return headerHeight + extraSpace + (rowsToShow * rowHeight);
+    };
+
     return (
         <Card className="tw-mb-3">
             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Upcoming Events</b>
-            <div className="tw-m-3 tw-h-48 tw-overflow-y-auto">
+            <div className="tw-m-3 tw-overflow-y-auto" style={{ maxHeight: getTableHeight() }}>
                 <Table>
                     <thead>
                         <tr>
@@ -168,6 +177,7 @@ const UpcomingEventsCard = () => {
         </Card>
     );
 };
+
 
 const RecentEvaluationsCard = () => {
     const [evaluations, setEvaluations] = useState([]);
