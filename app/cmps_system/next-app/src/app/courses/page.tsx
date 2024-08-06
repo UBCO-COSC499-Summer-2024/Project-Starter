@@ -74,7 +74,6 @@ export default function Courses() {
             building: row.location.split(" ")[0],
             room_num: row.location.split(" ")[1],
             num_students: row.num_students,
-            num_tas: row.num_tas,
             term: row.term,
             academic_year: row.academic_year,
             subject_code: row.subject_code,

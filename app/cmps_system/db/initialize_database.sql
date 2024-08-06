@@ -96,7 +96,6 @@ CREATE TABLE IF NOT EXISTS
         "start_time" TIME(0) WITHOUT TIME ZONE NULL,
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
         "num_students" INTEGER NULL DEFAULT 0,
-        "num_tas" INTEGER NULL DEFAULT 0,
         "average_grade" DECIMAL(5, 2) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
