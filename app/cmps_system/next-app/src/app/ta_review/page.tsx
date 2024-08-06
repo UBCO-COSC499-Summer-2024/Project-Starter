@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Navbar from '@/app/components/NavBar';
 import Container from 'react-bootstrap/Container';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useRef, useState } from 'react';
+import { act, useEffect, useRef, useState } from 'react';
 import getUserType from '../components/getUserType';
 import { Form, Tab, Tabs } from 'react-bootstrap';
 import { DataGrid } from '@mui/x-data-grid';
@@ -80,10 +80,16 @@ const ReviewModal = ({ show, onHide }) => {
 
         }
         func();
-    })
-    const handleSubmit = () => {
+    }, [])
+    const handleSubmit = async () => {
         // Handle the submission logic here
         console.log('Submitted:', { selectedCourse, selectedReviewee, selectedReviewer });
+        const res = await supabase.from('ta_review').insert({
+            course_session: selectedCourse,
+            reviewee: selectedReviewee,
+            reviewer: selectedReviewer,
+            activate: true
+        });
         onHide();
     };
 
