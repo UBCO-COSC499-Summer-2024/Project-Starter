@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import getUserType from '../components/getUserType';
 import { Form, Tab, Tabs } from 'react-bootstrap';
 import { DataGrid } from '@mui/x-data-grid';
-
+import supabase from "@/app/components/supabaseClient";
 
 const Instructor = () => {
 
@@ -18,21 +18,26 @@ const Instructor = () => {
         { field: 'reviewer', headerName: 'Reviewer'},
         { field: 'reviewee', headerName: 'Reviewee'},
         { field: 'activate', headerName: 'Activate'},
-        { field: 'review', headerName: 'Review'},
+        { field: 'review', headerName: 'Review', width: 300 },
         { field: 'score', headerName: 'Score'},
         { field: '', headerName: 'Write Review', renderCell: (params) => {
             return <Button variant="primary" key={params.row.id} onClick={()=>{
-                alert(params.row.id)
+                const review = prompt("Please Write Your Review")
+                const score = prompt("Please Enter Your Score")
+
+
             }}>Write Review</Button>
         }, width: 150 },
       ];
 
-    const rows = [
-        { id: 1, course: 'Math', reviewer: 'John', reviewee: 'Jane', activate: "Y", review: 'Good job!', score: "10" },
-        { id: 2, course: 'Science', reviewer: 'Alice', reviewee: 'Bob', activate: "Y", review: 'Needs improvement.', score: "10" },
-        { id: 3, course: 'English', reviewer: 'Emily', reviewee: 'David', activate: "Y", review: 'Excellent work!', score: "10" },
-    ];
-
+    const [rows, setRows] = useState([])
+    useEffect(()=>{
+        (
+                supabase.from('v_ta_review').select().then((res) => {
+                    setRows(res.data)
+                })
+        )
+    }, [])
     return <>
         <DataGrid
             rows={rows}
