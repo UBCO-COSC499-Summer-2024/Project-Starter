@@ -660,6 +660,9 @@ SELECT
             ORDER BY
                 instructor.last_name,
                 instructor.first_name
+        ) FILTER (
+            WHERE
+                course_assign.position = 'Instructor'
         ),
         'No Instructor'
     ) as instructor_names,
@@ -670,6 +673,9 @@ SELECT
             ORDER BY
                 instructor.last_name,
                 instructor.first_name
+        ) FILTER (
+            WHERE
+                course_assign.position = 'Instructor'
         ),
         ''
     ) as instructor_ids,
