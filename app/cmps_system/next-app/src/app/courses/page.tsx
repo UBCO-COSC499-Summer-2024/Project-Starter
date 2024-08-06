@@ -4,7 +4,6 @@ import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
 import Link from 'next/link';
-import { Button } from 'react-bootstrap';
 
 export default function Courses() {
     const fetchUrl = "v_courses_with_instructors";
@@ -91,35 +90,10 @@ export default function Courses() {
         }
     };
 
-    const exportICS = async () => {
-        /**
-         * This function will export courses that belongs to the current user to a ics file.
-         * The ics file will be downloaded to the user's local machine.
-         */
-        const event = {
-            start: [2018, 5, 30, 6, 30],
-            duration: { hours: 6, minutes: 30 },
-            title: 'Bolder Boulder',
-            description: 'Annual 10-kilometer run in Boulder, Colorado',
-            location: 'Folsom Field, University of Colorado (finish line)',
-            url: 'http://www.bolderboulder.com/',
-            geo: { lat: 40.0095, lon: 105.2669 },
-            categories: ['10k races', 'Memorial Day Weekend', 'Boulder CO'],
-            status: 'CONFIRMED',
-            busyStatus: 'BUSY',
-            organizer: { name: 'Admin', email: 'Race@BolderBOULDER.com' },
-            attendees: [
-              { name: 'Adam Gibbons', email: 'adam@example.com', rsvp: true, partstat: 'ACCEPTED', role: 'REQ-PARTICIPANT' },
-              { name: 'Brittany Seaton', email: 'brittany@example2.org', dir: 'https://linkedin.com/in/brittanyseaton', role: 'OPT-PARTICIPANT' }
-            ]
-        }
-        const my_courses = await supabase.from("course").select("*").eq("instructor_ids", supabase.auth.user().id);
-    }
     return (
-        <> 
+        <>
             <Navbar />
-            <h1>Courses</h1> 
-            <a href="#" onClick={exportICS} className="tw-pl-5" style={{color: "blue", textDecoration:"underline"}}>📅Export My Courses to Calendar</a>
+            <h1>Courses</h1>
             <CMPS_Table
                 fetchUrl={fetchUrl}
                 columnsConfig={columnsConfig}
