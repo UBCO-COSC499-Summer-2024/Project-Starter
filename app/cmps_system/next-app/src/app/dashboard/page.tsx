@@ -171,6 +171,7 @@ const UpcomingEventsCard = () => {
 };
 
 export default function Home() {
+
     const [year, setTerm] = useState("");
     const [availableYears, setAvailableYears] = useState([]);
     const [workingHours, setWorkingHours] = useState([]);
@@ -193,7 +194,44 @@ export default function Home() {
             { name: "COSC121", term: "2", student_count: 65, rating: "30%" }
         ]
     });
+    const [showAlert, setShowAlert] = useState(false);
 
+    useEffect(() => {
+        const checkActiveTAReview = async () => {
+            const userRes = await supabase.auth.getUser();
+            if (userRes.data.user && userRes.data.user.email) {
+                // Fetch the instructor ID based on the email
+                const { data: instructorData, error: instructorError } = await supabase
+                    .from('instructors')
+                    .select('instructor_id')
+                    .eq('email', userRes.data.user.email)
+                    .single();
+
+                if (instructorError) {
+                    console.error('Error fetching instructor data:', instructorError);
+                    return;
+                }
+
+                // Query the ta_review table to check for active reviews
+                const { data: reviewData, error: reviewError } = await supabase
+                    .from('ta_review')
+                    .select('active')
+                    .eq('reviewer', instructorData.instructor_id)
+                    .single();
+
+                if (reviewError) {
+                    console.error('Error checking active reviews:', reviewError);
+                    return;
+                }
+
+                if (reviewData.active) {
+                    setShowAlert(true);
+                }
+            }
+        };
+
+        checkActiveTAReview();
+    }, []);
     useEffect(() => {
         const fetchAssignments = async () => {
             const userRes = await supabase.auth.getUser();
@@ -290,15 +328,13 @@ export default function Home() {
             <Container>
                 <Row className="tw-pt-3">
                     <Col xs={12}>
-                        <>
-                            {
-                                <Alert>
-                                    This is a {'info'} alert with{' '}
-                                    <Alert.Link href="/ta_review">a TA review link</Alert.Link>. Give it a click if
-                                    you like.
-                                </Alert>
-                            }
-                        </>
+                        {showAlert && (
+                            <Alert>
+                                This is a {'info'} alert with{' '}
+                                <Alert.Link href="/ta_review">a TA review link</Alert.Link>. Give it a click if
+                                you like.
+                            </Alert>
+                        )}
                     </Col>
                 </Row>
                 <Row className="tw-pt-3">
