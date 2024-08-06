@@ -321,7 +321,9 @@ const CourseInfo = () => {
                 <tbody>
                   {instructors.map((instructor) => (
                     <tr key={instructor.assignment_id}>
-                      <td>{instructor.instructor_name}</td>
+                      <td>
+                        <a href={`/instructors/instructor_info?id=${instructor.instructor_id}`}>{instructor.instructor_name}</a>
+                      </td>
                       <td>{instructor.position}</td>
                       <td>
                         {['head', 'staff'].includes(userRole) && (
@@ -356,7 +358,9 @@ const CourseInfo = () => {
                 <tbody>
                   {tas.map((ta) => (
                     <tr key={ta.assignment_id}>
-                      <td>{ta.instructor_name}</td>
+                      <td>
+                        <a href={`/instructors/instructor_info?id=${ta.instructor_id}`}>{ta.instructor_name}</a>
+                      </td>
                       <td>{ta.position}</td>
                       <td>
                         {['head', 'staff'].includes(userRole) && (
