@@ -795,53 +795,46 @@ FROM
     service_hours_benchmark
     JOIN instructor ON service_hours_benchmark.instructor_id = instructor.instructor_id;
 
-CREATE OR REPLACE VIEW
-    v_dashboard_progress AS
-SELECT
-    instructor.email,
-    hours.instructor_id,
-    hours.worked,
-    hours.expected
-FROM
-    (
-        SELECT
-            worked.instructor_id,
-            worked.hours AS worked,
-            expected.hours AS expected
-        FROM
-            (
-                SELECT
-                    instructor_id,
-                    hours
-                FROM
-                    service_hours_entry
-                WHERE
-                    year = EXTRACT(
-                        YEAR
-                        FROM
-                            CURRENT_DATE
-                    )
-                    AND month = EXTRACT(
-                        MONTH
-                        FROM
-                            CURRENT_DATE
-                    )
-            ) AS worked
-            JOIN (
-                SELECT
-                    instructor_id,
-                    hours / 12 AS hours
-                FROM
-                    service_hours_benchmark
-                WHERE
-                    year = EXTRACT(
-                        YEAR
-                        FROM
-                            CURRENT_DATE
-                    )
-            ) AS expected ON worked.instructor_id = expected.instructor_id
-    ) AS hours
-    JOIN instructor ON hours.instructor_id = instructor.instructor_id;
+CREATE OR REPLACE FUNCTION get_dashboard_progress(input_month INTEGER, input_year INTEGER) 
+RETURNS TABLE(email VARCHAR(255), instructor_id INTEGER, worked INTEGER, expected INTEGER) 
+LANGUAGE plpgsql 
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        instructor.email,
+        worked.instructor_id,
+        worked.worked,
+        expected.expected
+    FROM
+        (
+            SELECT
+                service_hours_entry.instructor_id,
+                service_hours_entry.hours AS worked
+            FROM
+                service_hours_entry
+            WHERE
+                service_hours_entry.year = input_year
+                AND service_hours_entry.month = input_month
+        ) AS worked
+        JOIN (
+            SELECT
+                service_hours_benchmark.instructor_id,
+                service_hours_benchmark.hours / 12 AS expected
+            FROM
+                service_hours_benchmark
+            WHERE
+                service_hours_benchmark.year = input_year
+        ) AS expected ON worked.instructor_id = expected.instructor_id
+        JOIN instructor ON worked.instructor_id = instructor.instructor_id;
+END;
+$$;
+
+
+
+
+
+
 
 CREATE OR REPLACE VIEW
     v_dashboard_current_courses

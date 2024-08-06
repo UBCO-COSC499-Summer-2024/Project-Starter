@@ -29,10 +29,10 @@ ChartJS.register(
     Legend
 );
 
-const monthNames = ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr"];
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const parseData = (x) => ({
-    labels: x.map(entry => monthNames[(entry.month - 5 + 12) % 12]),
+    labels: x.map(entry => monthNames[(entry.month - 1 + 12) % 12]),
     datasets: [{
         label: 'Hours',
         data: x.map(entry => entry.hours),
@@ -52,7 +52,7 @@ const parseData = (x) => ({
     }]
 });
 
-const HourCard = () => {
+const HourCard = ({ month, year }) => {
     const [personalHour, setPersonalHour] = useState(0);
     const [departmentHour, setDepartmentHour] = useState(0);
     const [personalExpected, setPersonalExpected] = useState(0);
@@ -61,24 +61,31 @@ const HourCard = () => {
     useEffect(() => {
         (async () => {
             const userRes = await supabase.auth.getUser();
-            const res = await supabase
-                .from("v_dashboard_progress")
-                .select("*")
-                .eq("email", userRes.data.user.email);
+            const { data, error } = await supabase.rpc('get_dashboard_progress', {
+                input_month: month,
+                input_year: year
+            });
 
-            if (res.data && res.data.length > 0) {
-                setPersonalHour(res.data[0].worked);
-                setPersonalExpected(res.data[0].expected);
+            if (error) {
+                console.error('Error fetching personal hours:', error);
+            } else if (data && data.length > 0) {
+                setPersonalHour(data[0].worked);
+                setPersonalExpected(data[0].expected);
             } else {
                 setPersonalHour(0);
                 setPersonalExpected(0);
             }
 
-            const res2 = await supabase.from("v_dashboard_progress").select("*");
+            const { data: deptData, error: deptError } = await supabase.rpc('get_dashboard_progress', {
+                input_month: month,
+                input_year: year
+            });
 
-            if (res2.data && res2.data.length > 0) {
-                const departmentTotalWorked = res2.data.reduce((acc, cur) => acc + cur.worked, 0);
-                const departmentTotalExpected = res2.data.reduce((acc, cur) => acc + cur.expected, 0);
+            if (deptError) {
+                console.error('Error fetching department hours:', deptError);
+            } else if (deptData && deptData.length > 0) {
+                const departmentTotalWorked = deptData.reduce((acc, cur) => acc + cur.worked, 0);
+                const departmentTotalExpected = deptData.reduce((acc, cur) => acc + cur.expected, 0);
                 setDepartmentHour(departmentTotalWorked);
                 setDepartmentExpected(departmentTotalExpected);
             } else {
@@ -86,7 +93,7 @@ const HourCard = () => {
                 setDepartmentExpected(0);
             }
         })();
-    }, []);
+    }, [month, year]);
 
     return (
         <Card className="tw-mb-3">
@@ -170,7 +177,8 @@ const UpcomingEventsCard = () => {
 };
 
 export default function Home() {
-    const [year, setTerm] = useState("");
+    const [year, setYear] = useState(new Date().getFullYear());
+    const [month, setMonth] = useState(new Date().getMonth() + 1);
     const [availableYears, setAvailableYears] = useState([]);
     const [workingHours, setWorkingHours] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -207,7 +215,7 @@ export default function Home() {
         };
 
         fetchAssignments();
-    }, []);
+    }, [month, year]);
 
     useEffect(() => {
         const fetchServiceRoles = async () => {
@@ -215,8 +223,8 @@ export default function Home() {
             const { data, error } = await supabase
                 .from('v_timetracking')
                 .select('*')
-                .eq('year', new Date().getFullYear())
-                .eq('month', new Date().getMonth() + 1)
+                .eq('year', year)
+                .eq('month', month)
                 .eq('instructor_email', userRes.data.user.email);
 
             if (error) {
@@ -229,7 +237,7 @@ export default function Home() {
         };
 
         fetchServiceRoles();
-    }, []);
+    }, [month, year]);
 
     useEffect(() => {
         const fetchWorkingHours = async () => {
@@ -254,9 +262,9 @@ export default function Home() {
 
                 setAvailableYears(years);
                 if (years.length > 0) {
-                    setTerm(years[years.length - 1].toString());
+                    setYear(years[years.length - 1]);
                 } else {
-                    setTerm("");
+                    setYear(new Date().getFullYear());
                 }
             }
             setLoading(false);
@@ -265,11 +273,22 @@ export default function Home() {
         fetchWorkingHours();
     }, []);
 
-    const getCurrentMonthYear = () => {
-        const date = new Date();
-        const month = date.toLocaleString('default', { month: 'long' });
-        const year = date.getFullYear();
-        return `${month} ${year}`;
+    const handleMonthChange = (direction) => {
+        if (direction === 'prev') {
+            if (month === 1) {
+                setMonth(12);
+                setYear(prevYear => prevYear - 1);
+            } else {
+                setMonth(prevMonth => prevMonth - 1);
+            }
+        } else if (direction === 'next') {
+            if (month === 12) {
+                setMonth(1);
+                setYear(prevYear => prevYear + 1);
+            } else {
+                setMonth(prevMonth => prevMonth + 1);
+            }
+        }
     };
 
     const getFilteredWorkingHours = () => {
@@ -288,8 +307,10 @@ export default function Home() {
             <Navbar />
             <Container>
                 <Row className="tw-pt-3">
-                    <Col xs={12}>
-                        <h2 className="tw-mb-4 tw-text-center">{getCurrentMonthYear()}</h2>
+                    <Col xs={12} className="d-flex justify-content-between align-items-center">
+                        <button onClick={() => handleMonthChange('prev')} className="arrow-btn">{'<'}</button>
+                        <h2 className="tw-mb-4 tw-text-center">{monthNames[month - 1]} {year}</h2>
+                        <button onClick={() => handleMonthChange('next')} className="arrow-btn">{'>'}</button>
                     </Col>
                 </Row>
                 <Row>
@@ -339,7 +360,7 @@ export default function Home() {
                                 <DropdownToggle>{year}</DropdownToggle>
                                 <DropdownMenu>
                                     {availableYears.map((year, index) => (
-                                        <DropdownItem key={index} onClick={() => setTerm(year.toString())}>
+                                        <DropdownItem key={index} onClick={() => setYear(year)}>
                                             {year}
                                         </DropdownItem>
                                     ))}
@@ -357,7 +378,7 @@ export default function Home() {
                         </Card>
                     </Col>
                     <Col xs={4}>
-                        <HourCard />
+                        <HourCard month={month} year={year} />
                         <Card>
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Hours per Service Role</b>
                             <Table>
@@ -434,7 +455,14 @@ export default function Home() {
                     </Col>
                 </Row>
             </Container>
+            <style jsx>{`
+                .arrow-btn {
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                }
+            `}</style>
         </main>
     );
 }
-
