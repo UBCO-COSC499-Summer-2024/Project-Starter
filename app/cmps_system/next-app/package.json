@@ -27,10 +27,13 @@
     "lodash": "^4.17.21",
     "mui": "^0.0.1",
     "next": "14.2.4",
+    "openai": "^4.54.0",
     "react": "^18",
     "react-bootstrap": "^2.10.2",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
     "supabase": "^1.178.2",
     "xlsx": "^0.18.5"
   },
