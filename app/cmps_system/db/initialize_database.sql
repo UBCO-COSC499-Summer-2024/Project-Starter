@@ -693,13 +693,25 @@ SELECT
     CONCAT(instructor.last_name, ', ', instructor.first_name) as instructor_full_name,
     service_role.service_role_id as service_role_id,
     service_role.title as service_role,
-    year,
-    month,
-    hours
-from
+    service_hours_entry.year,
+    service_hours_entry.month,
+    service_hours_entry.hours AS hours,
+    service_hours_benchmark.hours/12 AS expected_hours
+FROM
     service_hours_entry
     JOIN service_role ON service_role.service_role_id = service_hours_entry.service_role_id
-    JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id;
+    JOIN instructor ON instructor.instructor_id = service_hours_entry.instructor_id
+    LEFT JOIN service_hours_benchmark ON service_hours_benchmark.instructor_id = service_hours_entry.instructor_id
+    AND (
+        (
+            service_hours_entry.month >= 5
+            AND service_hours_entry.year = service_hours_benchmark.year
+        )
+        OR (
+            service_hours_entry.month < 5
+            AND service_hours_entry.year = service_hours_benchmark.year + 1
+        )
+    );
 
 CREATE OR REPLACE VIEW
     v_evaluations_page

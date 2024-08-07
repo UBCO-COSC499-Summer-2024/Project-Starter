@@ -55,7 +55,8 @@ export default function TimeTracking() {
         },
         { field: 'year', headerName: 'Year', flex: 1, editable: true },
         { field: 'month', headerName: 'Month', flex: 1, editable: true },
-        { field: 'hours', headerName: 'Hours', flex: 1, editable: true }
+        { field: 'hours', headerName: 'Hours', flex: 1, editable: true },
+        { field: 'expected_hours', headerName: 'Expected Hours', flex: 1, editable: false }
     ];
 
     // Handler to update a row in the table
@@ -68,7 +69,8 @@ export default function TimeTracking() {
                 service_role_id: row.service_role_id,
                 year: row.year,
                 hours: row.hours,
-                month: row.month
+                month: row.month,
+                expected_hours: row.expected_hours
             });
 
         if (error) {
@@ -104,7 +106,7 @@ export default function TimeTracking() {
         if (filteredData.length === 0) return { labels: [], datasets: [] };
 
         let labels = Array.from(new Set(filteredData.map(item => item[independentVariable]))).sort();
-        let data = labels.map(label => {
+        let hoursData = labels.map(label => {
             const items = filteredData.filter(item => item[independentVariable] === label);
             switch (aggregationMethod) {
                 case 'Count':
@@ -121,14 +123,38 @@ export default function TimeTracking() {
             }
         });
 
+        let expectedHoursData = labels.map(label => {
+            const items = filteredData.filter(item => item[independentVariable] === label);
+            switch (aggregationMethod) {
+                case 'Count':
+                    return items.length;
+                case 'Sum':
+                    return items.reduce((acc, curr) => acc + Number(curr.expected_hours), 0);
+                case 'Max':
+                    return Math.max(...items.map(item => Number(item.expected_hours)));
+                case 'Min':
+                    return Math.min(...items.map(item => Number(item.expected_hours)));
+                case 'Average':
+                default:
+                    return items.reduce((acc, curr) => acc + Number(curr.expected_hours), 0) / items.length;
+            }
+        });
+
         return {
             labels,
             datasets: [
                 {
-                    label: `${independentVariable}`,
-                    data,
+                    label: `Actual Hours`,
+                    data: hoursData,
                     backgroundColor: 'rgba(75,192,192,0.6)',
                     borderColor: 'rgba(75,192,192,1)',
+                    borderWidth: 1,
+                },
+                {
+                    label: `Expected Hours`,
+                    data: expectedHoursData,
+                    backgroundColor: 'rgba(192,75,75,0.6)',
+                    borderColor: 'rgba(192,75,75,1)',
                     borderWidth: 1,
                 }
             ]
