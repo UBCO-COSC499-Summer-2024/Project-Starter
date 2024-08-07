@@ -131,7 +131,6 @@ CREATE TABLE IF NOT EXISTS
 ALTER TABLE "service_role_assign"
 ADD CONSTRAINT "service_role_assign_unique" UNIQUE ("instructor_id", "service_role_id");
 
-
 CREATE TABLE IF NOT EXISTS
     "event" (
         "event_id" SERIAL NOT NULL PRIMARY KEY,
@@ -784,56 +783,71 @@ FROM
     service_hours_benchmark
     JOIN instructor ON service_hours_benchmark.instructor_id = instructor.instructor_id;
 
+-- This view uses 'with (security provider)' which means that a user
+-- selecting from this view will only see the rows that they have access to
 CREATE OR REPLACE VIEW
-    v_dashboard_progress AS
+    v_dashboard_instructor_service_hours
+WITH
+    (security_invoker) AS
 SELECT
+    instructor.instructor_id,
     instructor.email,
-    hours.instructor_id,
-    hours.worked,
-    hours.expected
+    service_role.title,
+    service_hours_entry.year,
+    service_hours_entry.month,
+    SUM(service_hours_entry.hours) AS hours,
+    service_hours_benchmark.hours / 12 AS monthly_benchmark
 FROM
-    (
-        SELECT
-            worked.instructor_id,
-            worked.hours AS worked,
-            expected.hours AS expected
-        FROM
-            (
-                SELECT
-                    instructor_id,
-                    hours
-                FROM
-                    service_hours_entry
-                WHERE
-                    year = EXTRACT(
-                        YEAR
-                        FROM
-                            CURRENT_DATE
-                    )
-                    AND month = EXTRACT(
-                        MONTH
-                        FROM
-                            CURRENT_DATE
-                    )
-            ) AS worked
-            JOIN (
-                SELECT
-                    instructor_id,
-                    hours / 12 AS hours
-                FROM
-                    service_hours_benchmark
-                WHERE
-                    year = EXTRACT(
-                        YEAR
-                        FROM
-                            CURRENT_DATE
-                    )
-            ) AS expected ON worked.instructor_id = expected.instructor_id
-    ) AS hours
-    JOIN instructor ON hours.instructor_id = instructor.instructor_id;
+    service_hours_entry
+    JOIN instructor ON service_hours_entry.instructor_id = instructor.instructor_id
+    JOIN service_role ON service_hours_entry.service_role_id = service_role.service_role_id
+    LEFT JOIN service_hours_benchmark ON service_hours_benchmark.instructor_id = service_hours_entry.instructor_id
+    AND (
+        (
+            service_hours_entry.month >= 5
+            AND service_hours_entry.year = service_hours_benchmark.year
+        )
+        OR (
+            service_hours_entry.month < 5
+            AND service_hours_entry.year = service_hours_benchmark.year + 1
+        )
+    )
+GROUP BY
+    instructor.instructor_id,
+    instructor.email,
+    service_role.title,
+    service_hours_entry.year,
+    service_hours_entry.month,
+    service_hours_benchmark.hours;
+
+-- This view does not use 'with (security provider)' in order to bypass RLS,
+-- only for letting users see the total hours and benchmark for the whole department
+CREATE OR REPLACE VIEW
+    v_dashboard_department_service_hours AS
+SELECT
+    service_hours_entry.year,
+    service_hours_entry.month,
+    SUM(service_hours_entry.hours) AS hours,
+    SUM(service_hours_benchmark.hours) / 12 AS monthly_benchmark
+FROM
+    service_hours_entry
+    INNER JOIN service_hours_benchmark ON service_hours_entry.instructor_id = service_hours_benchmark.instructor_id
+    AND (
+        (
+            service_hours_entry.month >= 5
+            AND service_hours_entry.year = service_hours_benchmark.year
+        )
+        OR (
+            service_hours_entry.month < 5
+            AND service_hours_entry.year = service_hours_benchmark.year + 1
+        )
+    )
+GROUP BY
+    service_hours_entry.year,
+    service_hours_entry.month;
 
 CREATE OR REPLACE VIEW
-    v_dashboard_current_courses
+    v_dashboard_courses
 WITH
     (security_invoker) AS
 SELECT
@@ -849,53 +863,14 @@ SELECT
     course.start_time,
     course.end_time,
     course.registration_status,
+    course.academic_year,
+    course.session,
+    course.term,
     CONCAT(course.building, ' ', course.room_num) AS location
 FROM
     course
     JOIN course_assign ON course.course_id = course_assign.course_id
-    JOIN instructor ON course_assign.instructor_id = instructor.instructor_id
-WHERE
-    (
-        (
-            course.session = 'Winter'
-            AND course.academic_year = EXTRACT(
-                YEAR
-                FROM
-                    CURRENT_DATE
-            ) - 1
-            AND EXTRACT(
-                MONTH
-                FROM
-                    CURRENT_DATE
-            ) BETWEEN 1 AND 4
-        )
-        OR (
-            course.session = 'Winter'
-            AND course.academic_year = EXTRACT(
-                YEAR
-                FROM
-                    CURRENT_DATE
-            )
-            AND EXTRACT(
-                MONTH
-                FROM
-                    CURRENT_DATE
-            ) BETWEEN 9 AND 12
-        )
-        OR (
-            course.session = 'Summer'
-            AND course.academic_year = EXTRACT(
-                YEAR
-                FROM
-                    CURRENT_DATE
-            )
-            AND EXTRACT(
-                MONTH
-                FROM
-                    CURRENT_DATE
-            ) BETWEEN 5 AND 8
-        )
-    );
+    JOIN instructor ON course_assign.instructor_id = instructor.instructor_id;
 
 CREATE OR REPLACE VIEW
     v_service_hours_entry
@@ -926,7 +901,7 @@ FROM
     );
 
 CREATE OR REPLACE VIEW
-    v_dashboard_upcoming_events
+    v_dashboard_events
 WITH
     (security_invoker) AS
 SELECT
@@ -938,9 +913,6 @@ SELECT
     location
 FROM
     event
-WHERE
-    event_datetime > CURRENT_TIMESTAMP
-    AND event_datetime < CURRENT_TIMESTAMP + INTERVAL '2 weeks'
 ORDER BY
     event_datetime;
 
