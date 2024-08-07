@@ -26,6 +26,7 @@ const InstructorInfo = () => {
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
   const [courseModalShow, setCourseModalShow] = useState(false);
+  const [serviceRoleModalShow, setServiceRoleModalShow] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchType, setSearchType] = useState('');
   const [courseAssignments, setCourseAssignments] = useState([]);
@@ -33,6 +34,11 @@ const InstructorInfo = () => {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState('Instructor');
+  const [selectedServiceRole, setSelectedServiceRole] = useState('');
+  const [selectedServiceRoleId, setSelectedServiceRoleId] = useState(null);
+  const [expectedHours, setExpectedHours] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [userRole, setUserRole] = useState(null);
   const [editMode, setEditMode] = useState({});
   const [editableFields] = useState(['prefix', 'first_name', 'last_name', 'ubc_employee_num', 'title', 'hire_date', 'suffix']); // Define editable fields here
@@ -106,6 +112,9 @@ const InstructorInfo = () => {
     if (searchType === 'course') {
       setSelectedCourse(selected.name);
       setSelectedCourseId(selected.id);
+    } else if (searchType === 'service_role') {
+      setSelectedServiceRole(selected.name);
+      setSelectedServiceRoleId(selected.id);
     }
     setSearchModalOpen(false);
   };
@@ -135,6 +144,40 @@ const InstructorInfo = () => {
       setSelectedCourse('');
       setSelectedCourseId(null);
       setSelectedPosition('Instructor');
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleServiceRoleAssignmentSave = async () => {
+    try {
+      const { error } = await supabase
+        .from('service_role_assign')
+        .insert({
+          instructor_id: instructorId,
+          service_role_id: selectedServiceRoleId,
+          expected_hours: expectedHours,
+          start_date: startDate,
+          end_date: endDate
+        });
+
+      if (error) throw error;
+
+      // Fetch the updated list of service role assignments
+      const { data: serviceRoleAssignmentsData, error: fetchError } = await supabase
+        .from('v_service_role_assign')
+        .select('*')
+        .eq('instructor_id', instructorId);
+
+      if (fetchError) throw fetchError;
+
+      setServiceRoleAssignments(serviceRoleAssignmentsData);
+      setServiceRoleModalShow(false);
+      setSelectedServiceRole('');
+      setSelectedServiceRoleId(null);
+      setExpectedHours('');
+      setStartDate('');
+      setEndDate('');
     } catch (error) {
       setError(error.message);
     }
@@ -371,7 +414,7 @@ const InstructorInfo = () => {
               <Button
                 variant="primary"
                 className="mb-3"
-                onClick={() => { setSearchType('service_role'); setSearchModalOpen(true); }}
+                onClick={() => setServiceRoleModalShow(true)}
               >
                 ➕ Assign New Service Role
               </Button>
@@ -422,6 +465,52 @@ const InstructorInfo = () => {
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setCourseModalShow(false)}>Cancel</Button>
           <Button variant="primary" onClick={handleCourseAssignmentSave} disabled={!selectedCourseId || !selectedPosition}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={serviceRoleModalShow} onHide={() => setServiceRoleModalShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign New Service Role</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="selectServiceRole">
+              <Form.Label>Select Service Role</Form.Label>
+              <Button variant="outline-secondary" onClick={() => { setSearchType('service_role'); setSearchModalOpen(true); }} className="w-100 mt-2">
+                {selectedServiceRole || "Select a service role"}
+              </Button>
+            </Form.Group>
+            <Form.Group controlId="expectedHours" className="mt-3">
+              <Form.Label>Expected Monthly Hours</Form.Label>
+              <Form.Control
+                type="number"
+                value={expectedHours}
+                onChange={(e) => setExpectedHours(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="startDate" className="mt-3">
+              <Form.Label>Start Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="endDate" className="mt-3">
+              <Form.Label>End Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setServiceRoleModalShow(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleServiceRoleAssignmentSave} disabled={!selectedServiceRoleId || !expectedHours || !startDate || !endDate}>
             Save
           </Button>
         </Modal.Footer>
