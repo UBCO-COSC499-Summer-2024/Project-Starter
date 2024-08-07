@@ -61,36 +61,49 @@ const HourCard = ({ month, year }) => {
     useEffect(() => {
         (async () => {
             const userRes = await supabase.auth.getUser();
-            const { data, error } = await supabase.rpc('get_dashboard_progress', {
-                input_month: month,
-                input_year: year
-            });
+            const userEmail = userRes.data.user.email;
 
-            if (error) {
-                console.error('Error fetching personal hours:', error);
-            } else if (data && data.length > 0) {
-                setPersonalHour(data[0].worked);
-                setPersonalExpected(data[0].expected);
+            // Fetch personal hours
+            const { data: personalData, error: personalError } = await supabase
+                .from('v_service_hours_entry')
+                .select('hours, monthly_benchmark')
+                .eq('instructor_email', userEmail)
+                .eq('year', year)
+                .eq('month', month);
+
+            if (personalError) {
+                console.error('Error fetching personal hours:', personalError);
+            } else if (personalData && personalData.length > 0) {
+                setPersonalHour(personalData[0].hours);
+                setPersonalExpected(personalData[0].monthly_benchmark);
             } else {
                 setPersonalHour(0);
                 setPersonalExpected(0);
             }
 
-            const { data: deptData, error: deptError } = await supabase.rpc('get_dashboard_progress', {
-                input_month: month,
-                input_year: year
-            });
+            // Fetch department expected hours
+            const { data: deptExpectedData, error: deptExpectedError } = await supabase
+                .rpc('calculate_total_expected_hours', { input_month: month, input_year: year });
 
-            if (deptError) {
-                console.error('Error fetching department hours:', deptError);
-            } else if (deptData && deptData.length > 0) {
-                const departmentTotalWorked = deptData.reduce((acc, cur) => acc + cur.worked, 0);
-                const departmentTotalExpected = deptData.reduce((acc, cur) => acc + cur.expected, 0);
-                setDepartmentHour(departmentTotalWorked);
-                setDepartmentExpected(departmentTotalExpected);
+            if (deptExpectedError) {
+                console.error('Error fetching department expected hours:', deptExpectedError);
             } else {
-                setDepartmentHour(0);
-                setDepartmentExpected(0);
+                const totalExpectedHours = deptExpectedData[0]?.total_expected_hours || 0;
+
+                // Fetch department worked hours
+                const { data: deptWorkedData, error: deptWorkedError } = await supabase
+                    .rpc('calculate_total_worked_hours', { input_month: month, input_year: year });
+
+                if (deptWorkedError) {
+                    console.error('Error fetching department worked hours:', deptWorkedError);
+                } else if (deptWorkedData && deptWorkedData.length > 0) {
+                    const totalWorkedHours = deptWorkedData[0].total_worked_hours || 0;
+                    setDepartmentHour(totalWorkedHours);
+                    setDepartmentExpected(totalExpectedHours);
+                } else {
+                    setDepartmentHour(0);
+                    setDepartmentExpected(totalExpectedHours);
+                }
             }
         })();
     }, [month, year]);
@@ -114,28 +127,52 @@ const HourCard = ({ month, year }) => {
     );
 };
 
-const UpcomingEventsCard = () => {
+
+
+
+
+
+
+
+const UpcomingEventsCard = ({ month = new Date().getMonth() + 1, year = new Date().getFullYear() }) => {
     const [events, setEvents] = useState([]);
     const [eventsLoading, setEventsLoading] = useState(true);
     const [eventsError, setEventsError] = useState(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
-            const { data, error } = await supabase
-                .from('v_dashboard_upcoming_events')
-                .select('*');
+            console.log(`Fetching events for month: ${month}, year: ${year}`);
+            try {
+                // Get the number of days in the selected month and year
+                const lastDay = new Date(year, month, 0).getDate();
+                const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+                const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
-            if (error) {
-                console.error('Error fetching upcoming events:', error);
-                setEventsError(error.message);
-            } else {
-                setEvents(data);
+                console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
+
+                const { data, error } = await supabase
+                    .from('v_dashboard_upcoming_events')
+                    .select('*')
+                    .gte('event_datetime', startDate)
+                    .lte('event_datetime', endDate);
+
+                if (error) {
+                    console.error('Error fetching upcoming events:', error);
+                    setEventsError(error.message);
+                } else {
+                    console.log('Fetched events:', data);
+                    setEvents(data);
+                }
+            } catch (err) {
+                console.error('Unexpected error fetching events:', err);
+                setEventsError(err.message);
+            } finally {
+                setEventsLoading(false);
             }
-            setEventsLoading(false);
         };
 
         fetchEvents();
-    }, []);
+    }, [month, year]);
 
     return (
         <Card className="tw-mb-3">
@@ -176,6 +213,9 @@ const UpcomingEventsCard = () => {
     );
 };
 
+
+
+
 export default function Home() {
     const [year, setYear] = useState(new Date().getFullYear());
     const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -204,7 +244,12 @@ export default function Home() {
     useEffect(() => {
         const fetchAssignments = async () => {
             const userRes = await supabase.auth.getUser();
-            const { data, error } = await supabase.from('v_dashboard_current_courses').select('*').eq('instructor_email', userRes.data.user.email);
+            const { data, error } = await supabase
+                .from('v_course_dashboard')
+                .select('*')
+                .eq('instructor_email', userRes.data.user.email)
+                .eq('academic_year', year);
+    
             if (error) {
                 console.error('Error fetching teaching assignments:', error);
                 setAssignmentsError(error.message);
@@ -213,9 +258,10 @@ export default function Home() {
             }
             setAssignmentsLoading(false);
         };
-
+    
         fetchAssignments();
     }, [month, year]);
+    
 
     useEffect(() => {
         const fetchServiceRoles = async () => {
@@ -451,7 +497,7 @@ export default function Home() {
                 </Row>
                 <Row>
                     <Col className="tw-pt-3">
-                        <UpcomingEventsCard />
+                        <UpcomingEventsCard month={month} year={year} />
                     </Col>
                 </Row>
             </Container>
