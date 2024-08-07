@@ -22,10 +22,14 @@ const InstructorInfo = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
+  const [courseModalShow, setCourseModalShow] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchType, setSearchType] = useState('');
   const [courseAssignments, setCourseAssignments] = useState([]);
   const [serviceRoleAssignments, setServiceRoleAssignments] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [selectedPosition, setSelectedPosition] = useState('Instructor');
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
@@ -93,50 +97,39 @@ const InstructorInfo = () => {
     }
   };
 
-  const handleSearchModalSelect = async (selected) => {
+  const handleSearchModalSelect = (selected) => {
+    if (searchType === 'course') {
+      setSelectedCourse(selected.full_course_name);
+      setSelectedCourseId(selected.id);
+    }
+    setSearchModalOpen(false);
+  };
+
+  const handleCourseAssignmentSave = async () => {
     try {
-      if (searchType === 'course') {
-        const { error } = await supabase
-          .from('course_assign')
-          .insert({
-            instructor_id: instructorId,
-            course_id: selected.id,
-            position: selected.position
-          });
+      const { error } = await supabase
+        .from('course_assign')
+        .insert({
+          instructor_id: instructorId,
+          course_id: selectedCourseId,
+          position: selectedPosition
+        });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        // Fetch the updated list of course assignments
-        const { data: courseAssignmentsData, error: fetchError } = await supabase
-          .from('v_course_info_assignees')
-          .select('*')
-          .eq('instructor_id', instructorId);
+      // Fetch the updated list of course assignments
+      const { data: courseAssignmentsData, error: fetchError } = await supabase
+        .from('v_course_info_assignees')
+        .select('*')
+        .eq('instructor_id', instructorId);
 
-        if (fetchError) throw fetchError;
+      if (fetchError) throw fetchError;
 
-        setCourseAssignments(courseAssignmentsData);
-      } else if (searchType === 'service_role') {
-        const { error } = await supabase
-          .from('service_role_assign')
-          .insert({
-            instructor_id: instructorId,
-            service_role_id: selected.id,
-            start_date: new Date().toISOString().split('T')[0],
-            expected_hours: 0
-          });
-
-        if (error) throw error;
-
-        // Fetch the updated list of service role assignments
-        const { data: serviceRoleAssignmentsData, error: fetchError } = await supabase
-          .from('v_service_role_assign')
-          .select('*')
-          .eq('instructor_id', instructorId);
-
-        if (fetchError) throw fetchError;
-
-        setServiceRoleAssignments(serviceRoleAssignmentsData);
-      }
+      setCourseAssignments(courseAssignmentsData);
+      setCourseModalShow(false);
+      setSelectedCourse('');
+      setSelectedCourseId(null);
+      setSelectedPosition('Instructor');
     } catch (error) {
       setError(error.message);
     }
@@ -235,7 +228,7 @@ const InstructorInfo = () => {
               <Button
                 variant="primary"
                 className="mb-3"
-                onClick={() => { setSearchType('course'); setSearchModalOpen(true); }}
+                onClick={() => setCourseModalShow(true)}
               >
                 ➕ Assign New Course
               </Button>
@@ -302,6 +295,35 @@ const InstructorInfo = () => {
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setModalShow(false)}>Cancel</Button>
           <Button variant="danger" onClick={confirmDelete}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={courseModalShow} onHide={() => setCourseModalShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign New Course</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="selectCourse">
+              <Form.Label>Select Course</Form.Label>
+              <Button variant="outline-secondary" onClick={() => { setSearchType('course'); setSearchModalOpen(true); }}>
+                {selectedCourse || "Select a course"}
+              </Button>
+            </Form.Group>
+            <Form.Group controlId="selectPosition" className="mt-3">
+              <Form.Label>Position</Form.Label>
+              <Form.Select value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}>
+                <option value="Instructor">Instructor</option>
+                <option value="TA">TA</option>
+              </Form.Select>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setCourseModalShow(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleCourseAssignmentSave} disabled={!selectedCourseId || !selectedPosition}>
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>
 
