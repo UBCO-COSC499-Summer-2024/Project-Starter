@@ -99,7 +99,7 @@ const InstructorInfo = () => {
 
   const handleSearchModalSelect = (selected) => {
     if (searchType === 'course') {
-      setSelectedCourse(selected.full_course_name);
+      setSelectedCourse(selected.name);
       setSelectedCourseId(selected.id);
     }
     setSearchModalOpen(false);
@@ -306,7 +306,7 @@ const InstructorInfo = () => {
           <Form>
             <Form.Group controlId="selectCourse">
               <Form.Label>Select Course</Form.Label>
-              <Button variant="outline-secondary" onClick={() => { setSearchType('course'); setSearchModalOpen(true); }}>
+              <Button variant="outline-secondary" onClick={() => { setSearchType('course'); setSearchModalOpen(true); }} className="w-100 mt-2">
                 {selectedCourse || "Select a course"}
               </Button>
             </Form.Group>
