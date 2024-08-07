@@ -949,24 +949,23 @@ FROM
         )
     );
 
-CREATE OR REPLACE VIEW
-    v_dashboard_upcoming_events
-WITH
-    (security_invoker) AS
+CREATE OR REPLACE VIEW v_dashboard_upcoming_events
+WITH (security_invoker) AS
 SELECT
-    event_id,
-    event_datetime,
-    is_meeting,
-    duration,
-    description,
-    location
+    event.event_id,
+    event.event_datetime,
+    event.is_meeting,
+    event.duration,
+    event.description,
+    event.location
 FROM
     event
 WHERE
-    event_datetime > CURRENT_TIMESTAMP
-    AND event_datetime < CURRENT_TIMESTAMP + INTERVAL '2 weeks'
+    event.event_datetime > CURRENT_TIMESTAMP
+    AND event.event_datetime < CURRENT_TIMESTAMP + INTERVAL '2 weeks'
 ORDER BY
-    event_datetime;
+    event.event_datetime;
+
 
 CREATE OR REPLACE VIEW 
     v_course_info_assignees
@@ -1041,3 +1040,30 @@ END;
 $$;
 
 
+CREATE OR REPLACE FUNCTION get_upcoming_events(start_date DATE, end_date DATE)
+RETURNS TABLE (
+    event_id INT,
+    event_datetime TIMESTAMP,
+    is_meeting BOOLEAN,
+    duration TIME,
+    description TEXT,
+    location TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        e.event_id,
+        e.event_datetime,
+        e.is_meeting,
+        e.duration,
+        e.description,
+        e.location::TEXT -- Explicitly casting location to TEXT
+    FROM
+        event e
+    WHERE
+        e.event_datetime >= start_date
+        AND e.event_datetime < end_date
+    ORDER BY
+        e.event_datetime;
+END;
+$$ LANGUAGE plpgsql;

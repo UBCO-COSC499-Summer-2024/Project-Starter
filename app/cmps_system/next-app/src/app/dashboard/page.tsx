@@ -134,16 +134,14 @@ const HourCard = ({ month, year }) => {
 
 
 
-const UpcomingEventsCard = ({ month = new Date().getMonth() + 1, year = new Date().getFullYear() }) => {
+const UpcomingEventsCard = ({ month, year }) => {
     const [events, setEvents] = useState([]);
     const [eventsLoading, setEventsLoading] = useState(true);
     const [eventsError, setEventsError] = useState(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
-            console.log(`Fetching events for month: ${month}, year: ${year}`);
             try {
-                // Get the number of days in the selected month and year
                 const lastDay = new Date(year, month, 0).getDate();
                 const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
                 const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
@@ -151,10 +149,10 @@ const UpcomingEventsCard = ({ month = new Date().getMonth() + 1, year = new Date
                 console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
 
                 const { data, error } = await supabase
-                    .from('v_dashboard_upcoming_events')
-                    .select('*')
-                    .gte('event_datetime', startDate)
-                    .lte('event_datetime', endDate);
+                    .rpc('get_upcoming_events', {
+                        start_date: startDate,
+                        end_date: endDate
+                    });
 
                 if (error) {
                     console.error('Error fetching upcoming events:', error);
@@ -212,6 +210,7 @@ const UpcomingEventsCard = ({ month = new Date().getMonth() + 1, year = new Date
         </Card>
     );
 };
+
 
 
 
