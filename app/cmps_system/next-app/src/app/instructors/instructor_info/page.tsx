@@ -8,6 +8,9 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 import supabase from "@/app/components/supabaseClient";
@@ -31,6 +34,8 @@ const InstructorInfo = () => {
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState('Instructor');
   const [userRole, setUserRole] = useState(null);
+  const [editMode, setEditMode] = useState({});
+  const [editableFields] = useState(['first_name', 'last_name', 'ubc_employee_num', 'email', 'title', 'hire_date']); // Define editable fields here
 
   useEffect(() => {
     async function fetchUserRole() {
@@ -155,6 +160,64 @@ const InstructorInfo = () => {
     }
   };
 
+  const handleEdit = (field) => {
+    setEditMode((prevState) => ({ ...prevState, [field]: !prevState[field] }));
+  };
+
+  const handleSave = async (field, value) => {
+    try {
+      const { error } = await supabase
+        .from('instructor')
+        .update({ [field]: value })
+        .eq('instructor_id', instructorId);
+
+      if (error) throw error;
+      setInstructor((prevInstructor) => ({ ...prevInstructor, [field]: value }));
+      setEditMode((prevState) => ({ ...prevState, [field]: false }));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setInstructor((prevInstructor) => ({ ...prevInstructor, [field]: value }));
+  };
+
+  const renderField = (field, value) => {
+    const type = field === 'hire_date' ? 'date' : 'text';
+    return (
+      <Form.Control
+        type={type}
+        value={value || ''}
+        onChange={(e) => handleChange(field, e.target.value)}
+        size="sm"
+      />
+    );
+  };
+
+  const handlePositionChange = async (assignmentId, position) => {
+    try {
+      const { error } = await supabase
+        .from('course_assign')
+        .update({ position })
+        .eq('assignment_id', assignmentId);
+
+      if (error) throw error;
+
+      // Fetch the updated list of course assignments
+      const { data: courseAssignmentsData, error: fetchError } = await supabase
+        .from('v_course_info_assignees')
+        .select('*')
+        .eq('instructor_id', instructorId);
+
+      if (fetchError) throw fetchError;
+
+      setCourseAssignments(courseAssignmentsData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   return (
     <div>
       <NavBar />
@@ -168,30 +231,19 @@ const InstructorInfo = () => {
           <>
             <Table className="table table-bordered">
               <tbody>
-                <tr>
-                  <td>First Name</td>
-                  <td>{instructor.first_name}</td>
-                </tr>
-                <tr>
-                  <td>Last Name</td>
-                  <td>{instructor.last_name}</td>
-                </tr>
-                <tr>
-                  <td>Employee Number</td>
-                  <td>{instructor.ubc_employee_num}</td>
-                </tr>
-                <tr>
-                  <td>Email</td>
-                  <td>{instructor.email}</td>
-                </tr>
-                <tr>
-                  <td>Title</td>
-                  <td>{instructor.title}</td>
-                </tr>
-                <tr>
-                  <td>Hire Date</td>
-                  <td>{instructor.hire_date}</td>
-                </tr>
+                {Object.entries(instructor).map(([field, value]) => (
+                  <tr key={field}>
+                    <td style={{ width: '30%' }}>{field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                    <td>{editMode[field] ? renderField(field, value) : (value !== null ? value.toString() : 'N/A')}</td>
+                    <td style={{ width: '1px' }}>
+                      {editableFields.includes(field) && ['head', 'staff'].includes(userRole) && (
+                        <IconButton onClick={() => editMode[field] ? handleSave(field, instructor[field]) : handleEdit(field)} size="small">
+                          {editMode[field] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                        </IconButton>
+                      )}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </Table>
 
@@ -208,16 +260,37 @@ const InstructorInfo = () => {
                 {courseAssignments.map((assignment) => (
                   <tr key={assignment.assignment_id}>
                     <td>{assignment.full_course_name}</td>
-                    <td>{assignment.position}</td>
+                    <td>
+                      {editMode[`position_${assignment.assignment_id}`] ? (
+                        <Form.Select
+                          value={assignment.position}
+                          onChange={(e) => handlePositionChange(assignment.assignment_id, e.target.value)}
+                          size="sm"
+                        >
+                          <option value="Instructor">Instructor</option>
+                          <option value="TA">TA</option>
+                        </Form.Select>
+                      ) : (
+                        assignment.position
+                      )}
+                    </td>
                     <td>
                       {['head', 'staff'].includes(userRole) && (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleAssigneeDelete(assignment.assignment_id, 'course')}
-                        >
-                          Delete
-                        </Button>
+                        <>
+                          <IconButton onClick={() => setEditMode((prevState) => ({
+                            ...prevState,
+                            [`position_${assignment.assignment_id}`]: !prevState[`position_${assignment.assignment_id}`]
+                          }))} size="small">
+                            {editMode[`position_${assignment.assignment_id}`] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                          </IconButton>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleAssigneeDelete(assignment.assignment_id, 'course')}
+                          >
+                            Delete
+                          </Button>
+                        </>
                       )}
                     </td>
                   </tr>
