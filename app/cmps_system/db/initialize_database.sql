@@ -724,6 +724,7 @@ SELECT
     requires_instructor,
     requires_service_role,
     instructor.instructor_id as instructor_id,
+    instructor.email as instructor_email,
     instructor.first_name as instructor_first_name,
     instructor.last_name as instructor_last_name,
     CASE
