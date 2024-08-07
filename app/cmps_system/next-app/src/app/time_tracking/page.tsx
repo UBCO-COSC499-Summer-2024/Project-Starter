@@ -77,13 +77,16 @@ export default function TimeTracking() {
     };
 
     const [filteredData, setFilteredData] = useState([]);
-    const [independentVariable, setIndependentVariable] = useState('month');
+    const [independentVariable, setIndependentVariable] = useState('date');
     const [aggregationMethod, setAggregationMethod] = useState('Average');
     const [errorMessage, setErrorMessage] = useState('');
     const [showVisualization, setShowVisualization] = useState(false);
 
     const handleFilteredDataChange = (data) => {
-        setFilteredData(data);
+        setFilteredData(data.map(item => ({
+            ...item,
+            date: `${item.year}-${String(item.month).padStart(2, '0')}` // Combine year and month into a date
+        })));
     };
 
     const hasValues = (variable) => {
@@ -181,8 +184,7 @@ export default function TimeTracking() {
                                 onChange={handleIndependentVariableChange}
                                 label="Independent Variable"
                             >
-                                <MenuItem value="month">Month</MenuItem>
-                                {hasValues('year') && <MenuItem value="year">Year</MenuItem>}
+                                <MenuItem value="date">Date</MenuItem>
                                 {hasValues('instructor_full_name') && <MenuItem value="instructor_full_name">Instructor</MenuItem>}
                                 {hasValues('service_role') && <MenuItem value="service_role">Service Role</MenuItem>}
                             </Select>
