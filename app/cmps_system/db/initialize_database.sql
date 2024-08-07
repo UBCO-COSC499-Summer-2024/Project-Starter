@@ -96,7 +96,6 @@ CREATE TABLE IF NOT EXISTS
         "start_time" TIME(0) WITHOUT TIME ZONE NULL,
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
         "num_students" INTEGER NULL DEFAULT 0,
-        "num_tas" INTEGER NULL DEFAULT 0,
         "average_grade" DECIMAL(5, 2) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
@@ -636,7 +635,15 @@ SELECT
             ELSE '1-2'
         END
     ) as full_course_name,
-    num_TAs,
+    (
+        SELECT
+            COUNT(*)
+        FROM
+            course_assign ca
+        WHERE
+            ca.course_id = course.course_id
+            AND ca.position = 'TA'
+    ) as num_tas,
     average_grade,
     year_level,
     session,
@@ -653,6 +660,9 @@ SELECT
             ORDER BY
                 instructor.last_name,
                 instructor.first_name
+        ) FILTER (
+            WHERE
+                course_assign.position = 'Instructor'
         ),
         'No Instructor'
     ) as instructor_names,
@@ -663,6 +673,9 @@ SELECT
             ORDER BY
                 instructor.last_name,
                 instructor.first_name
+        ) FILTER (
+            WHERE
+                course_assign.position = 'Instructor'
         ),
         ''
     ) as instructor_ids,
@@ -956,7 +969,7 @@ WHERE
 ORDER BY
     event_datetime;
 
-CREATE OR REPLACE VIEW 
+CREATE OR REPLACE VIEW
     v_course_info_assignees
 WITH
     (security_invoker) AS

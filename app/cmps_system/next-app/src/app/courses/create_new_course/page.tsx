@@ -27,7 +27,6 @@ const CourseForm = () => {
         start_time: null,
         end_time: null,
         num_students: null,
-        num_tas: null,
         credits: null,
         year_level: null
     });
@@ -200,11 +199,6 @@ const CourseForm = () => {
                         <div className="form-group">
                             <label htmlFor="num_students">Number of Students:</label>
                             <input type="number" id="num_students" name="num_students" onChange={handleChange} />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="num_tas">Number of TAs:</label>
-                            <input type="number" id="num_tas" name="num_tas" onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
