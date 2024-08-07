@@ -487,7 +487,7 @@ CREATE OR REPLACE VIEW
 SELECT
     service_role_assign_id,
     instructor_id,
-    service_role_id,
+    service_role.service_role_id,
     CASE
         WHEN (
             SELECT
@@ -544,9 +544,11 @@ SELECT
                 instructor.instructor_id = service_role_assign.instructor_id
         ) = auth.email () THEN expected_hours
         ELSE NULL
-    END AS expected_hours
+    END AS expected_hours,
+    service_role.title as service_role_title
 FROM
-    service_role_assign;
+    service_role_assign
+    JOIN service_role ON service_role.service_role_id = service_role_assign.service_role_id;
 
 REVOKE INSERT,
 UPDATE,
@@ -925,7 +927,27 @@ SELECT
     course.course_id as course_id,
     instructor.instructor_id as instructor_id,
     CONCAT(last_name, ', ', first_name) as instructor_name,
-    course_assign.position as position
+    course_assign.position as position,
+    CONCAT(
+        course.subject_code,
+        ' ',
+        course.course_num,
+        ' ',
+        course.section_num,
+        ' ',
+        course.academic_year,
+        CASE
+            WHEN course.session = 'Winter' THEN 'W'
+            ELSE 'S'
+        END,
+        CASE
+            WHEN course.term = 'Term 1' THEN '1'
+            WHEN course.term = 'Term 2' THEN '2'
+            ELSE '1-2'
+        END,
+        ' - ',
+        course.course_title
+    ) as full_course_name
 FROM
     course_assign
     JOIN instructor ON course_assign.instructor_id = instructor.instructor_id
