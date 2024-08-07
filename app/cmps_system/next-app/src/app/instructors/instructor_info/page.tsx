@@ -284,7 +284,9 @@ const InstructorInfo = () => {
               <tbody>
                 {courseAssignments.map((assignment) => (
                   <tr key={assignment.assignment_id}>
-                    <td>{assignment.full_course_name}</td>
+                    <td>
+                      <a href={`/courses/course_info?id=${assignment.course_id}`}>{assignment.full_course_name}</a>
+                    </td>
                     <td>
                       {editMode[`position_${assignment.assignment_id}`] ? (
                         <Form.Select
