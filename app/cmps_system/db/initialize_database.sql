@@ -44,7 +44,7 @@ EXECUTE PROCEDURE public.handle_new_user ();
 
 CREATE TABLE IF NOT EXISTS
     "instructor" (
-        "instructor_id" SERIAL NOT NULL,
+        "instructor_id" SERIAL NOT NULL PRIMARY KEY,
         "ubc_employee_num" BIGINT NOT NULL,
         "email" VARCHAR(255) NULL,
         "prefix" VARCHAR(255) NULL,
@@ -56,14 +56,11 @@ CREATE TABLE IF NOT EXISTS
     );
 
 ALTER TABLE "instructor"
-ADD PRIMARY KEY ("instructor_id");
-
-ALTER TABLE "instructor"
 ADD CONSTRAINT "instructor_ubc_employee_num_unique" UNIQUE ("ubc_employee_num");
 
 CREATE TABLE IF NOT EXISTS
     "service_role" (
-        "service_role_id" SERIAL NOT NULL,
+        "service_role_id" SERIAL NOT NULL PRIMARY KEY,
         "title" VARCHAR(255) NOT NULL,
         "description" TEXT NULL,
         "default_expected_hours" INTEGER NOT NULL,
@@ -71,12 +68,9 @@ CREATE TABLE IF NOT EXISTS
         "room_num" VARCHAR(255) NULL
     );
 
-ALTER TABLE "service_role"
-ADD PRIMARY KEY ("service_role_id");
-
 CREATE TABLE IF NOT EXISTS
     "course" (
-        "course_id" SERIAL NOT NULL,
+        "course_id" SERIAL NOT NULL PRIMARY KEY,
         "academic_year" INTEGER NOT NULL,
         "session" VARCHAR(255) CHECK ("session" IN ('Winter', 'Summer')) NOT NULL,
         "term" VARCHAR(255) CHECK ("term" IN ('Term 1', 'Term 2', 'Term 1-2')) NOT NULL,
@@ -96,16 +90,12 @@ CREATE TABLE IF NOT EXISTS
         "start_time" TIME(0) WITHOUT TIME ZONE NULL,
         "end_time" TIME(0) WITHOUT TIME ZONE NULL,
         "num_students" INTEGER NULL DEFAULT 0,
-        "num_tas" INTEGER NULL DEFAULT 0,
         "average_grade" DECIMAL(5, 2) NULL,
         "credits" INTEGER NULL,
         "year_level" INTEGER NULL,
         "registration_status" VARCHAR(255) NULL,
         "status" VARCHAR(255) NULL
     );
-
-ALTER TABLE "course"
-ADD PRIMARY KEY ("course_id");
 
 ALTER TABLE "course"
 ADD CONSTRAINT "course_unique" UNIQUE (
@@ -119,7 +109,7 @@ ADD CONSTRAINT "course_unique" UNIQUE (
 
 CREATE TABLE IF NOT EXISTS
     "course_assign" (
-        "assignment_id" SERIAL NOT NULL,
+        "assignment_id" SERIAL NOT NULL PRIMARY KEY,
         "instructor_id" INTEGER NOT NULL,
         "course_id" INTEGER NOT NULL,
         "position" VARCHAR(255) NOT NULL
@@ -128,12 +118,9 @@ CREATE TABLE IF NOT EXISTS
 ALTER TABLE "course_assign"
 ADD CONSTRAINT "course_assign_unique" UNIQUE ("instructor_id", "course_id", "position");
 
-ALTER TABLE "course_assign"
-ADD PRIMARY KEY ("assignment_id");
-
 CREATE TABLE IF NOT EXISTS
     "service_role_assign" (
-        "service_role_assign_id" SERIAL NOT NULL,
+        "service_role_assign_id" SERIAL NOT NULL PRIMARY KEY,
         "instructor_id" INTEGER NOT NULL,
         "service_role_id" INTEGER NOT NULL,
         "start_date" DATE NOT NULL,
@@ -144,21 +131,16 @@ CREATE TABLE IF NOT EXISTS
 ALTER TABLE "service_role_assign"
 ADD CONSTRAINT "service_role_assign_unique" UNIQUE ("instructor_id", "service_role_id");
 
-ALTER TABLE "service_role_assign"
-ADD PRIMARY KEY ("service_role_assign_id");
 
 CREATE TABLE IF NOT EXISTS
     "event" (
-        "event_id" SERIAL NOT NULL,
+        "event_id" SERIAL NOT NULL PRIMARY KEY,
         "event_datetime" TIMESTAMP(0) WITHOUT TIME ZONE NULL DEFAULT CURRENT_TIMESTAMP,
         "is_meeting" BOOLEAN NULL DEFAULT FALSE,
         "duration" TIME(0) WITHOUT TIME ZONE NOT NULL,
         "description" TEXT NULL,
         "location" VARCHAR(255) NULL
     );
-
-ALTER TABLE "event"
-ADD PRIMARY KEY ("event_id");
 
 ALTER TABLE "event"
 ADD CONSTRAINT "event_unique" UNIQUE ("event_datetime", "location", "description");
@@ -188,7 +170,7 @@ EXECUTE FUNCTION set_default_event_values ();
 
 CREATE TABLE IF NOT EXISTS
     "service_hours_entry" (
-        "service_hours_entry_id" SERIAL NOT NULL,
+        "service_hours_entry_id" SERIAL NOT NULL PRIMARY KEY,
         "instructor_id" INTEGER NOT NULL,
         "service_role_id" INTEGER NOT NULL,
         "year" INTEGER NOT NULL,
@@ -215,17 +197,18 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO anon;
 
 CREATE TABLE IF NOT EXISTS
     "event_attendance" (
+        "event_attendance_id" SERIAL NOT NULL PRIMARY KEY,
         "event_id" INTEGER NOT NULL,
         "instructor_id" INTEGER NOT NULL,
         "attendance_duration" TIME(0) WITHOUT TIME ZONE NOT NULL
     );
 
 ALTER TABLE "event_attendance"
-ADD PRIMARY KEY ("event_id", "instructor_id");
+ADD CONSTRAINT "event_attendance_unique" UNIQUE ("event_id", "instructor_id");
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_type" (
-        "evaluation_type_id" SERIAL NOT NULL,
+        "evaluation_type_id" SERIAL NOT NULL PRIMARY KEY,
         "evaluation_type_name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
         "date_added" DATE NULL DEFAULT CURRENT_DATE,
@@ -233,9 +216,6 @@ CREATE TABLE IF NOT EXISTS
         "requires_instructor" BOOLEAN NULL DEFAULT NULL,
         "requires_service_role" BOOLEAN NULL DEFAULT NULL
     );
-
-ALTER TABLE "evaluation_type"
-ADD PRIMARY KEY ("evaluation_type_id");
 
 ALTER TABLE "evaluation_type"
 ADD CONSTRAINT "evaluation_type_name_unique" UNIQUE ("evaluation_type_name");
@@ -262,7 +242,7 @@ EXECUTE FUNCTION set_default_evaluation_type_values ();
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_metric" (
-        "evaluation_metric_id" SERIAL NOT NULL,
+        "evaluation_metric_id" SERIAL NOT NULL PRIMARY KEY,
         "evaluation_type_id" INTEGER NOT NULL,
         "metric_num" INTEGER NOT NULL,
         "metric_description" TEXT NOT NULL,
@@ -275,7 +255,7 @@ ADD CONSTRAINT "evaluation_type_metric_num_unique" UNIQUE ("evaluation_type_id",
 
 CREATE TABLE IF NOT EXISTS
     "evaluation_entry" (
-        "evaluation_entry_id" SERIAL NOT NULL,
+        "evaluation_entry_id" SERIAL NOT NULL PRIMARY KEY,
         "evaluation_type_id" INTEGER NOT NULL,
         "metric_num" INTEGER NOT NULL,
         "course_id" INTEGER NULL,
@@ -295,19 +275,13 @@ ADD CONSTRAINT "evaluation_entry_unique" UNIQUE NULLS NOT DISTINCT (
     "evaluation_date"
 );
 
-ALTER TABLE "evaluation_entry"
-ADD PRIMARY KEY ("evaluation_entry_id");
-
 CREATE TABLE IF NOT EXISTS
     "service_hours_benchmark" (
-        "benchmark_id" SERIAL NOT NULL,
+        "benchmark_id" SERIAL NOT NULL PRIMARY KEY,
         "instructor_id" INTEGER NOT NULL,
         "year" INTEGER NOT NULL,
         "hours" INTEGER NOT NULL
     );
-
-ALTER TABLE "service_hours_benchmark"
-ADD PRIMARY KEY ("benchmark_id");
 
 ALTER TABLE "service_hours_benchmark"
 ADD CONSTRAINT "service_hours_benchmark_unique" UNIQUE ("instructor_id", "year");
@@ -636,7 +610,15 @@ SELECT
             ELSE '1-2'
         END
     ) as full_course_name,
-    num_TAs,
+    (
+        SELECT
+            COUNT(*)
+        FROM
+            course_assign ca
+        WHERE
+            ca.course_id = course.course_id
+            AND ca.position = 'TA'
+    ) as num_tas,
     average_grade,
     year_level,
     session,
@@ -653,6 +635,9 @@ SELECT
             ORDER BY
                 instructor.last_name,
                 instructor.first_name
+        ) FILTER (
+            WHERE
+                course_assign.position = 'Instructor'
         ),
         'No Instructor'
     ) as instructor_names,
@@ -663,6 +648,9 @@ SELECT
             ORDER BY
                 instructor.last_name,
                 instructor.first_name
+        ) FILTER (
+            WHERE
+                course_assign.position = 'Instructor'
         ),
         ''
     ) as instructor_ids,
@@ -724,6 +712,7 @@ SELECT
     requires_instructor,
     requires_service_role,
     instructor.instructor_id as instructor_id,
+    instructor.email as instructor_email,
     instructor.first_name as instructor_first_name,
     instructor.last_name as instructor_last_name,
     CASE
@@ -967,7 +956,7 @@ ORDER BY
     event.event_datetime;
 
 
-CREATE OR REPLACE VIEW 
+CREATE OR REPLACE VIEW
     v_course_info_assignees
 WITH
     (security_invoker) AS
