@@ -35,7 +35,7 @@ const InstructorInfo = () => {
   const [selectedPosition, setSelectedPosition] = useState('Instructor');
   const [userRole, setUserRole] = useState(null);
   const [editMode, setEditMode] = useState({});
-  const [editableFields] = useState(['first_name', 'last_name', 'ubc_employee_num', 'email', 'title', 'hire_date']); // Define editable fields here
+  const [editableFields] = useState(['prefix', 'first_name', 'last_name', 'ubc_employee_num', 'title', 'hire_date', 'suffix']); // Define editable fields here
 
   useEffect(() => {
     async function fetchUserRole() {
@@ -184,15 +184,38 @@ const InstructorInfo = () => {
   };
 
   const renderField = (field, value) => {
-    const type = field === 'hire_date' ? 'date' : 'text';
-    return (
-      <Form.Control
-        type={type}
-        value={value || ''}
-        onChange={(e) => handleChange(field, e.target.value)}
-        size="sm"
-      />
-    );
+    if (field === 'prefix') {
+      return (
+        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+          <option value="Mr.">Mr.</option>
+          <option value="Mrs.">Mrs.</option>
+          <option value="Ms.">Ms.</option>
+          <option value="Dr.">Dr.</option>
+          <option value="Prof.">Prof.</option>
+        </Form.Select>
+      );
+    } else if (field === 'suffix') {
+      return (
+        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+          <option value="">None</option>
+          <option value="Jr.">Jr.</option>
+          <option value="Sr.">Sr.</option>
+          <option value="II">II</option>
+          <option value="III">III</option>
+          <option value="IV">IV</option>
+        </Form.Select>
+      );
+    } else {
+      const type = field === 'hire_date' ? 'date' : 'text';
+      return (
+        <Form.Control
+          type={type}
+          value={value || ''}
+          onChange={(e) => handleChange(field, e.target.value)}
+          size="sm"
+        />
+      );
+    }
   };
 
   const handlePositionChange = async (assignmentId, position) => {
@@ -232,17 +255,19 @@ const InstructorInfo = () => {
             <Table className="table table-bordered">
               <tbody>
                 {Object.entries(instructor).map(([field, value]) => (
-                  <tr key={field}>
-                    <td style={{ width: '30%' }}>{field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
-                    <td>{editMode[field] ? renderField(field, value) : (value !== null ? value.toString() : 'N/A')}</td>
-                    <td style={{ width: '1px' }}>
-                      {editableFields.includes(field) && ['head', 'staff'].includes(userRole) && (
-                        <IconButton onClick={() => editMode[field] ? handleSave(field, instructor[field]) : handleEdit(field)} size="small">
-                          {editMode[field] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
-                        </IconButton>
-                      )}
-                    </td>
-                  </tr>
+                  field !== 'instructor_id' && (
+                    <tr key={field}>
+                      <td style={{ width: '30%' }}>{field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                      <td>{editMode[field] ? renderField(field, value) : (value !== null ? value.toString() : 'N/A')}</td>
+                      <td style={{ width: '1px' }}>
+                        {editableFields.includes(field) && ['head', 'staff'].includes(userRole) && (
+                          <IconButton onClick={() => editMode[field] ? handleSave(field, instructor[field]) : handleEdit(field)} size="small">
+                            {editMode[field] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                          </IconButton>
+                        )}
+                      </td>
+                    </tr>
+                  )
                 ))}
               </tbody>
             </Table>
