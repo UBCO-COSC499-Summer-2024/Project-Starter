@@ -97,21 +97,8 @@ export default function TimeTracking() {
         }
     };
 
-    useEffect(() => {
-        if (filteredData.length > 0) {
-            const serviceRoles = new Set(filteredData.map(item => item.service_role));
-            if (serviceRoles.size > 1) {
-                setErrorMessage('All table rows must be filtered down to the same "Service Role" to visualize.');
-            } else {
-                setErrorMessage('');
-            }
-        } else {
-            setErrorMessage('No data available.');
-        }
-    }, [filteredData]);
-
     const getChartData = () => {
-        if (errorMessage || filteredData.length === 0) return { labels: [], datasets: [] };
+        if (filteredData.length === 0) return { labels: [], datasets: [] };
 
         let labels = Array.from(new Set(filteredData.map(item => item[independentVariable]))).sort();
         let data = labels.map(label => {
@@ -135,7 +122,7 @@ export default function TimeTracking() {
             labels,
             datasets: [
                 {
-                    label: `${filteredData[0]?.service_role ?? ''} ${independentVariable}`,
+                    label: `${independentVariable}`,
                     data,
                     backgroundColor: 'rgba(75,192,192,0.6)',
                     borderColor: 'rgba(75,192,192,1)',
@@ -172,7 +159,10 @@ export default function TimeTracking() {
             <Navbar />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', flexWrap: 'nowrap' }}>
                 <h1 style={{ marginRight: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}>Time Tracking</h1>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', gap: '10px' }}>
+                    <Button onClick={() => setShowVisualization(!showVisualization)} variant="contained" color="primary">
+                        {showVisualization ? 'Hide Visualization' : 'Show Visualization'}
+                    </Button>
                     <Button onClick={() => { router.push("/time_tracking/benchmarks") }} variant="contained" color="primary">
                         Service Hours Benchmarks
                     </Button>
@@ -181,12 +171,9 @@ export default function TimeTracking() {
                     </Button>
                 </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px' }}>
-                <Button onClick={() => setShowVisualization(!showVisualization)} variant="contained" color="primary">
-                    {showVisualization ? 'Hide Visualization' : 'Show Visualization'}
-                </Button>
-                {showVisualization && (
-                    <>
+            {showVisualization && (
+                <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px' }}>
                         <FormControl variant="outlined" style={{ minWidth: 180 }}>
                             <InputLabel>Independent Variable</InputLabel>
                             <Select
@@ -212,17 +199,13 @@ export default function TimeTracking() {
                                 ))}
                             </Select>
                         </FormControl>
-                    </>
-                )}
-            </div>
-            {showVisualization && (
-                <>
+                    </div>
                     {errorMessage ? (
                         <Alert severity="info">{errorMessage}</Alert>
                     ) : (
                         <Box sx={{ height: '50vh', width: '100%', padding: '10px' }}>
                             <Typography variant="h6" align="center">
-                                {`${aggregationMethod} ${filteredData[0]?.service_role ?? ''} ${independentVariable}`}
+                                {`${aggregationMethod} ${independentVariable}`}
                             </Typography>
                             <Bar key={`${independentVariable}-${aggregationMethod}`} data={chartData} options={chartOptions} />
                         </Box>
@@ -246,4 +229,3 @@ export default function TimeTracking() {
         </>
     );
 }
-
