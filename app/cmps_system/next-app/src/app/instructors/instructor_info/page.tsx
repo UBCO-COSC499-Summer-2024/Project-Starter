@@ -512,7 +512,9 @@ const InstructorInfo = () => {
             )}
 
             <div className="instructor-info-footer">
-              <Button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</Button>
+              {['head', 'staff'].includes(userRole) && (
+                <Button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</Button>
+              )}
               <Button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</Button>
             </div>
           </>
