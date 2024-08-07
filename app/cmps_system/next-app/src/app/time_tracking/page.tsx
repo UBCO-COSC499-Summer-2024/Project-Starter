@@ -1,10 +1,32 @@
 'use client'
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
-import { Button } from '@mui/material';
+import { Button, Box, Typography, FormControl, InputLabel, Select, MenuItem, Alert, Tooltip } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip as ChartTooltip,
+    Legend
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    ChartTooltip,
+    Legend
+);
+
+const aggregationMethods = ['Average', 'Count', 'Sum', 'Max', 'Min'];
 
 export default function TimeTracking() {
     const router = useRouter();
@@ -33,7 +55,8 @@ export default function TimeTracking() {
         },
         { field: 'year', headerName: 'Year', flex: 1, editable: true },
         { field: 'month', headerName: 'Month', flex: 1, editable: true },
-        { field: 'hours', headerName: 'Hours', flex: 1, editable: true }
+        { field: 'hours', headerName: 'Hours', flex: 1, editable: true },
+        { field: 'expected_hours', headerName: 'Expected Hours', flex: 1, editable: false }
     ];
 
     // Handler to update a row in the table
@@ -46,11 +69,117 @@ export default function TimeTracking() {
                 service_role_id: row.service_role_id,
                 year: row.year,
                 hours: row.hours,
-                month: row.month
+                month: row.month,
+                expected_hours: row.expected_hours
             });
 
         if (error) {
             return { error }; // Ensure error is returned here
+        }
+    };
+
+    const [filteredData, setFilteredData] = useState([]);
+    const [independentVariable, setIndependentVariable] = useState('date');
+    const [aggregationMethod, setAggregationMethod] = useState('Average');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showVisualization, setShowVisualization] = useState(false);
+
+    const handleFilteredDataChange = (data) => {
+        setFilteredData(data.map(item => ({
+            ...item,
+            date: `${item.year}-${String(item.month).padStart(2, '0')}` // Combine year and month into a date
+        })));
+    };
+
+    const hasValues = (variable) => {
+        return filteredData.some(item => item[variable] !== undefined && item[variable] !== null && item[variable] !== '');
+    };
+
+    const handleIndependentVariableChange = (e) => {
+        const value = e.target.value;
+        if (hasValues(value)) {
+            setIndependentVariable(value);
+        }
+    };
+
+    const getChartData = () => {
+        if (filteredData.length === 0) return { labels: [], datasets: [] };
+
+        let labels = Array.from(new Set(filteredData.map(item => item[independentVariable]))).sort();
+        let hoursData = labels.map(label => {
+            const items = filteredData.filter(item => item[independentVariable] === label);
+            switch (aggregationMethod) {
+                case 'Count':
+                    return items.length;
+                case 'Sum':
+                    return items.reduce((acc, curr) => acc + Number(curr.hours), 0);
+                case 'Max':
+                    return Math.max(...items.map(item => Number(item.hours)));
+                case 'Min':
+                    return Math.min(...items.map(item => Number(item.hours)));
+                case 'Average':
+                default:
+                    return items.reduce((acc, curr) => acc + Number(curr.hours), 0) / items.length;
+            }
+        });
+
+        let expectedHoursData = labels.map(label => {
+            const items = filteredData.filter(item => item[independentVariable] === label);
+            switch (aggregationMethod) {
+                case 'Count':
+                    return items.length;
+                case 'Sum':
+                    return items.reduce((acc, curr) => acc + Number(curr.expected_hours), 0);
+                case 'Max':
+                    return Math.max(...items.map(item => Number(item.expected_hours)));
+                case 'Min':
+                    return Math.min(...items.map(item => Number(item.expected_hours)));
+                case 'Average':
+                default:
+                    return items.reduce((acc, curr) => acc + Number(curr.expected_hours), 0) / items.length;
+            }
+        });
+
+        return {
+            labels,
+            datasets: [
+                {
+                    label: `Actual Hours`,
+                    data: hoursData,
+                    backgroundColor: 'rgba(75,192,192,0.6)',
+                    borderColor: 'rgba(75,192,192,1)',
+                    borderWidth: 1,
+                },
+                {
+                    label: `Expected Hours`,
+                    data: expectedHoursData,
+                    backgroundColor: 'rgba(192,75,75,0.6)',
+                    borderColor: 'rgba(192,75,75,1)',
+                    borderWidth: 1,
+                }
+            ]
+        };
+    };
+
+    const chartData = getChartData();
+
+    const chartOptions = {
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const index = context.dataIndex;
+                        const count = chartData.datasets[0].data[index];
+                        return `${context.dataset.label}: ${context.raw} (N=${count})`;
+                    }
+                }
+            }
+        },
+        layout: {
+            padding: {
+                bottom: 20
+            }
         }
     };
 
@@ -59,7 +188,10 @@ export default function TimeTracking() {
             <Navbar />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', flexWrap: 'nowrap' }}>
                 <h1 style={{ marginRight: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}>Time Tracking</h1>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', gap: '10px' }}>
+                    <Button onClick={() => setShowVisualization(!showVisualization)} variant="contained" color="primary">
+                        {showVisualization ? 'Hide Visualization' : 'Show Visualization'}
+                    </Button>
                     <Button onClick={() => { router.push("/time_tracking/benchmarks") }} variant="contained" color="primary">
                         Service Hours Benchmarks
                     </Button>
@@ -68,6 +200,46 @@ export default function TimeTracking() {
                     </Button>
                 </div>
             </div>
+            {showVisualization && (
+                <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px' }}>
+                        <FormControl variant="outlined" style={{ minWidth: 180 }}>
+                            <InputLabel>Independent Variable</InputLabel>
+                            <Select
+                                value={independentVariable}
+                                onChange={handleIndependentVariableChange}
+                                label="Independent Variable"
+                            >
+                                <MenuItem value="date">Date</MenuItem>
+                                {hasValues('instructor_full_name') && <MenuItem value="instructor_full_name">Instructor</MenuItem>}
+                                {hasValues('service_role') && <MenuItem value="service_role">Service Role</MenuItem>}
+                            </Select>
+                        </FormControl>
+                        <FormControl variant="outlined" style={{ minWidth: 180 }}>
+                            <InputLabel>Aggregation Method</InputLabel>
+                            <Select
+                                value={aggregationMethod}
+                                onChange={(e) => setAggregationMethod(e.target.value)}
+                                label="Aggregation Method"
+                            >
+                                {aggregationMethods.map(method => (
+                                    <MenuItem key={method} value={method}>{method}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </div>
+                    {errorMessage ? (
+                        <Alert severity="info">{errorMessage}</Alert>
+                    ) : (
+                        <Box sx={{ height: '50vh', width: '100%', padding: '10px' }}>
+                            <Typography variant="h6" align="center">
+                                {`${aggregationMethod} ${independentVariable}`}
+                            </Typography>
+                            <Bar key={`${independentVariable}-${aggregationMethod}`} data={chartData} options={chartOptions} />
+                        </Box>
+                    )}
+                </>
+            )}
             <CMPS_Table
                 fetchUrl={fetchUrl}
                 columnsConfig={columnsConfig}
@@ -80,6 +252,7 @@ export default function TimeTracking() {
                     "service_role_id",
                     "year",
                     "month"]}
+                onFilteredDataChange={handleFilteredDataChange}
             />
         </>
     );
