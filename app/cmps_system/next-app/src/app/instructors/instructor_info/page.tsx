@@ -11,6 +11,7 @@ import Form from 'react-bootstrap/Form';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 import supabase from "@/app/components/supabaseClient";
@@ -183,6 +184,40 @@ const InstructorInfo = () => {
     }
   };
 
+  const handleServiceRoleEditSave = async (assignmentId) => {
+    const assignment = serviceRoleAssignments.find(a => a.service_role_assign_id === assignmentId);
+    try {
+      const { error } = await supabase
+        .from('service_role_assign')
+        .update({
+          expected_hours: assignment.expected_hours,
+          start_date: assignment.start_date,
+          end_date: assignment.end_date
+        })
+        .eq('service_role_assign_id', assignmentId);
+
+      if (error) throw error;
+
+      // Fetch the updated list of service role assignments
+      const { data: serviceRoleAssignmentsData, error: fetchError } = await supabase
+        .from('v_service_role_assign')
+        .select('*')
+        .eq('instructor_id', instructorId);
+
+      if (fetchError) throw fetchError;
+
+      setServiceRoleAssignments(serviceRoleAssignmentsData);
+      setEditMode((prevState) => ({
+        ...prevState,
+        [`expected_hours_${assignmentId}`]: false,
+        [`start_date_${assignmentId}`]: false,
+        [`end_date_${assignmentId}`]: false
+      }));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   const handleAssigneeDelete = async (assignmentId, type) => {
     try {
       const table = type === 'course' ? 'course_assign' : 'service_role_assign';
@@ -282,6 +317,24 @@ const InstructorInfo = () => {
     } catch (error) {
       setError(error.message);
     }
+  };
+
+  const renderServiceRoleField = (field, value, assignmentId) => {
+    return (
+      <Form.Control
+        type={field === 'expected_hours' ? 'number' : 'date'}
+        value={value}
+        onChange={(e) => {
+          const newValue = e.target.value;
+          setServiceRoleAssignments(prevAssignments =>
+            prevAssignments.map(assignment =>
+              assignment.service_role_assign_id === assignmentId ? { ...assignment, [field]: newValue } : assignment
+            )
+          );
+        }}
+        size="sm"
+      />
+    );
   };
 
   return (
@@ -389,21 +442,56 @@ const InstructorInfo = () => {
                 </tr>
               </thead>
               <tbody>
-                {serviceRoleAssignments.map((role) => (
-                  <tr key={role.service_role_assign_id}>
-                    <td>{role.service_role_title}</td>
-                    <td>{role.expected_hours}</td>
-                    <td>{role.start_date}</td>
-                    <td>{role.end_date}</td>
+                {serviceRoleAssignments.map((assignment) => (
+                  <tr key={assignment.service_role_assign_id}>
+                    <td>
+                      <a href={`/service_roles/service_role_info?id=${assignment.service_role_id}`}>{assignment.service_role_title}</a>
+                    </td>
+                    <td>
+                      {editMode[`expected_hours_${assignment.service_role_assign_id}`] ? (
+                        renderServiceRoleField('expected_hours', assignment.expected_hours, assignment.service_role_assign_id)
+                      ) : (
+                        assignment.expected_hours
+                      )}
+                    </td>
+                    <td>
+                      {editMode[`start_date_${assignment.service_role_assign_id}`] ? (
+                        renderServiceRoleField('start_date', assignment.start_date, assignment.service_role_assign_id)
+                      ) : (
+                        assignment.start_date
+                      )}
+                    </td>
+                    <td>
+                      {editMode[`end_date_${assignment.service_role_assign_id}`] ? (
+                        renderServiceRoleField('end_date', assignment.end_date, assignment.service_role_assign_id)
+                      ) : (
+                        assignment.end_date
+                      )}
+                    </td>
                     <td>
                       {['head', 'staff'].includes(userRole) && (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleAssigneeDelete(role.service_role_assign_id, 'service_role')}
-                        >
-                          Delete
-                        </Button>
+                        <>
+                          <IconButton onClick={() => setEditMode((prevState) => ({
+                            ...prevState,
+                            [`expected_hours_${assignment.service_role_assign_id}`]: !prevState[`expected_hours_${assignment.service_role_assign_id}`],
+                            [`start_date_${assignment.service_role_assign_id}`]: !prevState[`start_date_${assignment.service_role_assign_id}`],
+                            [`end_date_${assignment.service_role_assign_id}`]: !prevState[`end_date_${assignment.service_role_assign_id}`]
+                          }))} size="small">
+                            {editMode[`expected_hours_${assignment.service_role_assign_id}`] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                          </IconButton>
+                          {editMode[`expected_hours_${assignment.service_role_assign_id}`] && (
+                            <IconButton onClick={() => handleServiceRoleEditSave(assignment.service_role_assign_id)} size="small">
+                              <SaveIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleAssigneeDelete(assignment.service_role_assign_id, 'service_role')}
+                          >
+                            Delete
+                          </Button>
+                        </>
                       )}
                     </td>
                   </tr>
