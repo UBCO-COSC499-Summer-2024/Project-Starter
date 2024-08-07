@@ -471,17 +471,20 @@ const InstructorInfo = () => {
                     <td>
                       {['head', 'staff'].includes(userRole) && (
                         <>
-                          <IconButton onClick={() => setEditMode((prevState) => ({
-                            ...prevState,
-                            [`expected_hours_${assignment.service_role_assign_id}`]: !prevState[`expected_hours_${assignment.service_role_assign_id}`],
-                            [`start_date_${assignment.service_role_assign_id}`]: !prevState[`start_date_${assignment.service_role_assign_id}`],
-                            [`end_date_${assignment.service_role_assign_id}`]: !prevState[`end_date_${assignment.service_role_assign_id}`]
-                          }))} size="small">
-                            {editMode[`expected_hours_${assignment.service_role_assign_id}`] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
-                          </IconButton>
-                          {editMode[`expected_hours_${assignment.service_role_assign_id}`] && (
+                          {editMode[`expected_hours_${assignment.service_role_assign_id}`] ||
+                            editMode[`start_date_${assignment.service_role_assign_id}`] ||
+                            editMode[`end_date_${assignment.service_role_assign_id}`] ? (
                             <IconButton onClick={() => handleServiceRoleEditSave(assignment.service_role_assign_id)} size="small">
                               <SaveIcon fontSize="small" />
+                            </IconButton>
+                          ) : (
+                            <IconButton onClick={() => setEditMode((prevState) => ({
+                              ...prevState,
+                              [`expected_hours_${assignment.service_role_assign_id}`]: true,
+                              [`start_date_${assignment.service_role_assign_id}`]: true,
+                              [`end_date_${assignment.service_role_assign_id}`]: true
+                            }))} size="small">
+                              <EditIcon fontSize="small" />
                             </IconButton>
                           )}
                           <Button
