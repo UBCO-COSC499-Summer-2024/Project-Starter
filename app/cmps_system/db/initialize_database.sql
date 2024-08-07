@@ -131,7 +131,6 @@ CREATE TABLE IF NOT EXISTS
 ALTER TABLE "service_role_assign"
 ADD CONSTRAINT "service_role_assign_unique" UNIQUE ("instructor_id", "service_role_id");
 
-
 CREATE TABLE IF NOT EXISTS
     "event" (
         "event_id" SERIAL NOT NULL PRIMARY KEY,
@@ -784,69 +783,71 @@ FROM
     service_hours_benchmark
     JOIN instructor ON service_hours_benchmark.instructor_id = instructor.instructor_id;
 
-CREATE OR REPLACE FUNCTION get_dashboard_progress(input_month INTEGER, input_year INTEGER, user_email VARCHAR) 
-RETURNS TABLE(email VARCHAR(255), instructor_id INTEGER, worked INTEGER, expected INTEGER, type TEXT) 
-LANGUAGE plpgsql 
-AS $$
-BEGIN
-    RETURN QUERY
-    -- Personal hours for the specific user
-    SELECT
-        instructor.email,
-        worked.instructor_id,
-        worked.worked,
-        expected.expected,
-        'personal' AS type
-    FROM
+-- This view uses 'with (security provider)' which means that a user
+-- selecting from this view will only see the rows that they have access to
+CREATE OR REPLACE VIEW
+    v_dashboard_instructor_service_hours
+WITH
+    (security_invoker) AS
+SELECT
+    instructor.instructor_id,
+    instructor.email,
+    service_role.title,
+    service_hours_entry.year,
+    service_hours_entry.month,
+    SUM(service_hours_entry.hours) AS hours,
+    service_hours_benchmark.hours / 12 AS monthly_benchmark
+FROM
+    service_hours_entry
+    JOIN instructor ON service_hours_entry.instructor_id = instructor.instructor_id
+    JOIN service_role ON service_hours_entry.service_role_id = service_role.service_role_id
+    LEFT JOIN service_hours_benchmark ON service_hours_benchmark.instructor_id = service_hours_entry.instructor_id
+    AND (
         (
-            SELECT
-                service_hours_entry.instructor_id,
-                service_hours_entry.hours AS worked
-            FROM
-                service_hours_entry
-            WHERE
-                service_hours_entry.year = input_year
-                AND service_hours_entry.month = input_month
-        ) AS worked
-        JOIN (
-            SELECT
-                service_hours_benchmark.instructor_id,
-                service_hours_benchmark.hours / 12 AS expected
-            FROM
-                service_hours_benchmark
-            WHERE
-                service_hours_benchmark.year = input_year
-        ) AS expected ON worked.instructor_id = expected.instructor_id
-        JOIN instructor ON worked.instructor_id = instructor.instructor_id
-        WHERE instructor.email = user_email
-    UNION ALL
-    -- Department hours for all users
-    SELECT
-        NULL AS email,
-        NULL AS instructor_id,
-        CAST(SUM(service_hours_entry.hours) AS INTEGER) AS worked,
-        CAST(SUM(service_hours_benchmark.hours / 12) AS INTEGER) AS expected,
-        'department' AS type
-    FROM
-        service_hours_entry
-        JOIN service_hours_benchmark ON service_hours_entry.instructor_id = service_hours_benchmark.instructor_id
-    WHERE
-        service_hours_entry.year = input_year
-        AND service_hours_entry.month = input_month;
-END;
-$$;
+            service_hours_entry.month >= 5
+            AND service_hours_entry.year = service_hours_benchmark.year
+        )
+        OR (
+            service_hours_entry.month < 5
+            AND service_hours_entry.year = service_hours_benchmark.year + 1
+        )
+    )
+GROUP BY
+    instructor.instructor_id,
+    instructor.email,
+    service_role.title,
+    service_hours_entry.year,
+    service_hours_entry.month,
+    service_hours_benchmark.hours;
 
-
-
-
-
-
-
-
-
+-- This view does not use 'with (security provider)' in order to bypass RLS,
+-- only for letting users see the total hours and benchmark for the whole department
+CREATE OR REPLACE VIEW
+    v_dashboard_department_service_hours AS
+SELECT
+    service_hours_entry.year,
+    service_hours_entry.month,
+    SUM(service_hours_entry.hours) AS hours,
+    SUM(service_hours_benchmark.hours) / 12 AS monthly_benchmark
+FROM
+    service_hours_entry
+    INNER JOIN service_hours_benchmark ON service_hours_entry.instructor_id = service_hours_benchmark.instructor_id
+    AND (
+        (
+            service_hours_entry.month >= 5
+            AND service_hours_entry.year = service_hours_benchmark.year
+        )
+        OR (
+            service_hours_entry.month < 5
+            AND service_hours_entry.year = service_hours_benchmark.year + 1
+        )
+    )
+GROUP BY
+    service_hours_entry.year,
+    service_hours_entry.month;
 
 CREATE OR REPLACE VIEW
-    v_dashboard_current_courses
+    v_dashboard_courses
 WITH
     (security_invoker) AS
 SELECT
@@ -862,53 +863,14 @@ SELECT
     course.start_time,
     course.end_time,
     course.registration_status,
+    course.academic_year,
+    course.session,
+    course.term,
     CONCAT(course.building, ' ', course.room_num) AS location
 FROM
     course
     JOIN course_assign ON course.course_id = course_assign.course_id
-    JOIN instructor ON course_assign.instructor_id = instructor.instructor_id
-WHERE
-    (
-        (
-            course.session = 'Winter'
-            AND course.academic_year = EXTRACT(
-                YEAR
-                FROM
-                    CURRENT_DATE
-            ) - 1
-            AND EXTRACT(
-                MONTH
-                FROM
-                    CURRENT_DATE
-            ) BETWEEN 1 AND 4
-        )
-        OR (
-            course.session = 'Winter'
-            AND course.academic_year = EXTRACT(
-                YEAR
-                FROM
-                    CURRENT_DATE
-            )
-            AND EXTRACT(
-                MONTH
-                FROM
-                    CURRENT_DATE
-            ) BETWEEN 9 AND 12
-        )
-        OR (
-            course.session = 'Summer'
-            AND course.academic_year = EXTRACT(
-                YEAR
-                FROM
-                    CURRENT_DATE
-            )
-            AND EXTRACT(
-                MONTH
-                FROM
-                    CURRENT_DATE
-            ) BETWEEN 5 AND 8
-        )
-    );
+    JOIN instructor ON course_assign.instructor_id = instructor.instructor_id;
 
 CREATE OR REPLACE VIEW
     v_service_hours_entry
@@ -938,23 +900,21 @@ FROM
         )
     );
 
-CREATE OR REPLACE VIEW v_dashboard_upcoming_events
-WITH (security_invoker) AS
+CREATE OR REPLACE VIEW
+    v_dashboard_events
+WITH
+    (security_invoker) AS
 SELECT
-    event.event_id,
-    event.event_datetime,
-    event.is_meeting,
-    event.duration,
-    event.description,
-    event.location
+    event_id,
+    event_datetime,
+    is_meeting,
+    duration,
+    description,
+    location
 FROM
     event
-WHERE
-    event.event_datetime > CURRENT_TIMESTAMP
-    AND event.event_datetime < CURRENT_TIMESTAMP + INTERVAL '2 weeks'
 ORDER BY
-    event.event_datetime;
-
+    event_datetime;
 
 CREATE OR REPLACE VIEW
     v_course_info_assignees
@@ -970,89 +930,3 @@ FROM
     course_assign
     JOIN instructor ON course_assign.instructor_id = instructor.instructor_id
     JOIN course ON course_assign.course_id = course.course_id;
-
-
-CREATE OR REPLACE VIEW v_course_dashboard AS
-SELECT
-    course.course_id,
-    course.course_title,
-    course.section_num,
-    course.num_students,
-    course.average_grade,
-    course.activity,
-    course.days,
-    course.start_time,
-    course.end_time,
-    course.registration_status,
-    CONCAT(course.building, ' ', course.room_num) AS location,
-    instructor.email AS instructor_email,
-    course.academic_year
-FROM
-    course
-JOIN
-    course_assign ON course.course_id = course_assign.course_id
-JOIN
-    instructor ON course_assign.instructor_id = instructor.instructor_id;
-
-
-CREATE OR REPLACE FUNCTION calculate_total_worked_hours(input_month INTEGER, input_year INTEGER)
-RETURNS TABLE(total_worked_hours INTEGER)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        COALESCE(SUM(hours), 0)::INTEGER AS total_worked_hours
-    FROM
-        service_hours_entry
-    WHERE
-        year = input_year
-        AND month = input_month;
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION calculate_total_expected_hours(input_month INTEGER, input_year INTEGER)
-RETURNS TABLE(total_expected_hours INTEGER)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        COALESCE(SUM(expected_hours), 0)::INTEGER AS total_expected_hours
-    FROM
-        service_role_assign
-    WHERE
-        EXTRACT(YEAR FROM start_date) <= input_year
-        AND EXTRACT(MONTH FROM start_date) <= input_month
-        AND (EXTRACT(YEAR FROM end_date) >= input_year OR end_date IS NULL);
-END;
-$$;
-
-
-CREATE OR REPLACE FUNCTION get_upcoming_events(start_date DATE, end_date DATE)
-RETURNS TABLE (
-    event_id INT,
-    event_datetime TIMESTAMP,
-    is_meeting BOOLEAN,
-    duration TIME,
-    description TEXT,
-    location TEXT
-) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        e.event_id,
-        e.event_datetime,
-        e.is_meeting,
-        e.duration,
-        e.description,
-        e.location::TEXT -- Explicitly casting location to TEXT
-    FROM
-        event e
-    WHERE
-        e.event_datetime >= start_date
-        AND e.event_datetime < end_date
-    ORDER BY
-        e.event_datetime;
-END;
-$$ LANGUAGE plpgsql;

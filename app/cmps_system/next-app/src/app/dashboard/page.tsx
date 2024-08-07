@@ -1,7 +1,7 @@
 'use client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Table, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, ProgressBar, Button } from 'react-bootstrap';
 import supabase from "@/app/components/supabaseClient";
 import Link from 'next/link';
 import Navbar from '@/app/components/NavBar';
@@ -29,10 +29,10 @@ ChartJS.register(
     Legend
 );
 
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const academicYearMonthNames = ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr"];
 
 const parseData = (x) => ({
-    labels: x.map(entry => monthNames[(entry.month - 1 + 12) % 12]),
+    labels: x.map(entry => academicYearMonthNames[(entry.month - 5 + 12) % 12]),
     datasets: [{
         label: 'Hours',
         data: x.map(entry => entry.hours),
@@ -52,133 +52,126 @@ const parseData = (x) => ({
     }]
 });
 
-const HourCard = ({ month, year }) => {
+const HourCard = ({ displayedMonth, displayedYear }) => {
     const [personalHour, setPersonalHour] = useState(0);
-    const [personalExpected, setPersonalExpected] = useState(0);
     const [departmentHour, setDepartmentHour] = useState(0);
+    const [personalExpected, setPersonalExpected] = useState(0);
     const [departmentExpected, setDepartmentExpected] = useState(0);
 
     useEffect(() => {
-        const fetchPersonalHours = async () => {
+        (async () => {
             const userRes = await supabase.auth.getUser();
-            const userEmail = userRes.data.user.email;
+            const instructor_hours = await supabase
+                .from("v_dashboard_instructor_service_hours")
+                .select("*")
+                .eq("email", userRes.data.user.email)
+                .eq("year", displayedYear)
+                .eq("month", displayedMonth);
 
-            const { data: personalData, error: personalError } = await supabase
-                .from('v_service_hours_entry')
-                .select('hours, monthly_benchmark')
-                .eq('instructor_email', userEmail)
-                .eq('year', year)
-                .eq('month', month);
-
-            if (personalError) {
-                console.error('Error fetching personal hours:', personalError);
-            } else if (personalData && personalData.length > 0) {
-                setPersonalHour(personalData[0].hours);
-                setPersonalExpected(personalData[0].monthly_benchmark);
+            if (instructor_hours.data && instructor_hours.data.length > 0) {
+                setPersonalHour(instructor_hours.data[0].hours);
+                setPersonalExpected(instructor_hours.data[0].monthly_benchmark);
             } else {
                 setPersonalHour(0);
                 setPersonalExpected(0);
             }
-        };
 
-        const fetchDepartmentHours = async () => {
-            // Fetch department expected hours
-            const { data: deptExpectedData, error: deptExpectedError } = await supabase
-                .rpc('calculate_total_expected_hours', { input_month: month, input_year: year });
+            const department_hours = await supabase.from("v_dashboard_department_service_hours")
+                .select("*")
+                .eq("year", displayedYear)
+                .eq("month", displayedMonth);
 
-            if (deptExpectedError) {
-                console.error('Error fetching department expected hours:', deptExpectedError);
+            if (department_hours.data && department_hours.data.length > 0) {
+                setDepartmentHour(department_hours.data[0].hours);
+                setDepartmentExpected(department_hours.data[0].monthly_benchmark);
             } else {
-                const totalExpectedHours = deptExpectedData[0]?.total_expected_hours || 0;
-
-                // Fetch department worked hours
-                const { data: deptWorkedData, error: deptWorkedError } = await supabase
-                    .rpc('calculate_total_worked_hours', { input_month: month, input_year: year });
-
-                if (deptWorkedError) {
-                    console.error('Error fetching department worked hours:', deptWorkedError);
-                } else if (deptWorkedData && deptWorkedData.length > 0) {
-                    const totalWorkedHours = deptWorkedData[0].total_worked_hours || 0;
-                    setDepartmentHour(totalWorkedHours);
-                    setDepartmentExpected(totalExpectedHours);
-                } else {
-                    setDepartmentHour(0);
-                    setDepartmentExpected(totalExpectedHours);
-                }
+                setDepartmentHour(0);
+                setDepartmentExpected(0);
             }
-        };
-
-        fetchPersonalHours();
-        fetchDepartmentHours();
-    }, [month, year]);
+        })();
+    }, [displayedMonth, displayedYear]);
 
     return (
-        <div>
-            <Card className="tw-mb-3">
-                <div style={{ color: personalExpected === 0 || personalHour / personalExpected > 0.5 ? "green" : "orange" }}>
-                    <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal Service Hours</b>
-                    <h1>{personalHour}/{personalExpected}</h1>
-                    <p className="tw-ml-5">(worked/expected)</p>
-                    <ProgressBar className="tw-m-3" now={personalExpected === 0 ? 0 : personalHour / personalExpected * 100} />
-                </div>
-            </Card>
+        <Card className="tw-mb-3">
+            <div style={{ color: personalExpected === 0 || personalHour / personalExpected > 0.5 ? "green" : "orange" }}>
+                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal Service Hours</b>
+                <h1>{personalHour}/{personalExpected}</h1>
+                <p className="tw-ml-5">(worked/expected)</p>
+                <ProgressBar className="tw-m-3" now={personalExpected === 0 ? 0 : personalHour / personalExpected * 100} />
+            </div>
 
-            <Card className="tw-mb-3">
-                <div style={{ color: departmentExpected === 0 || departmentHour / departmentExpected > 0.5 ? "green" : "orange" }}>
-                    <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department Service Hours</b>
-                    <h1>{departmentHour}/{departmentExpected}</h1>
-                    <p className="tw-ml-5">(worked/expected)</p>
-                    <ProgressBar className="tw-m-3" now={departmentExpected === 0 ? 0 : departmentHour / departmentExpected * 100} />
-                </div>
-            </Card>
-        </div>
+            <div style={{ color: departmentExpected === 0 || departmentHour / departmentExpected > 0.5 ? "green" : "orange" }}>
+                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department Service Hours</b>
+                <h1>{departmentHour}/{departmentExpected}</h1>
+                <p className="tw-ml-5">(worked/expected)</p>
+                <ProgressBar className="tw-m-3" now={departmentExpected === 0 ? 0 : departmentHour / departmentExpected * 100} />
+            </div>
+        </Card>
     );
 };
 
+const getYearSessionTerm = (date) => {
+    const month = date.getMonth() + 1; // getMonth() returns 0-based month, so we add 1
+    const year = date.getFullYear();
+    let session = "Winter";
+    let term = "Term 1";
+    let academicYear = year;
 
+    if (month >= 5 && month <= 8) {
+        session = "Summer";
+        if (month >= 7) {
+            term = "Term 2";
+        }
+        academicYear = year; // Academic year starts in May
+    } else {
+        if (month >= 1 && month <= 4) {
+            term = "Term 2";
+            academicYear = year - 1; // Still part of the previous academic year
+        } else {
+            academicYear = year - 1; // Still part of the previous academic year
+        }
+    }
 
+    return [academicYear, session, term];
+}
 
-
-
-
-
-const UpcomingEventsCard = ({ month, year }) => {
+const UpcomingEventsCard = ({ displayedMonth, displayedYear }) => {
     const [events, setEvents] = useState([]);
     const [eventsLoading, setEventsLoading] = useState(true);
     const [eventsError, setEventsError] = useState(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
-            try {
-                const lastDay = new Date(year, month, 0).getDate();
-                const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-                const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+            const today = new Date();
+            const fourteenDaysAhead = new Date();
+            fourteenDaysAhead.setDate(today.getDate() + 14);
 
-                console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
+            const start_date = displayedMonth === today.getMonth() + 1 && displayedYear === today.getFullYear()
+                ? today.toISOString()
+                : new Date(displayedYear, displayedMonth - 1, 1).toISOString();
 
-                const { data, error } = await supabase
-                    .rpc('get_upcoming_events', {
-                        start_date: startDate,
-                        end_date: endDate
-                    });
+            const end_date = displayedMonth === today.getMonth() + 1 && displayedYear === today.getFullYear()
+                ? fourteenDaysAhead.toISOString()
+                : new Date(displayedYear, displayedMonth, 0).toISOString();
 
-                if (error) {
-                    console.error('Error fetching upcoming events:', error);
-                    setEventsError(error.message);
-                } else {
-                    console.log('Fetched events:', data);
-                    setEvents(data);
-                }
-            } catch (err) {
-                console.error('Unexpected error fetching events:', err);
-                setEventsError(err.message);
-            } finally {
-                setEventsLoading(false);
+            const { data, error } = await supabase
+                .from('v_dashboard_events')
+                .select('*')
+                .gte('event_datetime', start_date)
+                .lte('event_datetime', end_date)
+                .order('event_datetime', { ascending: true });
+
+            if (error) {
+                console.error('Error fetching upcoming events:', error);
+                setEventsError(error.message);
+            } else {
+                setEvents(data);
             }
+            setEventsLoading(false);
         };
 
         fetchEvents();
-    }, [month, year]);
+    }, [displayedMonth, displayedYear]);
 
     const getTableHeight = () => {
         const rowHeight = 50; // approximate height of each row
@@ -191,7 +184,7 @@ const UpcomingEventsCard = ({ month, year }) => {
 
     return (
         <Card className="tw-mb-3">
-            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Upcoming Events</b>
+            <b className="tw-mt-2 tw-ml-2 tw-text-lg">{displayedYear * 12 + displayedMonth < new Date().getFullYear() * 12 + new Date().getMonth() + 1 ? "Past Events" : "Upcoming Events"}</b>
             <div className="tw-m-3 tw-overflow-y-auto" style={{ maxHeight: getTableHeight() }}>
                 <Table>
                     <thead>
@@ -228,8 +221,7 @@ const UpcomingEventsCard = ({ month, year }) => {
     );
 };
 
-
-const RecentEvaluationsCard = () => {
+const RecentEvaluationsCard = ({ displayedMonth, displayedYear }) => {
     const [evaluations, setEvaluations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -237,17 +229,24 @@ const RecentEvaluationsCard = () => {
     useEffect(() => {
         const fetchEvaluations = async () => {
             const userRes = await supabase.auth.getUser();
-            const twoWeeksAgo = new Date();
-            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-            const twoWeeksAhead = new Date();
-            twoWeeksAhead.setDate(twoWeeksAhead.getDate() + 14);
+            const today = new Date();
+            const fourteenDaysAgo = new Date();
+            fourteenDaysAgo.setDate(today.getDate() - 14);
+
+            const start_date = displayedMonth === today.getMonth() + 1 && displayedYear === today.getFullYear()
+                ? fourteenDaysAgo.toISOString()
+                : new Date(displayedYear, displayedMonth - 1, 1).toISOString();
+
+            const end_date = displayedMonth === today.getMonth() + 1 && displayedYear === today.getFullYear()
+                ? new Date(displayedYear, displayedMonth, 14).toISOString()
+                : new Date(displayedYear, displayedMonth, 0).toISOString();
 
             const { data, error } = await supabase
                 .from('v_evaluations_page')
                 .select('*')
                 .eq('instructor_email', userRes.data.user.email)
-                .gte('evaluation_date', twoWeeksAgo.toISOString())
-                .lte('evaluation_date', twoWeeksAhead.toISOString());
+                .gte('evaluation_date', start_date)
+                .lte('evaluation_date', end_date);
 
             if (error) {
                 console.error('Error fetching evaluations:', error);
@@ -259,11 +258,11 @@ const RecentEvaluationsCard = () => {
         };
 
         fetchEvaluations();
-    }, []);
+    }, [displayedMonth, displayedYear]);
 
     return (
         <Card className="tw-mb-3">
-            <b className="tw-mt-2 tw-ml-2 tw-text-lg">Recent Evaluations</b>
+            <b className="tw-mt-2 tw-ml-2 tw-text-lg">{displayedYear * 12 + displayedMonth < new Date().getFullYear() * 12 + new Date().getMonth() + 1 ? "Past Evaluations" : "Recent Evaluations"}</b>
             <Table>
                 <thead>
                     <tr>
@@ -303,9 +302,8 @@ const RecentEvaluationsCard = () => {
 };
 
 export default function Home() {
-    const [year, setYear] = useState(new Date().getFullYear());
-    const [month, setMonth] = useState(new Date().getMonth() + 1);
-    const [availableYears, setAvailableYears] = useState([]);
+    const [displayedMonth, setDisplayedMonth] = useState(new Date().getMonth() + 1);
+    const [displayedYear, setDisplayedYear] = useState(new Date().getFullYear());
     const [workingHours, setWorkingHours] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -315,22 +313,18 @@ export default function Home() {
     const [serviceRoles, setServiceRoles] = useState([]);
     const [serviceLoading, setServiceLoading] = useState(true);
     const [serviceError, setServiceError] = useState(null);
-    const [ratingTerm, setRatingTerm] = useState("2024");
-    const [rating, setRating] = useState({
-        "2023": [
-            { name: "COSC101", term: "1", student_count: 100, rating: "88%" },
-            { name: "COSC121", term: "2", student_count: 55, rating: "50%" }
-        ],
-        "2024": [
-            { name: "COSC101", term: "1", student_count: 120, rating: "98%" },
-            { name: "COSC121", term: "2", student_count: 65, rating: "30%" }
-        ]
-    });
 
     useEffect(() => {
         const fetchAssignments = async () => {
+            const [academicYear, session, term] = getYearSessionTerm(new Date(displayedYear, displayedMonth - 1));
             const userRes = await supabase.auth.getUser();
-            const { data, error } = await supabase.from('v_dashboard_current_courses').select('*').eq('instructor_email', userRes.data.user.email);
+            const { data, error } = await supabase
+                .from('v_dashboard_courses')
+                .select('*')
+                .eq('instructor_email', userRes.data.user.email)
+                .eq('academic_year', academicYear)
+                .eq('session', session)
+                .or(`term.eq.${term},term.eq.Term 1-2`);
             if (error) {
                 console.error('Error fetching teaching assignments:', error);
                 setAssignmentsError(error.message);
@@ -341,7 +335,7 @@ export default function Home() {
         };
 
         fetchAssignments();
-    }, []);
+    }, [displayedMonth, displayedYear]);
 
     useEffect(() => {
         const fetchServiceRoles = async () => {
@@ -349,8 +343,8 @@ export default function Home() {
             const { data, error } = await supabase
                 .from('v_timetracking')
                 .select('*')
-                .eq('year', year)
-                .eq('month', month)
+                .eq('year', displayedYear)
+                .eq('month', displayedMonth)
                 .eq('instructor_email', userRes.data.user.email);
 
             if (error) {
@@ -363,7 +357,7 @@ export default function Home() {
         };
 
         fetchServiceRoles();
-    }, [month, year]);
+    }, [displayedMonth, displayedYear]);
 
     useEffect(() => {
         const fetchWorkingHours = async () => {
@@ -377,21 +371,6 @@ export default function Home() {
                 setError(error.message);
             } else {
                 setWorkingHours(data);
-
-                const years = Array.from(new Set(data.map(entry => {
-                    if (entry.month >= 5) {
-                        return entry.year;
-                    } else {
-                        return entry.year - 1;
-                    }
-                })));
-
-                setAvailableYears(years);
-                if (years.length > 0) {
-                    setYear(years[years.length - 1]);
-                } else {
-                    setYear(new Date().getFullYear());
-                }
             }
             setLoading(false);
         };
@@ -399,46 +378,50 @@ export default function Home() {
         fetchWorkingHours();
     }, []);
 
-    const handleMonthChange = (direction) => {
-        if (direction === 'prev') {
-            if (month === 1) {
-                setMonth(12);
-                setYear(prevYear => prevYear - 1);
-            } else {
-                setMonth(prevMonth => prevMonth - 1);
-            }
-        } else if (direction === 'next') {
-            if (month === 12) {
-                setMonth(1);
-                setYear(prevYear => prevYear + 1);
-            } else {
-                setMonth(prevMonth => prevMonth + 1);
-            }
-        }
-    };
-
     const getFilteredWorkingHours = () => {
-        const academicYear = parseInt(year);
+        const academicYear = new Date().getFullYear();
+        const currentMonth = displayedMonth >= 5 ? displayedMonth : displayedMonth + 12; // Adjust for months January to April
+
         return workingHours.filter(entry => {
-            if (entry.month >= 5) {
-                return entry.year === academicYear;
-            } else {
-                return entry.year === academicYear + 1;
-            }
+            const entryMonth = entry.month >= 5 ? entry.month : entry.month + 12;
+            return entry.year === academicYear && entryMonth <= currentMonth;
         });
     };
+
+    const handlePreviousMonth = () => {
+        if (displayedMonth === 1) {
+            setDisplayedMonth(12);
+            setDisplayedYear(displayedYear - 1);
+        } else {
+            setDisplayedMonth(displayedMonth - 1);
+        };
+    }
+
+    const handleNextMonth = () => {
+        if (displayedMonth === 12) {
+            setDisplayedMonth(1);
+            setDisplayedYear(displayedYear + 1);
+        } else {
+            setDisplayedMonth(displayedMonth + 1);
+        };
+    }
 
     return (
         <main>
             <Navbar />
             <Container>
                 <Row className="tw-pt-3">
-                    <Col xs={12} className="d-flex justify-content-between align-items-center">
-                        <button onClick={() => handleMonthChange('prev')} className="arrow-btn">{'<'}</button>
-                        <h2 className="tw-mb-4 tw-text-center">{monthNames[month - 1]} {year}</h2>
-                        <button onClick={() => handleMonthChange('next')} className="arrow-btn">{'>'}</button>
+                    <Col xs={12} className="tw-text-center">
+                        <h2 className="tw-mb-4 d-flex justify-content-center align-items-center">
+                            <Button variant="link" onClick={handlePreviousMonth}>&lt;</Button>
+                            <span className="mx-3" style={{ minWidth: '8em', textAlign: 'center' }}>
+                                {new Date(displayedYear, displayedMonth - 1).toLocaleString('default', { month: 'long' })} {displayedYear}
+                            </span>
+                            <Button variant="link" onClick={handleNextMonth}>&gt;</Button>
+                        </h2>
                     </Col>
                 </Row>
+
                 <Row>
                     <Col xs={8}>
                         <Card>
@@ -482,16 +465,6 @@ export default function Home() {
                         </Card>
                         <Card className="tw-mb-3 tw-mt-3">
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Year-to-date Service Hours</b>
-                            <Dropdown className="tw-ml-2">
-                                <DropdownToggle>{year}</DropdownToggle>
-                                <DropdownMenu>
-                                    {availableYears.map((year, index) => (
-                                        <DropdownItem key={index} onClick={() => setYear(year)}>
-                                            {year}
-                                        </DropdownItem>
-                                    ))}
-                                </DropdownMenu>
-                            </Dropdown>
                             <div className="tw-h-48">
                                 <Bar className="tw-p-2 tw-h-max"
                                     data={parseData(getFilteredWorkingHours())}
@@ -504,7 +477,7 @@ export default function Home() {
                         </Card>
                     </Col>
                     <Col xs={4}>
-                        <HourCard month={month} year={year} />
+                        <HourCard displayedMonth={displayedMonth} displayedYear={displayedYear} />
                         <Card>
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Hours per Service Role</b>
                             <Table>
@@ -540,23 +513,15 @@ export default function Home() {
                 </Row>
                 <Row>
                     <Col className="tw-pt-3">
-                        <UpcomingEventsCard />
+                        <UpcomingEventsCard displayedMonth={displayedMonth} displayedYear={displayedYear} />
                     </Col>
                 </Row>
                 <Row>
                     <Col className="tw-pt-3">
-                        <RecentEvaluationsCard />
+                        <RecentEvaluationsCard displayedMonth={displayedMonth} displayedYear={displayedYear} />
                     </Col>
                 </Row>
             </Container>
-            <style jsx>{`
-                .arrow-btn {
-                    background: none;
-                    border: none;
-                    font-size: 1.5rem;
-                    cursor: pointer;
-                }
-            `}</style>
         </main>
     );
 }
