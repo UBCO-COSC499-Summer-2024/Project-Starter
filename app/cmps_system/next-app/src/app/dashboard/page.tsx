@@ -54,16 +54,15 @@ const parseData = (x) => ({
 
 const HourCard = ({ month, year }) => {
     const [personalHour, setPersonalHour] = useState(0);
-    const [departmentHour, setDepartmentHour] = useState(0);
     const [personalExpected, setPersonalExpected] = useState(0);
+    const [departmentHour, setDepartmentHour] = useState(0);
     const [departmentExpected, setDepartmentExpected] = useState(0);
 
     useEffect(() => {
-        (async () => {
+        const fetchPersonalHours = async () => {
             const userRes = await supabase.auth.getUser();
             const userEmail = userRes.data.user.email;
 
-            // Fetch personal hours
             const { data: personalData, error: personalError } = await supabase
                 .from('v_service_hours_entry')
                 .select('hours, monthly_benchmark')
@@ -80,7 +79,9 @@ const HourCard = ({ month, year }) => {
                 setPersonalHour(0);
                 setPersonalExpected(0);
             }
+        };
 
+        const fetchDepartmentHours = async () => {
             // Fetch department expected hours
             const { data: deptExpectedData, error: deptExpectedError } = await supabase
                 .rpc('calculate_total_expected_hours', { input_month: month, input_year: year });
@@ -105,25 +106,32 @@ const HourCard = ({ month, year }) => {
                     setDepartmentExpected(totalExpectedHours);
                 }
             }
-        })();
+        };
+
+        fetchPersonalHours();
+        fetchDepartmentHours();
     }, [month, year]);
 
     return (
-        <Card className="tw-mb-3">
-            <div style={{ color: personalExpected === 0 || personalHour / personalExpected > 0.5 ? "green" : "orange" }}>
-                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal Service Hours</b>
-                <h1>{personalHour}/{personalExpected}</h1>
-                <p className="tw-ml-5">(worked/expected)</p>
-                <ProgressBar className="tw-m-3" now={personalExpected === 0 ? 0 : personalHour / personalExpected * 100} />
-            </div>
+        <div>
+            <Card className="tw-mb-3">
+                <div style={{ color: personalExpected === 0 || personalHour / personalExpected > 0.5 ? "green" : "orange" }}>
+                    <b className="tw-mt-2 tw-ml-2 tw-text-lg">Personal Service Hours</b>
+                    <h1>{personalHour}/{personalExpected}</h1>
+                    <p className="tw-ml-5">(worked/expected)</p>
+                    <ProgressBar className="tw-m-3" now={personalExpected === 0 ? 0 : personalHour / personalExpected * 100} />
+                </div>
+            </Card>
 
-            <div style={{ color: departmentExpected === 0 || departmentHour / departmentExpected > 0.5 ? "green" : "orange" }}>
-                <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department Service Hours</b>
-                <h1>{departmentHour}/{departmentExpected}</h1>
-                <p className="tw-ml-5">(worked/expected)</p>
-                <ProgressBar className="tw-m-3" now={departmentExpected === 0 ? 0 : departmentHour / departmentExpected * 100} />
-            </div>
-        </Card>
+            <Card className="tw-mb-3">
+                <div style={{ color: departmentExpected === 0 || departmentHour / departmentExpected > 0.5 ? "green" : "orange" }}>
+                    <b className="tw-mt-2 tw-ml-2 tw-text-lg">Department Service Hours</b>
+                    <h1>{departmentHour}/{departmentExpected}</h1>
+                    <p className="tw-ml-5">(worked/expected)</p>
+                    <ProgressBar className="tw-m-3" now={departmentExpected === 0 ? 0 : departmentHour / departmentExpected * 100} />
+                </div>
+            </Card>
+        </div>
     );
 };
 
