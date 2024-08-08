@@ -26,8 +26,9 @@ export default function Tools() {
     */
     const [userType, setUserType] = useState('');
     const adminkey = useRef(null);
-    const [supabaseServiceKey, setSupabaseServiceKey] = useState(sessionStorage.getItem('supabaseServiceKey') ? sessionStorage.getItem('supabaseServiceKey') : "null")
+    const [supabaseServiceKey, setSupabaseServiceKey] = useState("null")
     useEffect(() => {
+        setSupabaseServiceKey(sessionStorage.getItem('supabaseServiceKey') ? sessionStorage.getItem('supabaseServiceKey') : "null")
         getUserType().then((res) => {
             setUserType(res);
         });
