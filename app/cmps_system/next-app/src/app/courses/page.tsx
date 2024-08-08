@@ -64,7 +64,7 @@ export default function Courses() {
             }
         },
         { field: 'num_students', headerName: 'Students', flex: 1, editable: true },
-        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: true },
+        { field: 'num_tas', headerName: 'TAs', flex: 1, editable: false },
         { field: 'average_grade', headerName: 'Avg. Grade', flex: 1, editable: true },
         { field: 'location', headerName: 'Location', flex: 1, editable: true },
     ];
@@ -76,7 +76,6 @@ export default function Courses() {
             building: row.location.split(" ")[0],
             room_num: row.location.split(" ")[1],
             num_students: row.num_students,
-            num_tas: row.num_tas,
             term: row.term,
             academic_year: row.academic_year,
             subject_code: row.subject_code,

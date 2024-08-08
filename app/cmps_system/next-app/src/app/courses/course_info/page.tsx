@@ -52,7 +52,7 @@ const CourseInfo = () => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchType, setSearchType] = useState('');
   const [userRole, setUserRole] = useState(null);
-  const [editableFields] = useState(['academic_year', 'session', 'term', 'subject_code', 'course_num', 'section_num', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'num_tas', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
+  const [editableFields] = useState(['academic_year', 'session', 'term', 'subject_code', 'course_num', 'section_num', 'course_title', 'mode_of_delivery', 'req_in_person_attendance', 'building', 'room_num', 'section_comments', 'activity', 'days', 'start_time', 'end_time', 'num_students', 'average_grade', 'credits', 'year_level', 'registration_status', 'status']); // Define editable fields here
 
   const fieldTypes = {
     academic_year: 'number',
@@ -72,7 +72,6 @@ const CourseInfo = () => {
     start_time: 'time',
     end_time: 'time',
     num_students: 'number',
-    num_tas: 'number',
     average_grade: 'number',
     credits: 'number',
     year_level: 'number',
@@ -337,7 +336,9 @@ const CourseInfo = () => {
                 <tbody>
                   {instructors.map((instructor) => (
                     <tr key={instructor.assignment_id}>
-                      <td>{instructor.instructor_name}</td>
+                      <td>
+                        <a href={`/instructors/instructor_info?id=${instructor.instructor_id}`}>{instructor.instructor_name}</a>
+                      </td>
                       <td>{instructor.position}</td>
                       <td>
                         {['head', 'staff'].includes(userRole) && (
@@ -372,7 +373,9 @@ const CourseInfo = () => {
                 <tbody>
                   {tas.map((ta) => (
                     <tr key={ta.assignment_id}>
-                      <td>{ta.instructor_name}</td>
+                      <td>
+                        <a href={`/instructors/instructor_info?id=${ta.instructor_id}`}>{ta.instructor_name}</a>
+                      </td>
                       <td>{ta.position}</td>
                       <td>
                         {['head', 'staff'].includes(userRole) && (
