@@ -14,7 +14,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL;
 /** Here we check if the service key is in the session storage, if not we will use null as place holder as supabase dose not allow empty key. This null key
  * should throw an error if the user tried to perfome any operations. 
  */
-const supabaseServiceKey = sessionStorage.getItem('supabaseServiceKey') ? sessionStorage.getItem('supabaseServiceKey') : "null";
+const supabaseServiceKey = window.sessionStorage.getItem('supabaseServiceKey') ? window.sessionStorage.getItem('supabaseServiceKey') : "null";
 console.log({"key":supabaseServiceKey})
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);

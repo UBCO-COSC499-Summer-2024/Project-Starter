@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Form, FormControl, Row, Col } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import main from './gpt';
+import main from '../components/gpt';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 
 export default function Help() {

@@ -26,7 +26,7 @@ export default function Tools() {
     */
     const [userType, setUserType] = useState('');
     const adminkey = useRef(null);
-    const [supabaseServiceKey, setSupabaseServiceKey] = useState(sessionStorage.getItem('supabaseServiceKey') ? sessionStorage.getItem('supabaseServiceKey') : "null")
+    const [supabaseServiceKey, setSupabaseServiceKey] = useState(window.sessionStorage.getItem('supabaseServiceKey') ? window.sessionStorage.getItem('supabaseServiceKey') : "null")
     useEffect(() => {
         getUserType().then((res) => {
             setUserType(res);
@@ -43,7 +43,7 @@ export default function Tools() {
                 <Form.Control type="password" ref={adminkey} placeholder="Enter Admin Key" className="tw-mt-2" />
                 <Button onClick={() => {
                     setSupabaseServiceKey(adminkey.current.value);
-                    sessionStorage.setItem('supabaseServiceKey', adminkey.current.value);
+                    window.sessionStorage.setItem('supabaseServiceKey', adminkey.current.value);
                     alert("Admin Key Set");
                 }}>Set Admin Key</Button><br />
                 <Link href="/tools/create-new-account" passHref>
