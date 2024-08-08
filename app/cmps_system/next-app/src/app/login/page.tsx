@@ -2,7 +2,7 @@
 import { Button, Card, Form, Alert } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { createClient } from '@supabase/supabase-js';
-import { useRef, useState } from "react"; 
+import { useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
 import supabase from "@/app/components/supabaseClient";
 
@@ -94,7 +94,7 @@ export default function Home() {
                     type="email"
                     aria-describedby="basic-addon1"
                     ref={email_input}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                 />
                 <Form.Control
                     className="tw-grid tw-mt-6 tw-m-3"
@@ -103,7 +103,7 @@ export default function Home() {
                     type="password"
                     aria-describedby="basic-addon1"
                     ref={password_input}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                 />
                 <Button
                     className="tw-m-3 tw-bg-slate-800 tw-border-white"
