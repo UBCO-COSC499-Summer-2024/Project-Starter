@@ -52,21 +52,21 @@ const InstructorInfo = () => {
   });
 
   useEffect(() => {
-    async function fetchUserRole() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase
-          .from('user_role')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-        if (error) {
-          console.error('Error fetching user role:', error);
-        } else {
-          setUserRole(data.role); // Set userRole state
-        }
-      }
-    }
+    // async function fetchUserRole() {
+    //   const { data: { user } } = await supabase.auth.getUser();
+    //   if (user) {
+    //     const { data, error } = await supabase
+    //       .from('user_role')
+    //       .select('role')
+    //       .eq('user_id', user.id)
+    //       .single();
+    //     if (error) {
+    //       console.error('Error fetching user role:', error);
+    //     } else {
+    //       setUserRole(data.role); // Set userRole state
+    //     }
+    //   }
+    // }
 
     if (id) {
       const fetchData = async () => {
@@ -318,7 +318,7 @@ const InstructorInfo = () => {
                         ))}
                       </Form.Select>
                     </td>
-                    <td colSpan="3"></td>
+                    <td colSpan={3}></td>
                   </tr>
                 )}
               </tbody>

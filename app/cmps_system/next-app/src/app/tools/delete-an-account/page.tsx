@@ -16,7 +16,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL;
  * should throw an error if the user tried to perfome any operations. 
  */
 const supabaseServiceKey = sessionStorage.getItem('supabaseServiceKey') ? sessionStorage.getItem('supabaseServiceKey') : "null"
-console.log({"key":supabaseServiceKey})
+console.log({ "key": supabaseServiceKey })
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export default function DeleteAnAccount() {
@@ -35,6 +35,7 @@ export default function DeleteAnAccount() {
         if (error) {
             setError('Failed to fetch user information.');
         } else {
+            // @ts-ignore
             const user = data.users.find((user) => user.email === email);
             if (!user) {
                 setError('Email does not exist.');
@@ -56,7 +57,7 @@ export default function DeleteAnAccount() {
             setEmail('');
         }
     };
-    if(supabaseServiceKey === "null"){
+    if (supabaseServiceKey === "null") {
         /** if the service key is null, it will show 403. Note that this is only front end practise to inform user. */
         return (
             <main>

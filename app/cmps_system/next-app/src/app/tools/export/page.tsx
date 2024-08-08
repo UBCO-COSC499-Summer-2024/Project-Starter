@@ -57,6 +57,7 @@ export default function Export() {
         <Container>
             <h1>Export Table Data</h1>
             <Form.Group controlId="selectTable">
+                {/* @ts-ignore */}
                 <Form.Control as="select" value={selectedTable} onChange={handleTableSelect}>
                     <option value="">Select a table</option>
                     {tables.map((table, index) => (

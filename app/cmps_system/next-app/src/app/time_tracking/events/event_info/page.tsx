@@ -217,7 +217,7 @@ export default function EventInfo() {
                     <DataGrid
                         rows={attendees}
                         columns={columns}
-                        pageSize={5}
+                        // pageSize={5}
                         autoHeight
                         getRowId={(row) => `${row.event_id}-${row.instructor_id}`}
                     />
@@ -291,7 +291,7 @@ export default function EventInfo() {
                     onClose={handleSnackbarClose}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    <Alert onClose={handleSnackbarClose} sx={{ width: '100%' }}>
                         {snackbarMessage}
                     </Alert>
                 </Snackbar>

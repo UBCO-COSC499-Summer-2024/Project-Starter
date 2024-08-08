@@ -327,7 +327,7 @@ export default function ServiceRoleInfo() {
                     <DataGrid
                         rows={assignments}
                         columns={columns}
-                        pageSize={5}
+                        // pageSize={5}
                         autoHeight
                         getRowId={(row) => row.service_role_assign_id}
                     />
@@ -401,7 +401,7 @@ export default function ServiceRoleInfo() {
                     onClose={handleSnackbarClose}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    <Alert onClose={handleSnackbarClose}  sx={{ width: '100%' }}>
                         {snackbarMessage}
                     </Alert>
                 </Snackbar>

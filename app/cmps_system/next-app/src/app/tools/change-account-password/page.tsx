@@ -39,6 +39,7 @@ export default function ChangeAccountPassword() {
         if (error) {
             setError('Failed to fetch user information.');
         } else {
+            // @ts-ignore
             const user = data.users.find((user) => user.email === email);
             if (!user) {
                 setError('Email does not exist.');

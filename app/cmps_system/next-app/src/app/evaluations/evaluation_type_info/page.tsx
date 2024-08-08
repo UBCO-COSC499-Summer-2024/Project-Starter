@@ -203,7 +203,7 @@ const EvaluationTypeInfo = () => {
 
     const openAddMetric = () => {
         setNewMetric({
-            metric_num: metrics.length + 1, // Set default metric number
+            metric_num: (metrics.length + 1).toString(), // Set default metric number
             metric_description: '',
             min_value: '',
             max_value: ''
@@ -284,20 +284,25 @@ const EvaluationTypeInfo = () => {
                                     <TableRow>
                                         <TableCell>Name</TableCell>
                                         <TableCell>
-                                            {editEvaluationTypeMode.evaluation_type_name ? (
-                                                <TextField
-                                                    value={evaluationType.evaluation_type_name}
-                                                    onChange={(e) => handleEvaluationTypeChange('evaluation_type_name', e.target.value)}
-                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('evaluation_type_name'))}
-                                                />
-                                            ) : (
-                                                evaluationType.evaluation_type_name
-                                            )}
+                                            {
+                                                // @ts-ignore
+                                                editEvaluationTypeMode.evaluation_type_name ? (
+                                                    <TextField
+                                                        value={evaluationType.evaluation_type_name}
+                                                        onChange={(e) => handleEvaluationTypeChange('evaluation_type_name', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('evaluation_type_name'))}
+                                                    />
+                                                ) : (
+                                                    evaluationType.evaluation_type_name
+                                                )}
                                         </TableCell>
                                         <TableCell>
                                             {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                // @ts-ignore
                                                 <IconButton onClick={() => editEvaluationTypeMode.evaluation_type_name ? handleEvaluationTypeSave('evaluation_type_name') : handleEvaluationTypeEdit('evaluation_type_name')}>
-                                                    {editEvaluationTypeMode.evaluation_type_name ? <SaveIcon /> : <EditIcon />}
+                                                    {
+                                                        // @ts-ignore
+                                                        editEvaluationTypeMode.evaluation_type_name ? <SaveIcon /> : <EditIcon />}
                                                 </IconButton>
                                             )}
                                         </TableCell>
@@ -305,20 +310,26 @@ const EvaluationTypeInfo = () => {
                                     <TableRow>
                                         <TableCell>Description</TableCell>
                                         <TableCell>
-                                            {editEvaluationTypeMode.description ? (
-                                                <TextField
-                                                    value={evaluationType.description}
-                                                    onChange={(e) => handleEvaluationTypeChange('description', e.target.value)}
-                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('description'))}
-                                                />
-                                            ) : (
-                                                evaluationType.description
-                                            )}
+                                            {
+                                                // @ts-ignore
+
+                                                editEvaluationTypeMode.description ? (
+                                                    <TextField
+                                                        value={evaluationType.description}
+                                                        onChange={(e) => handleEvaluationTypeChange('description', e.target.value)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('description'))}
+                                                    />
+                                                ) : (
+                                                    evaluationType.description
+                                                )}
                                         </TableCell>
                                         <TableCell>
                                             {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                // @ts-ignore
                                                 <IconButton onClick={() => editEvaluationTypeMode.description ? handleEvaluationTypeSave('description') : handleEvaluationTypeEdit('description')}>
-                                                    {editEvaluationTypeMode.description ? <SaveIcon /> : <EditIcon />}
+                                                    {
+                                                        // @ts-ignore
+                                                        editEvaluationTypeMode.description ? <SaveIcon /> : <EditIcon />}
                                                 </IconButton>
                                             )}
                                         </TableCell>
@@ -326,41 +337,54 @@ const EvaluationTypeInfo = () => {
                                     <TableRow>
                                         <TableCell>Requires Course</TableCell>
                                         <TableCell>
-                                            {editEvaluationTypeMode.requires_course ? (
-                                                <Checkbox
-                                                    checked={evaluationType.requires_course}
-                                                    onChange={(e) => handleEvaluationTypeChange('requires_course', e.target.checked)}
-                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_course'))}
-                                                />
-                                            ) : (
-                                                evaluationType.requires_course ? 'Yes' : 'No'
-                                            )}
+                                            {
+                                                // @ts-ignore
+                                                editEvaluationTypeMode.requires_course ? (
+                                                    <Checkbox
+                                                        checked={evaluationType.requires_course}
+                                                        onChange={(e) => handleEvaluationTypeChange('requires_course', e.target.checked)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_course'))}
+                                                    />
+                                                ) : (
+                                                    evaluationType.requires_course ? 'Yes' : 'No'
+                                                )}
                                         </TableCell>
                                         <TableCell>
-                                            {['staff', 'head'].includes(userRole.toLowerCase()) && (
-                                                <IconButton onClick={() => editEvaluationTypeMode.requires_course ? handleEvaluationTypeSave('requires_course') : handleEvaluationTypeEdit('requires_course')}>
-                                                    {editEvaluationTypeMode.requires_course ? <SaveIcon /> : <EditIcon />}
-                                                </IconButton>
-                                            )}
+                                            {
+                                                // @ts-ignore
+
+                                                ['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                            // @ts-ignore
+                                                    <IconButton onClick={() => editEvaluationTypeMode.requires_course ? handleEvaluationTypeSave('requires_course') : handleEvaluationTypeEdit('requires_course')}>
+                                                        {
+                                            // @ts-ignore
+                                                        editEvaluationTypeMode.requires_course ? <SaveIcon /> : <EditIcon />}
+                                                    </IconButton>
+                                                )}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Requires Instructor</TableCell>
                                         <TableCell>
-                                            {editEvaluationTypeMode.requires_instructor ? (
-                                                <Checkbox
-                                                    checked={evaluationType.requires_instructor}
-                                                    onChange={(e) => handleEvaluationTypeChange('requires_instructor', e.target.checked)}
-                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_instructor'))}
-                                                />
-                                            ) : (
-                                                evaluationType.requires_instructor ? 'Yes' : 'No'
-                                            )}
+                                            {
+                                                // @ts-ignore
+                                                editEvaluationTypeMode.requires_instructor ? (
+                                                    <Checkbox
+                                                        checked={evaluationType.requires_instructor}
+                                                        onChange={(e) => handleEvaluationTypeChange('requires_instructor', e.target.checked)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_instructor'))}
+                                                    />
+                                                ) : (
+                                                    evaluationType.requires_instructor ? 'Yes' : 'No'
+                                                )}
                                         </TableCell>
                                         <TableCell>
                                             {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                // @ts-ignore
                                                 <IconButton onClick={() => editEvaluationTypeMode.requires_instructor ? handleEvaluationTypeSave('requires_instructor') : handleEvaluationTypeEdit('requires_instructor')}>
-                                                    {editEvaluationTypeMode.requires_instructor ? <SaveIcon /> : <EditIcon />}
+                                                    {
+                                                        // @ts-ignore
+                                                        editEvaluationTypeMode.requires_instructor ? <SaveIcon /> : <EditIcon />}
                                                 </IconButton>
                                             )}
                                         </TableCell>
@@ -368,20 +392,25 @@ const EvaluationTypeInfo = () => {
                                     <TableRow>
                                         <TableCell>Requires Service Role</TableCell>
                                         <TableCell>
-                                            {editEvaluationTypeMode.requires_service_role ? (
-                                                <Checkbox
-                                                    checked={evaluationType.requires_service_role}
-                                                    onChange={(e) => handleEvaluationTypeChange('requires_service_role', e.target.checked)}
-                                                    onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_service_role'))}
-                                                />
-                                            ) : (
-                                                evaluationType.requires_service_role ? 'Yes' : 'No'
-                                            )}
+                                            {
+                                                // @ts-ignore
+                                                editEvaluationTypeMode.requires_service_role ? (
+                                                    <Checkbox
+                                                        checked={evaluationType.requires_service_role}
+                                                        onChange={(e) => handleEvaluationTypeChange('requires_service_role', e.target.checked)}
+                                                        onKeyDown={(e) => handleKeyDown(e, () => handleEvaluationTypeSave('requires_service_role'))}
+                                                    />
+                                                ) : (
+                                                    evaluationType.requires_service_role ? 'Yes' : 'No'
+                                                )}
                                         </TableCell>
                                         <TableCell>
                                             {['staff', 'head'].includes(userRole.toLowerCase()) && (
+                                                // @ts-ignore
                                                 <IconButton onClick={() => editEvaluationTypeMode.requires_service_role ? handleEvaluationTypeSave('requires_service_role') : handleEvaluationTypeEdit('requires_service_role')}>
-                                                    {editEvaluationTypeMode.requires_service_role ? <SaveIcon /> : <EditIcon />}
+                                                    {
+                                                        // @ts-ignore
+                                                        editEvaluationTypeMode.requires_service_role ? <SaveIcon /> : <EditIcon />}
                                                 </IconButton>
                                             )}
                                         </TableCell>
@@ -483,8 +512,8 @@ const EvaluationTypeInfo = () => {
                     width: 400,
                     backgroundColor: 'white',
                     padding: '16px',
-                    boxShadow: 24,
-                    p: 4,
+                    // boxShadow: 24,
+                    // p: 4,
                 }}>
                     <h2>Confirm Delete</h2>
                     <p>Do you really want to remove this metric? Any evaluation entries that reference this metric will be deleted as well.</p>
@@ -502,8 +531,8 @@ const EvaluationTypeInfo = () => {
                     width: 400,
                     backgroundColor: 'white',
                     padding: '16px',
-                    boxShadow: 24,
-                    p: 4,
+                    // boxShadow: 24,
+                    // p: 4,
                 }}>
                     <h2>Add Evaluation Metric</h2>
                     <TextField
@@ -559,8 +588,8 @@ const EvaluationTypeInfo = () => {
                     width: 400,
                     backgroundColor: 'white',
                     padding: '16px',
-                    boxShadow: 24,
-                    p: 4,
+                    // boxShadow: 24,
+                    // p: 4,
                 }}>
                     <h2>Confirm Delete</h2>
                     <p>Do you really want to remove this evaluation type? Any evaluation entries that reference this type will be deleted as well.</p>
