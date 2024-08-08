@@ -15,3 +15,4 @@ COPY . ./
 
 # Command to run the Next.js development server
 CMD ["npm", "run", "build"]
+CMD ["npm", "run", "start"]
