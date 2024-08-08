@@ -277,9 +277,9 @@ const RecentEvaluationsCard = ({ displayedMonth, displayedYear }) => {
                 </thead>
                 <tbody>
                     {loading ? (
-                        <tr><td colSpan="7">Loading...</td></tr>
+                        <tr><td colSpan={7}>Loading...</td></tr>
                     ) : error ? (
-                        <tr><td colSpan="7">Error fetching evaluations: {error}</td></tr>
+                        <tr><td colSpan={7}>Error fetching evaluations: {error}</td></tr>
                     ) : evaluations.length > 0 ? (
                         evaluations.map((x, index) => (
                             <tr key={index}>
@@ -293,7 +293,7 @@ const RecentEvaluationsCard = ({ displayedMonth, displayedYear }) => {
                             </tr>
                         ))
                     ) : (
-                        <tr><td colSpan="7">No evaluations found</td></tr>
+                        <tr><td colSpan={7}>No evaluations found</td></tr>
                     )}
                 </tbody>
             </Table>

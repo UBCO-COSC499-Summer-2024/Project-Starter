@@ -45,21 +45,21 @@ const InstructorInfo = () => {
   const [editableFields] = useState(['prefix', 'first_name', 'last_name', 'ubc_employee_num', 'title', 'hire_date', 'suffix']); // Define editable fields here
 
   useEffect(() => {
-    // async function fetchUserRole() {
-    //   const { data: { user } } = await supabase.auth.getUser();
-    //   if (user) {
-    //     const { data, error } = await supabase
-    //       .from('user_role')
-    //       .select('role')
-    //       .eq('user_id', user.id)
-    //       .single();
-    //     if (error) {
-    //       console.error('Error fetching user role:', error);
-    //     } else {
-    //       setUserRole(data.role); // Set userRole state
-    //     }
-    //   }
-    // }
+    async function fetchUserRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('user_role')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        if (error) {
+          console.error('Error fetching user role:', error);
+        } else {
+          setUserRole(data.role); // Set userRole state
+        }
+      }
+    }
 
     const fetchData = async () => {
       try {
