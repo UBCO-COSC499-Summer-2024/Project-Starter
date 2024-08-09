@@ -14,7 +14,7 @@ services:
       dockerfile: Dockerfile.dev # uncomment this to run in dev mode for hot-reloading. Otherwise, it will make a production build in `next-build`, served by apache.
     ports:
       - "3000:3000"
-    volumes:
+    volumes: 
       - ./next-app:/app
       - /app/node_modules
       - ./next-build/:/app/build
