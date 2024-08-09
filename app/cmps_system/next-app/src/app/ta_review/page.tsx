@@ -46,6 +46,12 @@ const Instructor = () => {
         (
             // this email selection is only for viewing purpose, RLS is needed for security purpose
             async ()=>{ supabase.from('v_ta_review').select().eq("email", (await supabase.auth.getUser()).data.user.email).then((res) => {
+                if (res.error) {
+                    console.error(res.error);
+                    alert("Failed to fetch reviews, " + res.error.message);
+                    return;
+                }
+                console.log(res.data)
                 setRows(res.data)
             })}
         )()
