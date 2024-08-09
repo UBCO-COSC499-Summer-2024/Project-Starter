@@ -5,6 +5,8 @@ import { Container, Row, Col, Card, Table, ProgressBar, Button } from 'react-boo
 import supabase from "@/app/components/supabaseClient";
 import Link from 'next/link';
 import Navbar from '@/app/components/NavBar';
+import Alert from 'react-bootstrap/Alert';
+
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -314,6 +316,46 @@ export default function Home() {
     const [serviceLoading, setServiceLoading] = useState(true);
     const [serviceError, setServiceError] = useState(null);
 
+    const [showAlert, setShowAlert] = useState(false);
+
+
+    useEffect(() => {
+        const checkActiveTAReview = async () => {
+            const userRes = await supabase.auth.getUser();
+            if (userRes.data.user && userRes.data.user.email) {
+                // Fetch the instructor ID based on the email
+                const { data: instructorData, error: instructorError } = await supabase
+                    .from('instructor')
+                    .select('instructor_id')
+                    .eq('email', userRes.data.user.email)
+                    .single();
+
+                if (instructorError) {
+                    console.error('Error fetching instructor data:', instructorError);
+                    return;
+                }
+
+                // Query the ta_review table to check for active reviews
+                const { data: reviewData, error: reviewError } = await supabase
+                    .from('ta_review')
+                    .select('activate')
+                    .eq('reviewer', instructorData.instructor_id)
+                    .single();
+
+                if (reviewError) {
+                    console.error('Error checking active reviews:', reviewError);
+                    return;
+                }
+
+                if (reviewData.activate) {
+                    setShowAlert(true);
+                }
+            }
+        };
+
+        checkActiveTAReview();
+    }, []);
+
     useEffect(() => {
         const fetchAssignments = async () => {
             const [academicYear, session, term] = getYearSessionTerm(new Date(displayedYear, displayedMonth - 1));
@@ -410,6 +452,17 @@ export default function Home() {
         <main>
             <Navbar />
             <Container>
+            <Row className="tw-pt-3">
+                    <Col xs={12}>
+                        {showAlert && (
+                            <Alert>
+                                This is a {'info'} alert with{' '}
+                                <Alert.Link href="/ta_review">a TA review link</Alert.Link>. Give it a click if
+                                you like.
+                            </Alert>
+                        )}
+                    </Col>
+                </Row>
                 <Row className="tw-pt-3">
                     <Col xs={12} className="tw-text-center">
                         <h2 className="tw-mb-4 d-flex justify-content-center align-items-center">

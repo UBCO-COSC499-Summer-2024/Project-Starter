@@ -48,8 +48,10 @@ const NavBar = () => {
         // console.log(currentPath);
         setPage(currentPath.substring(1).toUpperCase().replace("_", " "));
     })
-    const tabs = isInstructor ? ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "HELP"]
-        : ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "HELP", "TOOLS"];
+
+    const tabs = isInstructor ? ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "TA REVIEW","HELP"]
+        : ["DASHBOARD", "INSTRUCTORS", "COURSES", "SERVICE ROLES", "EVALUATIONS", "TIME TRACKING", "TA REVIEW", "HELP", "TOOLS"];
+
     return (
         <nav className={styles.nav}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
