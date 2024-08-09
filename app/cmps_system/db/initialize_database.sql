@@ -31,6 +31,7 @@ BEGIN
   VALUES (new.id, new.email, CASE 
             WHEN NEW.email = 'head@email.com' THEN 'head'
             WHEN NEW.email = 'staff@email.com' THEN 'staff'
+            WHEN NEW.email = 'admin@email.com' THEN 'head'
             ELSE 'instructor'  -- Default role  
         END);
   RETURN new;
