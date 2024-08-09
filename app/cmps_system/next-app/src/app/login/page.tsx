@@ -2,7 +2,7 @@
 import { Button, Card, Form, Alert } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { createClient } from '@supabase/supabase-js';
-import { useRef, useState } from "react"; 
+import { useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
 import supabase from "@/app/components/supabaseClient";
 
@@ -75,6 +75,12 @@ export default function Home() {
         }
     }
 
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            login();
+        }
+    };
+
     return (
         <div className="tw-grid tw-place-content-center tw-mt-40 tw-bg-white">
             <Card className="tw-w-96 tw-rounded-lg tw-bg-white tw-text-center tw-p-10 tw-border-white tw-place-content-center">
@@ -88,6 +94,7 @@ export default function Home() {
                     type="email"
                     aria-describedby="basic-addon1"
                     ref={email_input}
+                    onKeyDown={handleKeyPress}
                 />
                 <Form.Control
                     className="tw-grid tw-mt-6 tw-m-3"
@@ -96,6 +103,7 @@ export default function Home() {
                     type="password"
                     aria-describedby="basic-addon1"
                     ref={password_input}
+                    onKeyDown={handleKeyPress}
                 />
                 <Button
                     className="tw-m-3 tw-bg-slate-800 tw-border-white"

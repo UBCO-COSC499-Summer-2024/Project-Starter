@@ -6,50 +6,43 @@ import NavBar from '@/app/components/NavBar';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
+import Form from 'react-bootstrap/Form';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 import supabase from "@/app/components/supabaseClient";
+import SearchModal from "@/app/components/SearchModal"; // Adjust the path as needed
 
 const InstructorInfo = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const id = searchParams.get('id');
-  const firstName = searchParams.get('firstName');
-  const lastName = searchParams.get('lastName');
-  const ubcEmployeeNum = searchParams.get('ubcEmployeeNum');
-  const title = searchParams.get('title');
-  const hireDate = searchParams.get('hireDate');
+  const instructorId = searchParams.get('id');
 
-  const [instructor, setInstructor] = useState({
-    first_name: firstName,
-    last_name: lastName,
-    ubc_employee_num: ubcEmployeeNum,
-    title,
-    hire_date: hireDate,
-  });
+  const [instructor, setInstructor] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
   const [courseModalShow, setCourseModalShow] = useState(false);
-  const [serviceRoles, setServiceRoles] = useState([]);
-  const [serviceRoleAssignments, setServiceRoleAssignments] = useState([]);
+  const [serviceRoleModalShow, setServiceRoleModalShow] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [searchType, setSearchType] = useState('');
   const [courseAssignments, setCourseAssignments] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [serviceRoleAssignments, setServiceRoleAssignments] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState('Instructor');
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [selectedServiceRole, setSelectedServiceRole] = useState('');
+  const [selectedServiceRoleId, setSelectedServiceRoleId] = useState(null);
+  const [expectedHours, setExpectedHours] = useState('');
+  const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [showNewServiceRole, setShowNewServiceRole] = useState(false);
-  const [filters, setFilters] = useState({
-    academic_year: '',
-    session: '',
-    term: '',
-    subject_code: '',
-    course_num: ''
-  });
+  const [userRole, setUserRole] = useState(null);
+  const [editMode, setEditMode] = useState({});
+  const [editableFields] = useState(['prefix', 'first_name', 'last_name', 'ubc_employee_num', 'title', 'hire_date', 'suffix']); // Define editable fields here
 
   useEffect(() => {
     async function fetchUserRole() {
@@ -68,43 +61,35 @@ const InstructorInfo = () => {
       }
     }
 
-    if (id) {
-      const fetchData = async () => {
-        try {
-          const [{ data: instructorData, error: instructorError },
-            { data: serviceRoleData, error: serviceRoleError },
-            { data: assignedRoleData, error: assignedRoleError },
-            { data: assignedCoursesData, error: assignedCoursesError },
-            { data: coursesData, error: coursesError }] = await Promise.all([
-              supabase.from('instructor').select('*').eq('instructor_id', id).single(),
-              supabase.from('service_role').select('*'),
-              supabase.from('service_role_assign').select('*').eq('instructor_id', id),
-              supabase.from('v_teaching_assignments').select('*').eq('instructor_id', id),
-              supabase.from('v_courses_with_instructors').select('*')
-            ]);
+    const fetchData = async () => {
+      try {
+        const [{ data: instructorData, error: instructorError },
+          { data: courseAssignmentsData, error: courseAssignmentsError },
+          { data: serviceRoleAssignmentsData, error: serviceRoleAssignmentsError }] = await Promise.all([
+            supabase.from('instructor').select('*').eq('instructor_id', instructorId).single(),
+            supabase.from('v_course_info_assignees').select('*').eq('instructor_id', instructorId),
+            supabase.from('v_service_role_assign').select('*').eq('instructor_id', instructorId),
+          ]);
 
-          if (instructorError) throw instructorError;
-          if (serviceRoleError) throw serviceRoleError;
-          if (assignedRoleError) throw assignedRoleError;
-          if (assignedCoursesError) throw assignedCoursesError;
-          if (coursesError) throw coursesError;
+        if (instructorError) throw instructorError;
+        if (courseAssignmentsError) throw courseAssignmentsError;
+        if (serviceRoleAssignmentsError) throw serviceRoleAssignmentsError;
 
-          setInstructor(instructorData);
-          setServiceRoles(serviceRoleData);
-          setServiceRoleAssignments(assignedRoleData);
-          setCourseAssignments(assignedCoursesData);
-          setCourses(coursesData);
-          setFilteredCourses(coursesData);
-        } catch (error) {
-          setError(error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
+        setInstructor(instructorData);
+        setCourseAssignments(courseAssignmentsData);
+        setServiceRoleAssignments(serviceRoleAssignmentsData);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchUserRole();
+    if (instructorId) {
       fetchData();
     }
-  }, [id]);
+  }, [instructorId]);
 
   const handleDelete = async () => {
     setModalShow(true);
@@ -115,7 +100,7 @@ const InstructorInfo = () => {
       const { error } = await supabase
         .from('instructor')
         .delete()
-        .eq('instructor_id', id);
+        .eq('instructor_id', instructorId);
       if (error) throw error;
       alert('Instructor removed successfully');
       router.push('/instructors');
@@ -124,119 +109,232 @@ const InstructorInfo = () => {
     }
   };
 
-  const handleServiceRoleChange = (e, assignmentId) => {
-    const newServiceRoleId = e.target.value;
-    if (serviceRoleAssignments.some((assignment) => assignment.service_role_id === parseInt(newServiceRoleId, 10))) {
-      alert('This service role is already assigned to the instructor.');
-      return;
+  const handleSearchModalSelect = (selected) => {
+    if (searchType === 'course') {
+      setSelectedCourse(selected.name);
+      setSelectedCourseId(selected.id);
+    } else if (searchType === 'service_role') {
+      setSelectedServiceRole(selected.name);
+      setSelectedServiceRoleId(selected.id);
     }
-    setSelectedAssignment({ type: 'service_role', newId: newServiceRoleId, assignmentId });
-    setModalShow(true);
-  };
-
-  const handleSave = async () => {
-    try {
-      const { newId, assignmentId } = selectedAssignment;
-      const dataToSave = {
-        service_role_id: newId,
-        end_date: endDate
-      };
-
-      if (assignmentId) {
-        const { error } = await supabase
-          .from('service_role_assign')
-          .update(dataToSave)
-          .eq('service_role_assign_id', assignmentId);
-
-        if (error) throw error;
-
-        setServiceRoleAssignments((prevAssignments) =>
-          prevAssignments.map((assignment) =>
-            assignment.service_role_assign_id === assignmentId
-              ? { ...assignment, ...dataToSave }
-              : assignment
-          )
-        );
-      } else {
-        const { data, error } = await supabase
-          .from('service_role_assign')
-          .insert({
-            ...dataToSave,
-            instructor_id: id,
-            start_date: new Date().toISOString().split('T')[0],
-            expected_hours: 0,
-          })
-          .select('*');  // Explicitly select the inserted data
-
-        if (error) throw error;
-
-        if (data && data.length > 0) {
-          setServiceRoleAssignments((prevAssignments) => [...prevAssignments, data[0]]);
-          setShowNewServiceRole(false);  // Reset showNewServiceRole
-        }
-      }
-
-      alert('Service role assignment updated successfully');
-      setModalShow(false);
-      setEndDate('');
-    } catch (error) {
-      console.error('Save Error:', error);
-      setError(error.message);
-    }
-  };
-
-  const handleNewServiceRole = () => {
-    setShowNewServiceRole(true);
-  };
-
-  const handleNewCourseAssignment = () => {
-    setCourseModalShow(true);
+    setSearchModalOpen(false);
   };
 
   const handleCourseAssignmentSave = async () => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('course_assign')
         .insert({
-          instructor_id: id,
-          course_id: selectedCourse,
-          position: selectedPosition,
-          start_date: new Date().toISOString().split('T')[0]
-        })
-        .select('*');  // Explicitly select the inserted data
+          instructor_id: instructorId,
+          course_id: selectedCourseId,
+          position: selectedPosition
+        });
 
       if (error) throw error;
 
-      if (data && data.length > 0) {
-        setCourseAssignments((prevAssignments) => [...prevAssignments, data[0]]);
-        setCourseModalShow(false);  // Reset course modal
-        setSelectedCourse('');
-        setSelectedPosition('Instructor');
-      }
+      // Fetch the updated list of course assignments
+      const { data: courseAssignmentsData, error: fetchError } = await supabase
+        .from('v_course_info_assignees')
+        .select('*')
+        .eq('instructor_id', instructorId);
 
-      alert('Course assignment added successfully');
+      if (fetchError) throw fetchError;
+
+      setCourseAssignments(courseAssignmentsData);
+      setCourseModalShow(false);
+      setSelectedCourse('');
+      setSelectedCourseId(null);
+      setSelectedPosition('Instructor');
     } catch (error) {
-      console.error('Save Error:', error);
       setError(error.message);
     }
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
-    applyFilters({ ...filters, [name]: value });
+  const handleServiceRoleAssignmentSave = async () => {
+    try {
+      const { error } = await supabase
+        .from('service_role_assign')
+        .insert({
+          instructor_id: instructorId,
+          service_role_id: selectedServiceRoleId,
+          expected_hours: expectedHours,
+          start_date: startDate,
+          end_date: endDate
+        });
+
+      if (error) throw error;
+
+      // Fetch the updated list of service role assignments
+      const { data: serviceRoleAssignmentsData, error: fetchError } = await supabase
+        .from('v_service_role_assign')
+        .select('*')
+        .eq('instructor_id', instructorId);
+
+      if (fetchError) throw fetchError;
+
+      setServiceRoleAssignments(serviceRoleAssignmentsData);
+      setServiceRoleModalShow(false);
+      setSelectedServiceRole('');
+      setSelectedServiceRoleId(null);
+      setExpectedHours('');
+      setStartDate('');
+      setEndDate('');
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  const applyFilters = (filterValues) => {
-    setFilteredCourses(courses.filter(course => {
-      return Object.keys(filterValues).every(key =>
-        !filterValues[key] || course[key]?.toString().toLowerCase().includes(filterValues[key].toLowerCase())
+  const handleServiceRoleEditSave = async (assignmentId) => {
+    const assignment = serviceRoleAssignments.find(a => a.service_role_assign_id === assignmentId);
+    try {
+      const { error } = await supabase
+        .from('service_role_assign')
+        .update({
+          expected_hours: assignment.expected_hours,
+          start_date: assignment.start_date,
+          end_date: assignment.end_date
+        })
+        .eq('service_role_assign_id', assignmentId);
+
+      if (error) throw error;
+
+      // Fetch the updated list of service role assignments
+      const { data: serviceRoleAssignmentsData, error: fetchError } = await supabase
+        .from('v_service_role_assign')
+        .select('*')
+        .eq('instructor_id', instructorId);
+
+      if (fetchError) throw fetchError;
+
+      setServiceRoleAssignments(serviceRoleAssignmentsData);
+      setEditMode((prevState) => ({
+        ...prevState,
+        [`expected_hours_${assignmentId}`]: false,
+        [`start_date_${assignmentId}`]: false,
+        [`end_date_${assignmentId}`]: false
+      }));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleAssigneeDelete = async (assignmentId, type) => {
+    try {
+      const table = type === 'course' ? 'course_assign' : 'service_role_assign';
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq(type === 'course' ? 'assignment_id' : 'service_role_assign_id', assignmentId);
+
+      if (error) throw error;
+
+      if (type === 'course') {
+        setCourseAssignments(courseAssignments.filter(assignment => assignment.assignment_id !== assignmentId));
+      } else {
+        setServiceRoleAssignments(serviceRoleAssignments.filter(assignment => assignment.service_role_assign_id !== assignmentId));
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleEdit = (field) => {
+    setEditMode((prevState) => ({ ...prevState, [field]: !prevState[field] }));
+  };
+
+  const handleSave = async (field, value) => {
+    try {
+      const { error } = await supabase
+        .from('instructor')
+        .update({ [field]: value })
+        .eq('instructor_id', instructorId);
+
+      if (error) throw error;
+      setInstructor((prevInstructor) => ({ ...prevInstructor, [field]: value }));
+      setEditMode((prevState) => ({ ...prevState, [field]: false }));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setInstructor((prevInstructor) => ({ ...prevInstructor, [field]: value }));
+  };
+
+  const renderField = (field, value) => {
+    if (field === 'prefix') {
+      return (
+        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+          <option value="Mr.">Mr.</option>
+          <option value="Mrs.">Mrs.</option>
+          <option value="Ms.">Ms.</option>
+          <option value="Dr.">Dr.</option>
+          <option value="Prof.">Prof.</option>
+        </Form.Select>
       );
-    }));
+    } else if (field === 'suffix') {
+      return (
+        <Form.Select value={value || ''} onChange={(e) => handleChange(field, e.target.value)} size="sm">
+          <option value="">None</option>
+          <option value="Jr.">Jr.</option>
+          <option value="Sr.">Sr.</option>
+          <option value="II">II</option>
+          <option value="III">III</option>
+          <option value="IV">IV</option>
+        </Form.Select>
+      );
+    } else {
+      const type = field === 'hire_date' ? 'date' : 'text';
+      return (
+        <Form.Control
+          type={type}
+          value={value || ''}
+          onChange={(e) => handleChange(field, e.target.value)}
+          size="sm"
+        />
+      );
+    }
   };
 
-  const handleRowClick = (courseId) => {
-    setSelectedCourse(courseId);
+  const handlePositionChange = async (assignmentId, position) => {
+    try {
+      const { error } = await supabase
+        .from('course_assign')
+        .update({ position })
+        .eq('assignment_id', assignmentId);
+
+      if (error) throw error;
+
+      // Fetch the updated list of course assignments
+      const { data: courseAssignmentsData, error: fetchError } = await supabase
+        .from('v_course_info_assignees')
+        .select('*')
+        .eq('instructor_id', instructorId);
+
+      if (fetchError) throw fetchError;
+
+      setCourseAssignments(courseAssignmentsData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const renderServiceRoleField = (field, value, assignmentId) => {
+    return (
+      <Form.Control
+        type={field === 'expected_hours' ? 'number' : 'date'}
+        value={value}
+        onChange={(e) => {
+          const newValue = e.target.value;
+          setServiceRoleAssignments(prevAssignments =>
+            prevAssignments.map(assignment =>
+              assignment.service_role_assign_id === assignmentId ? { ...assignment, [field]: newValue } : assignment
+            )
+          );
+        }}
+        size="sm"
+      />
+    );
   };
 
   return (
@@ -250,106 +348,173 @@ const InstructorInfo = () => {
           <p>Error fetching instructor: {error}</p>
         ) : instructor ? (
           <>
-            <table className="table table-bordered">
+            <Table className="table table-bordered">
               <tbody>
-                <tr>
-                  <td>First Name</td>
-                  <td>{instructor.first_name}</td>
-                </tr>
-                <tr>
-                  <td>Last Name</td>
-                  <td>{instructor.last_name}</td>
-                </tr>
-                <tr>
-                  <td>Employee Number</td>
-                  <td>{instructor.ubc_employee_num}</td>
-                </tr>
-                <tr>
-                  <td>Title</td>
-                  <td>{instructor.title}</td>
-                </tr>
-                <tr>
-                  <td>Hire Date</td>
-                  <td>{instructor.hire_date}</td>
-                </tr>
+                {Object.entries(instructor).map(([field, value]) => (
+                  field !== 'instructor_id' && (
+                    <tr key={field}>
+                      <td style={{ width: '30%' }}>{field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                      <td>{editMode[field] ? renderField(field, value) : (value !== null ? value.toString() : 'N/A')}</td>
+                      <td style={{ width: '1px' }}>
+                        {editableFields.includes(field) && ['head', 'staff'].includes(userRole) && (
+                          <IconButton onClick={() => editMode[field] ? handleSave(field, instructor[field]) : handleEdit(field)} size="small">
+                            {editMode[field] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                          </IconButton>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                ))}
               </tbody>
-            </table>
+            </Table>
+
+            <h3>Teaching Assignments</h3>
+            <Table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Position</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courseAssignments.map((assignment) => (
+                  <tr key={assignment.assignment_id}>
+                    <td>
+                      <a href={`/courses/course_info?id=${assignment.course_id}`}>{assignment.full_course_name}</a>
+                    </td>
+                    <td>
+                      {editMode[`position_${assignment.assignment_id}`] ? (
+                        <Form.Select
+                          value={assignment.position}
+                          onChange={(e) => handlePositionChange(assignment.assignment_id, e.target.value)}
+                          size="sm"
+                        >
+                          <option value="Instructor">Instructor</option>
+                          <option value="TA">TA</option>
+                        </Form.Select>
+                      ) : (
+                        assignment.position
+                      )}
+                    </td>
+                    <td>
+                      {['head', 'staff'].includes(userRole) && (
+                        <>
+                          <IconButton onClick={() => setEditMode((prevState) => ({
+                            ...prevState,
+                            [`position_${assignment.assignment_id}`]: !prevState[`position_${assignment.assignment_id}`]
+                          }))} size="small">
+                            {editMode[`position_${assignment.assignment_id}`] ? <SaveIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                          </IconButton>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleAssigneeDelete(assignment.assignment_id, 'course')}
+                          >
+                            Delete
+                          </Button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            {['head', 'staff'].includes(userRole) && (
+              <Button
+                variant="primary"
+                className="mb-3"
+                onClick={() => setCourseModalShow(true)}
+              >
+                ➕ Assign New Course
+              </Button>
+            )}
 
             <h3>Service Role Assignments</h3>
-            <table className="table table-bordered">
+            <Table className="table table-bordered">
               <thead>
                 <tr>
                   <th>Service Role</th>
                   <th>Expected Hours</th>
                   <th>Start Date</th>
                   <th>End Date</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {serviceRoleAssignments.map((assignment, index) => (
-                  <tr key={assignment.service_role_assign_id || index}>
+                {serviceRoleAssignments.map((assignment) => (
+                  <tr key={assignment.service_role_assign_id}>
                     <td>
-                      <Form.Select
-                        value={assignment.service_role_id}
-                        onChange={(e) => handleServiceRoleChange(e, assignment.service_role_assign_id)}
-                      >
-                        <option value="">Select a service role</option>
-                        {serviceRoles.map((role) => (
-                          <option key={role.service_role_id} value={role.service_role_id}>
-                            {role.title}
-                          </option>
-                        ))}
-                      </Form.Select>
+                      <a href={`/service_roles/service_role_info?id=${assignment.service_role_id}`}>{assignment.service_role_title}</a>
                     </td>
-                    <td>{assignment.expected_hours}</td>
-                    <td>{assignment.start_date}</td>
-                    <td>{assignment.end_date}</td>
+                    <td>
+                      {editMode[`expected_hours_${assignment.service_role_assign_id}`] ? (
+                        renderServiceRoleField('expected_hours', assignment.expected_hours, assignment.service_role_assign_id)
+                      ) : (
+                        assignment.expected_hours
+                      )}
+                    </td>
+                    <td>
+                      {editMode[`start_date_${assignment.service_role_assign_id}`] ? (
+                        renderServiceRoleField('start_date', assignment.start_date, assignment.service_role_assign_id)
+                      ) : (
+                        assignment.start_date
+                      )}
+                    </td>
+                    <td>
+                      {editMode[`end_date_${assignment.service_role_assign_id}`] ? (
+                        renderServiceRoleField('end_date', assignment.end_date, assignment.service_role_assign_id)
+                      ) : (
+                        assignment.end_date
+                      )}
+                    </td>
+                    <td>
+                      {['head', 'staff'].includes(userRole) && (
+                        <>
+                          {editMode[`expected_hours_${assignment.service_role_assign_id}`] ||
+                            editMode[`start_date_${assignment.service_role_assign_id}`] ||
+                            editMode[`end_date_${assignment.service_role_assign_id}`] ? (
+                            <IconButton onClick={() => handleServiceRoleEditSave(assignment.service_role_assign_id)} size="small">
+                              <SaveIcon fontSize="small" />
+                            </IconButton>
+                          ) : (
+                            <IconButton onClick={() => setEditMode((prevState) => ({
+                              ...prevState,
+                              [`expected_hours_${assignment.service_role_assign_id}`]: true,
+                              [`start_date_${assignment.service_role_assign_id}`]: true,
+                              [`end_date_${assignment.service_role_assign_id}`]: true
+                            }))} size="small">
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleAssigneeDelete(assignment.service_role_assign_id, 'service_role')}
+                          >
+                            Delete
+                          </Button>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
-                {showNewServiceRole && (
-                  <tr>
-                    <td>
-                      <Form.Select onChange={(e) => handleServiceRoleChange(e, null)}>
-                        <option value="">Select a service role</option>
-                        {serviceRoles.map((role) => (
-                          <option key={role.service_role_id} value={role.service_role_id}>
-                            {role.title}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </td>
-                    <td colSpan="3"></td>
-                  </tr>
-                )}
               </tbody>
-            </table>
-            <Button className="btn btn-primary mb-3" onClick={handleNewServiceRole}>
-              Assign New Service Role
-            </Button>
-
-            <h3>Teaching Assignments</h3>
-            <table className="table table-bordered">
-              <thead>
-                <tr>
-                  <th>Course</th>
-                  <th>Position</th>
-                </tr>
-              </thead>
-              <tbody>
-                {courseAssignments.map((assignment, index) => (
-                  <tr key={assignment.id || index}>
-                    <td>{assignment.full_course_name}</td>
-                    <td>{assignment.position}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <Button className="btn btn-primary mb-3" onClick={handleNewCourseAssignment}>
-              Assign New Teaching Assignment
-            </Button>
+            </Table>
+            {['head', 'staff'].includes(userRole) && (
+              <Button
+                variant="primary"
+                className="mb-3"
+                onClick={() => setServiceRoleModalShow(true)}
+              >
+                ➕ Assign New Service Role
+              </Button>
+            )}
 
             <div className="instructor-info-footer">
-              <Button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</Button>
+              {['head', 'staff'].includes(userRole) && (
+                <Button className="btn btn-danger" onClick={handleDelete}>Remove this instructor</Button>
+              )}
               <Button className="btn btn-secondary" onClick={() => router.push('/instructors')}>Back</Button>
             </div>
           </>
@@ -360,96 +525,96 @@ const InstructorInfo = () => {
 
       <Modal show={modalShow} onHide={() => setModalShow(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Enter End Date</Modal.Title>
+          <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <Form.Control
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            placeholder="End Date"
-          />
-        </Modal.Body>
+        <Modal.Body>Are you sure you want to remove this instructor?</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setModalShow(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSave} disabled={!endDate}>
-            Save
-          </Button>
+          <Button variant="secondary" onClick={() => setModalShow(false)}>Cancel</Button>
+          <Button variant="danger" onClick={confirmDelete}>Delete</Button>
         </Modal.Footer>
       </Modal>
 
       <Modal show={courseModalShow} onHide={() => setCourseModalShow(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Assign New Teaching Assignment</Modal.Title>
+          <Modal.Title>Assign New Course</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <fieldset style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-            <legend style={{ paddingLeft: '5px', paddingRight: '5px' }}>Filter Options</legend>
-            <div className="d-flex justify-content-between">
-              <div>
-                <Form.Group controlId="filterAcademicYear">
-                  <Form.Label>Academic Year</Form.Label>
-                  <Form.Control type="text" placeholder="Academic Year" name="academic_year" value={filters.academic_year} onChange={handleFilterChange} />
-                </Form.Group>
-                <Form.Group controlId="filterSession">
-                  <Form.Label>Session</Form.Label>
-                  <Form.Control type="text" placeholder="Session" name="session" value={filters.session} onChange={handleFilterChange} />
-                </Form.Group>
-                <Form.Group controlId="filterTerm">
-                  <Form.Label>Term</Form.Label>
-                  <Form.Control type="text" placeholder="Term" name="term" value={filters.term} onChange={handleFilterChange} />
-                </Form.Group>
-                <Form.Group controlId="filterSubjectCode">
-                  <Form.Label>Subject Code</Form.Label>
-                  <Form.Control type="text" placeholder="Subject Code" name="subject_code" value={filters.subject_code} onChange={handleFilterChange} />
-                </Form.Group>
-                <Form.Group controlId="filterCourseNum">
-                  <Form.Label>Course Number</Form.Label>
-                  <Form.Control type="text" placeholder="Course Number" name="course_num" value={filters.course_num} onChange={handleFilterChange} />
-                </Form.Group>
-              </div>
-              <div className="ml-3">
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>Course</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCourses.map((course) => (
-                      <tr
-                        key={course.course_id}
-                        onClick={() => handleRowClick(course.course_id)}
-                        className={selectedCourse === course.course_id ? "table-primary" : ""}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <td>{course.full_course_name}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-            </div>
-          </fieldset>
-          <Form.Group controlId="selectPosition">
-            <Form.Label>Position</Form.Label>
-            <Form.Select value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}>
-              <option value="Instructor">Instructor</option>
-              <option value="TA">TA</option>
-            </Form.Select>
-          </Form.Group>
+          <Form>
+            <Form.Group controlId="selectCourse">
+              <Form.Label>Select Course</Form.Label>
+              <Button variant="outline-secondary" onClick={() => { setSearchType('course'); setSearchModalOpen(true); }} className="w-100 mt-2">
+                {selectedCourse || "Select a course"}
+              </Button>
+            </Form.Group>
+            <Form.Group controlId="selectPosition" className="mt-3">
+              <Form.Label>Position</Form.Label>
+              <Form.Select value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}>
+                <option value="Instructor">Instructor</option>
+                <option value="TA">TA</option>
+              </Form.Select>
+            </Form.Group>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setCourseModalShow(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleCourseAssignmentSave} disabled={!selectedCourse || !selectedPosition}>
+          <Button variant="secondary" onClick={() => setCourseModalShow(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleCourseAssignmentSave} disabled={!selectedCourseId || !selectedPosition}>
             Save
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal show={serviceRoleModalShow} onHide={() => setServiceRoleModalShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign New Service Role</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="selectServiceRole">
+              <Form.Label>Select Service Role</Form.Label>
+              <Button variant="outline-secondary" onClick={() => { setSearchType('service_role'); setSearchModalOpen(true); }} className="w-100 mt-2">
+                {selectedServiceRole || "Select a service role"}
+              </Button>
+            </Form.Group>
+            <Form.Group controlId="expectedHours" className="mt-3">
+              <Form.Label>Expected Monthly Hours</Form.Label>
+              <Form.Control
+                type="number"
+                value={expectedHours}
+                onChange={(e) => setExpectedHours(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="startDate" className="mt-3">
+              <Form.Label>Start Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="endDate" className="mt-3">
+              <Form.Label>End Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setServiceRoleModalShow(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleServiceRoleAssignmentSave} disabled={!selectedServiceRoleId || !expectedHours || !startDate || !endDate}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <SearchModal
+        open={searchModalOpen}
+        handleClose={() => setSearchModalOpen(false)}
+        handleSelect={handleSearchModalSelect}
+        type={searchType}
+      />
     </div>
   );
 };
