@@ -6,6 +6,7 @@ import supabase from "@/app/components/supabaseClient";
 import Link from 'next/link';
 import Navbar from '@/app/components/NavBar';
 import Alert from 'react-bootstrap/Alert';
+
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -303,10 +304,8 @@ const RecentEvaluationsCard = ({ displayedMonth, displayedYear }) => {
 };
 
 export default function Home() {
-
     const [displayedMonth, setDisplayedMonth] = useState(new Date().getMonth() + 1);
     const [displayedYear, setDisplayedYear] = useState(new Date().getFullYear());
-
     const [workingHours, setWorkingHours] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -317,17 +316,6 @@ export default function Home() {
     const [serviceLoading, setServiceLoading] = useState(true);
     const [serviceError, setServiceError] = useState(null);
 
-    const [ratingTerm, setRatingTerm] = useState("2024");
-    const [rating, setRating] = useState({
-        "2023": [
-            { name: "COSC101", term: "1", student_count: 100, rating: "88%" },
-            { name: "COSC121", term: "2", student_count: 55, rating: "50%" }
-        ],
-        "2024": [
-            { name: "COSC101", term: "1", student_count: 120, rating: "98%" },
-            { name: "COSC121", term: "2", student_count: 65, rating: "30%" }
-        ]
-    });
     const [showAlert, setShowAlert] = useState(false);
 
 
@@ -367,6 +355,7 @@ export default function Home() {
 
         checkActiveTAReview();
     }, []);
+
     useEffect(() => {
         const fetchAssignments = async () => {
             const [academicYear, session, term] = getYearSessionTerm(new Date(displayedYear, displayedMonth - 1));
@@ -464,7 +453,6 @@ export default function Home() {
             <Navbar />
             <Container>
                 <Row className="tw-pt-3">
-
                     <Col xs={12} className="tw-text-center">
                         <h2 className="tw-mb-4 d-flex justify-content-center align-items-center">
                             <Button variant="link" onClick={handlePreviousMonth}>&lt;</Button>
@@ -473,7 +461,6 @@ export default function Home() {
                             </span>
                             <Button variant="link" onClick={handleNextMonth}>&gt;</Button>
                         </h2>
-
                     </Col>
                 </Row>
 
