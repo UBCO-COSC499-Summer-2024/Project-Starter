@@ -452,6 +452,17 @@ export default function Home() {
         <main>
             <Navbar />
             <Container>
+            <Row className="tw-pt-3">
+                    <Col xs={12}>
+                        {showAlert && (
+                            <Alert>
+                                This is a {'info'} alert with{' '}
+                                <Alert.Link href="/ta_review">a TA review link</Alert.Link>. Give it a click if
+                                you like.
+                            </Alert>
+                        )}
+                    </Col>
+                </Row>
                 <Row className="tw-pt-3">
                     <Col xs={12} className="tw-text-center">
                         <h2 className="tw-mb-4 d-flex justify-content-center align-items-center">
