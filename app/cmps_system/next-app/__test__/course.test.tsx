@@ -18,7 +18,6 @@ const testData = {
   start_time: null,
   end_time: null,
   num_students: null,
-  num_tas: null,
   average_grade: null,
   credits: null,
   year_level: null,

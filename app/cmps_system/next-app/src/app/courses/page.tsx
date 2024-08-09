@@ -95,7 +95,7 @@ export default function Courses() {
         <>
             <Navbar />
             <h1>Courses</h1>
-            <Button className="tw-p-2" onClick={async ()=>{
+            <Button className="tw-p-2" onClick={async () => {
                 const event = {
                     start: [2018, 5, 30, 6, 30],
                     duration: { hours: 6, minutes: 30 },
@@ -109,31 +109,32 @@ export default function Courses() {
                     busyStatus: 'BUSY',
                     organizer: { name: 'Admin', email: 'Race@BolderBOULDER.com' },
                     attendees: [
-                      { name: 'Adam Gibbons', email: 'adam@example.com', rsvp: true, partstat: 'ACCEPTED', role: 'REQ-PARTICIPANT' },
-                      { name: 'Brittany Seaton', email: 'brittany@example2.org', dir: 'https://linkedin.com/in/brittanyseaton', role: 'OPT-PARTICIPANT' }
-                    ]}
-                    const file = await new Promise((resolve, reject) => {
-                        //@ts-ignore
-                        createEvent(event, (error, value) => {
-                          if (error) {
+                        { name: 'Adam Gibbons', email: 'adam@example.com', rsvp: true, partstat: 'ACCEPTED', role: 'REQ-PARTICIPANT' },
+                        { name: 'Brittany Seaton', email: 'brittany@example2.org', dir: 'https://linkedin.com/in/brittanyseaton', role: 'OPT-PARTICIPANT' }
+                    ]
+                }
+                const file = await new Promise((resolve, reject) => {
+                    //@ts-ignore
+                    createEvent(event, (error, value) => {
+                        if (error) {
                             reject(error)
-                          }
-                    
-                          resolve(new File([value], "courses.ics", { type: 'text/calendar' }))
-                        })
-                      })
-                        //@ts-ignore
-                      const url = URL.createObjectURL(file);
-                    
-                      // trying to assign the file URL to a window could cause cross-site
-                      // issues so this is a workaround using HTML5
-                      const anchor = document.createElement('a');
-                      anchor.href = url;
-                      anchor.download = "courses.ics";
-                    
-                      document.body.appendChild(anchor);
-                      anchor.click();
-                      document.body.removeChild(anchor);
+                        }
+
+                        resolve(new File([value], "courses.ics", { type: 'text/calendar' }))
+                    })
+                })
+                //@ts-ignore
+                const url = URL.createObjectURL(file);
+
+                // trying to assign the file URL to a window could cause cross-site
+                // issues so this is a workaround using HTML5
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = "courses.ics";
+
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
 
             }}>📅Export My Courses to My Calendar</Button>
             <CMPS_Table
