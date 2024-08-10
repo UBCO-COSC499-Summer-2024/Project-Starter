@@ -1,0 +1,6 @@
+volumes/db/data
+volumes/storage
+react-build
+.env
+test.http
+docker-compose.override.yml

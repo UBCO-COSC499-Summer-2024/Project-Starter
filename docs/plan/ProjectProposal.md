@@ -1,0 +1,198 @@
+# Project Proposal for Project 1 (CMPS Department Management Program)
+
+**Team Number:** 12
+
+**Team Members:** Yiyang Du, Dichen Feng, Marshall Kwok Guo, Vaughn Janes, Jiayao Ni
+
+## Overview:
+
+### Project purpose or justification (UVP)
+
+The purpose of our project, the Department Management System, is to create a responsive web application that supports managing the CMPS department. This will enhance the visibility and efficiency of instructor activities. We believe this is really important because having a clear and efficient system will save time for department heads and instructors, allowing them to focus more on teaching and less on administrative tasks. Plus, with better visibility, everyone can stay more organized and informed about their roles and responsibilities.
+
+#### UVP:
+
+There is no such system now for the instructors and the department to conveniently visualize the assignments of staff members and their working hours. Our program will make it easier for the instructors to have an idea of how much time they will work. This will make it easier for the department to know the working hours of every instructors. Also, we will add some encouraging words to encourage the instructors who work less hours than the others to work more and having better students satisfaction.
+
+### High-level project description and boundaries
+
+> Describe your MVP in a few statements and identify the boundaries of the system. 
+
+#### MVP
+
+We will develop a system for department heads to easilly log and track service roles for instructors, including Undergraduate Advisor, Graduate Advisor, and committee member roles. The system will store descriptions and expected hours per month for each service role without requiring instructors to log their time actively.
+
+We will also implement a feature to track course assignments, including student numbers, survey data, and other relevant metrics. This will allow department heads to see individual instructor data and overall department performance through charts and visualizations.
+
+Next, we will develop a dashboard for instructors to view their current service hours, course assigments, and see their contribution to the department. Instructors will not have editing capabilities but can see their data and comparisons with departmental averages.
+
+To encourage instructors for a better distribution, we will also include features that provide encouraging messages such as showing the average service hour of the faculty.
+
+#### Things that are in scope
+
+- Tracking and logging an expected serivice hour for the instructor
+- Storing expected hours for various service roles.
+- Collect datas such as course assignments, number of student, studnet feedback.
+- Provide visualizations and chart for department head to analyze the performance of the department staffs.
+- Create an dashboard for instructor to view current assignments, service roles, serivce hour, and registered courses.
+- Add encourage message on the performance report.
+
+#### Boundaries (Things that are out of scope)
+
+- Specific times for staff working hours (it will only be on an "hours per month" or bi-weekly basis)
+- Direct data editing capabilities by people other than the administrator.
+- Extensive reward or incentive programs beyond simple encouraging messages/statistics
+
+### Measurable project objectives and related success criteria (scope of project)
+
+First, we want to make it super easy and quick to record and manage instructor service roles and teaching assignments, cutting down the time needed from hours to just minutes. Second, we’ll provide real-time visualizations and benchmarks so instructors can see how they’re doing and figure out where they can improve. Third, we’ll help make sure instructors are assigned to the right teaching and service roles based on their past performance. The scope of this project includes developing features for efficient data entry, creating visual performance dashboards, and integrating historical performance data for better role allocation. Success for us means having lots of users who are happy with the system, making life easier for instructors by cutting down their admin work, and improving how teaching and service roles are managed.
+
+We’ll measure:
+
+Gathering user **feedback** surveys to gauge satisfaction (Specific, Measurable, Relevant).
+
+Tracking the **reduction** in admin time through time logs, aiming to reduce it from hours to minutes (Specific, Measurable, Achievable, Relevant, Time-bound).
+
+## Users, Usage Scenarios and High Level Requirements
+
+### Users Groups
+
+The two types of users of the CMPS Department Management Program will be:
+
+#### 1. Administrators
+
+An administrator will be able to log into the web program, create staff profiles, create "jobs" (i.e. service roles/teaching assignments), and assign these jobs to the staff profiles. Metadata will be enterable by the department head for jobs, such as whether it is a teaching assignment or a service role, the number of students (if it's a teaching assignment), the number of TAs, room number, etc.
+The administrator will also be able to enter the number of hours worked per month for each staff profile (with the ability to edit hours for many staff profiles at once), and enter/update performance metrics for staff profiles. Once set up, the administrator will be able to visualize working hours and performance metrics for entire selections of staff profiles (for all Statistics professors, for example), as well as individual staff profiles. Of course, the administrator will also be able to delete staff profiles, jobs, assignments, etc.
+The management system will be accessed via user accounts, which the administrator will administrate, having the ability to create/delete accounts, reset passwords, and importantly, grant elevated visibility of certain staff profiles to certain user accounts (so that once a staff member creates an account, they'll be granted permission to see their own performance metrics—or, this feature can also be used to allow staff members to see performance metrics of other specific staff members, if desired, for lower-level managerial reasons).
+
+#### 2. Department Staff
+
+Department staff will be able to create an account at the login/sign up page of the web application. After creating an account, department staff can log into the system and view all staff assignments, courses and course metadata, but will only be able to view their own performance metrics (because this information is confidential), or whoever's metrics they've specifically been granted access to view by the administrator. The department staff's own performance metrics will be displayed alongside anonymous metrics such as the average hours worked for their department, as a performance incentive. In general, the department staff mainly just have viewing capabilities.
+
+### Envisioned Usage
+
+#### Administrator usage example
+
+1. Prof. Lawrence, a program administrator, visits the Management Program's web application by clicking the bookmarked URL in his browser
+ 2. Prof. Lawrence sees the login page, and enters his username and password, and logs in
+ 3. He sees the Management Program's dashboard, where there are charts and other visualizations of the CMPS department's working hours, assignments/roles, and performance metrics.
+ 4. A new employee, Mr. Magoo, was hired and needs to be added to the system as part of an onboarding process. Prof. Lawrence navigates to the web app's administration page, and fills out a form to create a new staff profile, which includes a name, and optionally metadata such as an employee number. He then presses the confirm button and a new staff profile is added to the database.
+ 5. Prof. Lawrence scrolls down to the "Create/modify Job" subsection, located on the same webpage for convenience, to create the course to which Mr. Magoo is assigned to teach (COSC 360). He enters the name "COSC 360 001" and hits the confirm button, and the course is added to the database. If COSC 360 001 already exists, then he doesn't need to do this (and if he does it anyway, then the database will be unchanged)
+ 6. Prof. Lawrence then scrolls down to the "Create/modify assignment" subsection, searches for Mr. Magoo in the first drop-down text box and selects him, searches for "COSC 360 001" in the second drop-down text box, and then presses the confirm button. In the database, COSC 360 001 is now added to Mr. Magoo's assignments.
+ 7. Prof. Lawrence either creates a new account for the employee, or the employee has created their own account. Prof. Lawrence navigates to the "Accounts management" subpage of the administration page, and fills out a form to bind Mr. Magoo's new account to his staff profile, and confirms it. Mr. Magoo will now be able to see his own confidential performance metrics when he logs in, once they are submitted.
+ 8. Prof. Lawrence logs out and goes to lunch
+
+#### Staff member usage example
+1. A staff member, Mr. Magoo, visits the CMPS Management Program's webpage and sees the login/sign up page. He presses the "sign up" button, and enters a username and password (twice, to confirm), as well as a UBC email.
+2. He receives an email which has a confirmation link, which he visits, and his sign-ups process is complete.
+3. In the future, after Prof. Lawrence has set up a staff profile for Mr. Magoo, granted elevated viewing permission for it to Mr. Magoo's account, and entered his hours and performance metrics, Mr. Magoo logs in again. He clicks his username in the top-right corner of the page and is brought to his own account page, where he can see links to the staff profiles which he has permission to view. He clicks the link to his own profile.
+4. He sees his staff profile, just as anyone else would be able to if they had found it via the search page, but since he is logged into an account that has permissions to view confidential data for this staff profile, he also sees his performance metrics displayed.
+5. He sees that he has worked 145 hours this week, and that he has some score X relating to his SEI surveys last semester. He has done what he came here to do, so he presses the log out button and leaves.
+
+### Requirements:
+> In the requirements section, make sure to clearly define/describe the **functional** requirements (what the system will do), **non-functional** requirements (performane/development), **user requirements (what the users will be able to do with the system and **technical** requirements.  These requirements will be used to develop the detailed uses in the design and form your feature list.
+#### Functional Requirements:
+- Secure Login System: Authorized access for department heads, staff, and instructors.
+- Visually information of the working hours for instructors and department
+- Adding, editing and deleting the database tables
+- Be able to manage the staff for administrator
+
+
+#### Non-functional Requirements:
+- The system should be easy to use and the staff should spend less than 5 mins to view the information they want to see, such as their monthly working hours and course assignments
+- It is a web system based on PC.
+- We do not consider the how to gather the students feedback.
+- We use feature based development
+
+#### User Requirements:
+- The department head will be able to log in to the web application, create/delete staff, create/delete roles, assign/unassign staff to roles, view staff performance metrics (such as SEI statistics) and hours worked 
+- The UI should be simple and easy to use to save time for the staff
+- Reducing the time of management to less than 20 mins
+- Visually showing the staff the working hours of each month
+- Motivate staff to work better
+
+#### Technical Requirements:
+- Database and login info be protected from potential attacks
+- It’s a website based system
+
+
+
+## Tech Stack
+- Clientside device: The web app will only be available on desktop
+- Frontend: We chose to use React.js as our frontend, as it is the most popular front-end framework and has many plug-ins. It is also simple to get hands-on for basic usage.
+- CSS Library: We chose to use Tailwind for our CSS library, as it has very good documentation and makes CSS editing much easier with pre-built classes. 
+- Server OS: We chose to use Ubuntu Linux as our server OS, not only because it is the most popular OS used in the industry, but it is also easy to manage with a good eco-system. And the most famous free https cred service certbot has the best compatibility on Ubuntu.
+-  Middleware: Although it is optional, we chose to use Apache as our middleware instead of exposing our backend directly. This allows us to run the backend on a port that is NOT 80 and do port forwarding, making the backend run without a sudo privilege. Apache also allows us to set up HTTPS easily with certbot.
+- Backend: We use FastAPI to build our backend, as it is simple to use with each function as an endpoint, and it has many plug-ins such as JWT. It also has an ORM database library that makes it easy to manage the database. 
+- Database: We chose MySQL as the database, as it is free (unlike SQLServer) and has an auth system (Unlike SQLite). 
+
+
+## High-level risks
+
+The risks in this project involve both management risks and technical risks. The management risks include not finishing the project on time or our deliveries not satisfying what the client wants. On the technical side, there are a couple of risks. The first is authentication. Since we need to let a user log in, ensuring the user did not bypass this login is one thing. We also have authorization, which means identifying if the user has the right to change or view the data. Additionally, there are technical risks in the coding, such as XSS, CSRF, and SQL injection. These are common risks in web applications. In the end, what confidential information is at stake is working hours, passwords, SEI survey data, and other performance metrics.
+
+## Assumptions and constraints
+
+- We assume the student survey result to be a percentage number for each course and we do not care about how the SEI questions will be like specifically nor how to gather and calculate all of the students feedback of a course.
+- We assume it would be a web based system, mainly used in PC.
+- Department heads will have full administrative access to log and track service roles, course assignments, and other performance metrics.
+- Instructors will have read-only access to their data, including service hours, course assignments, and performance comparisons.
+- Department heads will be responsible for entering and updating all relevant data (service roles, course assignments, survey results).
+- No real-time logging of hours by instructors will be required; expected hours per month will be used instead.
+
+
+## Summary milestone schedule
+
+> Identify the major milestones in your solution and align them to the course timeline. In particular, what will you have ready to present and/or submit for the following deadlines? List the anticipated features you will have for each milestone, and we will help you scope things out in advance and along the way. Use the table below and just fill in the appropriate text to describe what you expect to submit for each deliverable. Use the placeholder text in there to guide you on the expected length of the deliverable descriptions. You may also use bullet points to clearly identify the features associated with each milestone (which means your table will be lengthier, but that’s okay).  The dates are correct for the milestones.
+
+|  Milestone  | Deliverable |
+| :-------------: | ------------- |
+|  May 29th  | Project Plan Submission |
+| May 29th  | A short video presenation decribing the user groups and requirements for the project.  This will be reviewed by your client and the team will receive feedback. |
+| June 5th  | Design Submission: Same type of description here. Aim to have a design of the project and the system architecture planned out. Use cases need to be fully developed.  The general user interface design needs to be implemented by this point (mock-ups). This includes having a consistent layout, color scheme, text fonts, etc., and showing how the user will interact with the system should be demonstrated. |
+| June 5th  |  A short video presenation decribing the design for the project.  This will be reviewed by your client and the team will receive feedback. |
+| June 14th  | Mini-Presentations: A short description of the parts of the envisioned usage you plan to deliver for this milestone. Should not require additional explanation beyond what was already in your envisioned usage. This description should only be a few lines of text long. Aim to have 3 features working for this milestone (e.g., user log-in with credentials and permissions counts as 1 feature). Remember that features also need to be tested.  |
+| July 5th  | MVP Mini-Presentations: A short description of the parts of the envisioned usage you plan to deliver for this milestone. Should not require additional explanation beyond what was already in your envisioned usage. This description should only be a few lines of text long. Aim to have close to 50% of the features working for this milestone.  Remember that features also need to be tested. Clients will be invited to presentations.|
+| July 19th  | Peer testing and feedback: Aim to have an additional two features implemented and tested **per** team member. As the software gets bigger, you will need to be more careful about planning your time for code reviews, integration, and regression testing. |
+| August 2nd  | Test-O-Rama: Full scale system and user testing with everyone |
+| August 9th  |  Final project submission and group presentions: Details to follow |
+
+## Teamwork Planning and Anticipated Hurdles
+> Based on the teamwork icebreaker survey, talk about the different types of work involved in a software development project. Start thinking about what you are good at as a way to get to know your teammates better. At the same time, know your limits so you can identify which areas you need to learn more about. These will be different for everyone. But in the end, you all have strengths and you all have areas where you can improve. Think about what those are, and think about how you can contribute to the team project. Nobody is expected to know everything, and you will be expected to learn (just some things, not everything).
+> Use the table below to help line up everyone’s strengths and areas of improvement together. The table should give the reader some context and explanation about the values in your table.
+> 
+> For **experience** provide a description of a previous project that would be similar to the technical difficulty of this project’s proposal.  None, if nothing
+> For **good At**, list of skills relevant to the project that you think you are good at and can contribute to the project.  These could be soft skills, such as communication, planning, project management, and presentation.  Consider different aspects: design, coding, testing, and documentation. It is not just about the code.  You can be good at multiple things. List them all! It doesn’t mean you have to do it all.  Don’t ever leave this blank! Everyone is good at something!
+
+|  Category  | Yiyang Du| Dichen Feng  | Marshall Kwok Guo | Vaughn Janes | Jiayao Ni |
+|------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+|  **Experience**  | I have done traditioinal and deep learning for computer vision tasks. I have experience of designing apps  | I have worked on a discord clone project using flask. Have experience on setup docker for database.    | I have experence in front end and back end development using React.js, python, and machine learning. I have made 5-7 full stacks applications such as a bus pass application, a diet mangment application and a game powered by GPT. | I've been making a website for a RuneLite plugin which displays a globally-sourced visual heatmap of where players walk (and other stuff) |  I've been made a e-learning platform for teachers release assignments and students do assignments|  | 
+|  **Good At**  | Computer vision | Java, Python, MySQL, HTML and CSS  | I am good at React.js, python fastapi, and PyTorch. | Back-end stuff, such as SQL, serverside code, and setting up the Docker environment/containers | more on front-end,such ass CSS,js. Also Node.js for backend |  | 
+|  **Expect to learn**  | Web programming, deployment| Experience an real world web development process. Learn ho to use fastAPI and React | I am expected to learn how to do CICD and software engineering in a real world application, I am also expected to learn some new features of React.js. | Brushing up on front-end stuff (javascript), and using Python as the P in a LAMP stack (I know Python but haven't used it for web dev)| python frame back-end (fastAPI) |  |
+
+> Use this opportunity to discuss with your team who **may** do what in the project. Make use of everyone’s skill set and discuss each person’s role and responsibilities by considering how everyone will contribute.  Remember to identify project work (some examples are listed below at the top of the table) and course deliverables (the bottom half of the table). You might want to change the rows depending on what suits your project and team.  Understand that no one person will own a single task.  Recall that this is just an incomplete example.  Please explain how things are assigned in the caption below the table, or put the explanation into a separate paragraph so the reader understands why things are done this way and how to interpret your table. 
+
+
+|  Category of Work/Features  | Yiyang Du | Dichen Feng   | Marshall Kwok Guo  | Vaughn Janes  | Jiayao Ni | 
+| ------------- | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
+|  **Project Management: Kanban Board Maintenance**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **System Architecture Design**  |  | :heavy_check_mark: |  | :heavy_check_mark: | :heavy_check_mark: |
+|  **Docker environment setup**  |  |:heavy_check_mark:  |  :heavy_check_mark:| :heavy_check_mark: |  |
+|  **CSS Development**  |  | :heavy_check_mark: |  |  |:heavy_check_mark:  | 
+|  **Login Authentication logic**  | :heavy_check_mark: |  |  | :heavy_check_mark: |  | 
+|  **Database schema design**  |  |  | :heavy_check_mark: | :heavy_check_mark: |  |
+|  **Administration webpage database logic (big job)**  |  | :heavy_check_mark: |  | :heavy_check_mark: | |
+|  **Login UI**  |  |   |  |  | :heavy_check_mark:|
+|  **Dashboard UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
+|  **Profile page UI**  | :heavy_check_mark: |  |  |  | :heavy_check_mark: |
+|  **Administration webpage UI**  |  |  :heavy_check_mark:|  |  | :heavy_check_mark:|
+|  **Authorization logic**  |  | :heavy_check_mark: |  :heavy_check_mark:| :heavy_check_mark: |  |
+|  **System Deployment**  |  | :heavy_check_mark: |  | :heavy_check_mark: | |
+|  **Presentation Preparation**  |  |  |  |  | :heavy_check_mark: | 
+|  **Design Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
+|  **Design Video Editing**  |  |  :heavy_check_mark: |  | :heavy_check_mark: |  | 
+|  **Design Report**  |  |  |  |  |  :heavy_check_mark:| 
+|  **Final Video Creation**  |  |  |  | :heavy_check_mark: | :heavy_check_mark: | 
+|  **Final Video Editing**  |  | :heavy_check_mark: |  | :heavy_check_mark: |  | 
+|  **Final Team Report**  |  |  |  |  | :heavy_check_mark: | 
+|  **Final Individual Report**  |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |  :heavy_check_mark: |
