@@ -141,6 +141,7 @@ export default function EventsPage() {
                 <div style={{ height: 600, width: '100%' }}>
                     <DataGrid
                         rows={events}
+                        // @ts-ignore`
                         columns={columns}
                         pageSize={10}
                         autoHeight

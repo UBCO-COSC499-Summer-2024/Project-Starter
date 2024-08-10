@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -14,10 +14,14 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_URL;
 /** Here we check if the service key is in the session storage, if not we will use null as place holder as supabase dose not allow empty key. This null key
  * should throw an error if the user tried to perfome any operations. 
  */
-const supabaseServiceKey = sessionStorage.getItem('supabaseServiceKey') ? sessionStorage.getItem('supabaseServiceKey') : "null";
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export default function ChangeAccountPassword() {
+    const [supabaseAdmin, setSupabaseAdmin] = useState(null);
+    const [supabaseServiceKey, setSupabaseServiceKey] = useState("null");
+    useEffect(() => {
+        const supabaseServiceKey = window.sessionStorage.getItem('supabaseServiceKey') ? window.sessionStorage.getItem('supabaseServiceKey') : "null";
+        setSupabaseAdmin(createClient(supabaseUrl, supabaseServiceKey));
+    }, [])
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,6 +43,7 @@ export default function ChangeAccountPassword() {
         if (error) {
             setError('Failed to fetch user information.');
         } else {
+            // @ts-ignore
             const user = data.users.find((user) => user.email === email);
             if (!user) {
                 setError('Email does not exist.');
@@ -55,7 +60,7 @@ export default function ChangeAccountPassword() {
             }
         }
     };
-    if(supabaseServiceKey === "null"){
+    if (supabaseServiceKey === "null") {
         /** if the service key is null, it will show 403. Note that this is only front end practise to inform user. */
         return (
             <main>

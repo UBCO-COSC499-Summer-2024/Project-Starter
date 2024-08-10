@@ -198,9 +198,9 @@ const UpcomingEventsCard = ({ displayedMonth, displayedYear }) => {
                     </thead>
                     <tbody>
                         {eventsLoading ? (
-                            <tr><td colSpan="3">Loading...</td></tr>
+                            <tr><td colSpan={3}>Loading...</td></tr>
                         ) : eventsError ? (
-                            <tr><td colSpan="3">Error fetching events: {eventsError}</td></tr>
+                            <tr><td colSpan={3}>Error fetching events: {eventsError}</td></tr>
                         ) : events.length > 0 ? (
                             events.map((event, index) => (
                                 <tr key={index}>
@@ -214,7 +214,7 @@ const UpcomingEventsCard = ({ displayedMonth, displayedYear }) => {
                                 </tr>
                             ))
                         ) : (
-                            <tr><td colSpan="3">No upcoming events found</td></tr>
+                            <tr><td colSpan={3}>No upcoming events found</td></tr>
                         )}
                     </tbody>
                 </Table>
@@ -279,9 +279,9 @@ const RecentEvaluationsCard = ({ displayedMonth, displayedYear }) => {
                 </thead>
                 <tbody>
                     {loading ? (
-                        <tr><td colSpan="7">Loading...</td></tr>
+                        <tr><td colSpan={7}>Loading...</td></tr>
                     ) : error ? (
-                        <tr><td colSpan="7">Error fetching evaluations: {error}</td></tr>
+                        <tr><td colSpan={7}>Error fetching evaluations: {error}</td></tr>
                     ) : evaluations.length > 0 ? (
                         evaluations.map((x, index) => (
                             <tr key={index}>
@@ -295,7 +295,7 @@ const RecentEvaluationsCard = ({ displayedMonth, displayedYear }) => {
                             </tr>
                         ))
                     ) : (
-                        <tr><td colSpan="7">No evaluations found</td></tr>
+                        <tr><td colSpan={7}>No evaluations found</td></tr>
                     )}
                 </tbody>
             </Table>
@@ -492,9 +492,9 @@ export default function Home() {
                                 </thead>
                                 <tbody>
                                     {assignmentsLoading ? (
-                                        <tr><td colSpan="6">Loading...</td></tr>
+                                        <tr><td colSpan={6}>Loading...</td></tr>
                                     ) : assignmentsError ? (
-                                        <tr><td colSpan="6">Error fetching assignments: {assignmentsError}</td></tr>
+                                        <tr><td colSpan={6}>Error fetching assignments: {assignmentsError}</td></tr>
                                     ) : assignments.length > 0 ? (
                                         assignments.map((x, index) => (
                                             <tr key={index}>
@@ -511,7 +511,7 @@ export default function Home() {
                                             </tr>
                                         ))
                                     ) : (
-                                        <tr><td colSpan="6">No assignments found</td></tr>
+                                        <tr><td colSpan={6}>No assignments found</td></tr>
                                     )}
                                 </tbody>
                             </Table>
@@ -520,6 +520,7 @@ export default function Home() {
                             <b className="tw-mt-2 tw-ml-2 tw-text-lg">Year-to-date Service Hours</b>
                             <div className="tw-h-48">
                                 <Bar className="tw-p-2 tw-h-max"
+                                    // @ts-ignore
                                     data={parseData(getFilteredWorkingHours())}
                                     options={{
                                         maintainAspectRatio: false,
@@ -542,9 +543,9 @@ export default function Home() {
                                 </thead>
                                 <tbody>
                                     {serviceLoading ? (
-                                        <tr><td colSpan="2">Loading...</td></tr>
+                                        <tr><td colSpan={2}>Loading...</td></tr>
                                     ) : serviceError ? (
-                                        <tr><td colSpan="2">Error fetching service roles: {serviceError}</td></tr>
+                                        <tr><td colSpan={2}>Error fetching service roles: {serviceError}</td></tr>
                                     ) : serviceRoles.length > 0 ? (
                                         serviceRoles.map((x, index) => (
                                             <tr key={index}>
@@ -557,7 +558,7 @@ export default function Home() {
                                             </tr>
                                         ))
                                     ) : (
-                                        <tr><td colSpan="2">No service roles found</td></tr>
+                                        <tr><td colSpan={2}>No service roles found</td></tr>
                                     )}
                                 </tbody>
                             </Table>

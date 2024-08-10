@@ -4,6 +4,8 @@ import CMPS_Table from '@/app/components/CMPS_Table';
 import supabase from "@/app/components/supabaseClient";
 import Navbar from "@/app/components/NavBar";
 import Link from 'next/link';
+import { Button } from '@mui/material';
+import { createEvents, createEvent } from 'ics';
 
 export default function Courses() {
     const fetchUrl = "v_courses_with_instructors";
@@ -93,6 +95,48 @@ export default function Courses() {
         <>
             <Navbar />
             <h1>Courses</h1>
+            <Button className="tw-p-2" onClick={async () => {
+                const event = {
+                    start: [2018, 5, 30, 6, 30],
+                    duration: { hours: 6, minutes: 30 },
+                    title: 'Bolder Boulder',
+                    description: 'Annual 10-kilometer run in Boulder, Colorado',
+                    location: 'Folsom Field, University of Colorado (finish line)',
+                    url: 'http://www.bolderboulder.com/',
+                    geo: { lat: 40.0095, lon: 105.2669 },
+                    categories: ['10k races', 'Memorial Day Weekend', 'Boulder CO'],
+                    status: 'CONFIRMED',
+                    busyStatus: 'BUSY',
+                    organizer: { name: 'Admin', email: 'Race@BolderBOULDER.com' },
+                    attendees: [
+                        { name: 'Adam Gibbons', email: 'adam@example.com', rsvp: true, partstat: 'ACCEPTED', role: 'REQ-PARTICIPANT' },
+                        { name: 'Brittany Seaton', email: 'brittany@example2.org', dir: 'https://linkedin.com/in/brittanyseaton', role: 'OPT-PARTICIPANT' }
+                    ]
+                }
+                const file = await new Promise((resolve, reject) => {
+                    //@ts-ignore
+                    createEvent(event, (error, value) => {
+                        if (error) {
+                            reject(error)
+                        }
+
+                        resolve(new File([value], "courses.ics", { type: 'text/calendar' }))
+                    })
+                })
+                //@ts-ignore
+                const url = URL.createObjectURL(file);
+
+                // trying to assign the file URL to a window could cause cross-site
+                // issues so this is a workaround using HTML5
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = "courses.ics";
+
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+
+            }}>📅Export My Courses to My Calendar</Button>
             <CMPS_Table
                 fetchUrl={fetchUrl}
                 columnsConfig={columnsConfig}

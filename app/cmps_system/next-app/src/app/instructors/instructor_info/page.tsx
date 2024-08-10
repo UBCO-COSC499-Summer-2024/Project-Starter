@@ -416,6 +416,8 @@ const InstructorInfo = () => {
                         </>
                       )}
                     </td>
+
+                    <td colSpan={3}></td>
                   </tr>
                 ))}
               </tbody>

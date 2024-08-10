@@ -24,8 +24,24 @@ const CourseInfo = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const courseId = searchParams.get('id');
+  
+  interface Course {
+    subject_code: string;
+    course_num: string;
+    section_num: string;
+    academic_year: number;
+    session: string;
+    term: string;
+  }
 
-  const [course, setCourse] = useState({});
+  const [course, setCourse] = useState<Course>({
+    subject_code: '',
+    course_num: '',
+    section_num: '',
+    academic_year: 0,
+    session: '',
+    term: ''
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalShow, setModalShow] = useState(false);
@@ -280,7 +296,7 @@ const CourseInfo = () => {
       <NavBar />
       <Container fluid className="banner">
         <h2>
-          Course Info: {course.subject_code} {course.course_num} {course.section_num} - {course.academic_year}{course.session === 'Winter' ? 'W' : 'S'}{course.term ? course.term.replace('Term ', '') : ''}
+          Course Info: {course?.subject_code} {course?.course_num} {course?.section_num} - {course?.academic_year}{course?.session === 'Winter' ? 'W' : 'S'}{course?.term ? course?.term.replace('Term ', '') : ''}
         </h2>
         {loading ? (
           <p>Loading...</p>

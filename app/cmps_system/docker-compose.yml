@@ -11,13 +11,18 @@ services:
   next-app:
     build:
       context: ./next-app
-      dockerfile: Dockerfile.dev # uncomment this to run in dev mode for hot-reloading. Otherwise, it will make a production build in `next-build`, served by apache.
+      # dockerfile: Dockerfile.dev # uncomment this to run in dev mode for hot-reloading. Otherwise, it will make a production build in `next-build`, served by apache.
+      args:
+        NEXT_PUBLIC_SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+        NEXT_PUBLIC_ANON_KEY: ${ANON_KEY}
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
       - "3000:3000"
-    volumes: 
-      - ./next-app:/app
-      - /app/node_modules
-      - ./next-build/:/app/build
+    # volumes:
+      # - ./next-app:/app
+      # - /app/node_modules
+      # - ./next-build/:/app/build
     environment:
       NEXT_PUBLIC_SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
       NEXT_PUBLIC_ANON_KEY: ${ANON_KEY}

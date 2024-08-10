@@ -362,7 +362,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
     const debouncedHandleFilterChange = useCallback(debounce(() => {
         if (onFilteredDataChange && apiRef.current) {
-            const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef.current.state);
+            const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef);
             const filteredRows = filteredSortedRowIds.map(id => apiRef.current.getRow(id));
             onFilteredDataChange(filteredRows);
         }
@@ -579,7 +579,7 @@ const CMPS_Table: React.FC<CMPS_TableProps> = ({
 
             const originalIds = new Set(beforeData.map(row => row[idColumn]));
             const currentIds = new Set(jsonData.map(row => row[idColumn]));
-            const deletedIds = [...originalIds].filter(id => !currentIds.has(id));
+            const deletedIds = Array.from(originalIds).filter(id => !currentIds.has(id));
 
             // Check for deleted rows
             if (deletedIds.length > 0) {

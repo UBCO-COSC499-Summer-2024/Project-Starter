@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "strict": false,
     "noEmit": true,
+    "target": "es2015",
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -16,7 +17,7 @@
       {
         "name": "next"
       }
-    ],
+    ], 
     "paths": {
       "@/*": ["./src/*"]
     }
