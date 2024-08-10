@@ -1,0 +1,11 @@
+node_modules
+build
+coverage
+*.env
+.env*
+DS_Store
+*_pycache_
+_pycache_*
+*_pycache_*
+*/_pycache_
+pspdfkit-lib

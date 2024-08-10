@@ -1,0 +1,108 @@
+services:
+  backend:
+    build:
+      args:
+      - NODE_ENV=development
+      context: backend
+      target: development
+    command: npm run start-watch
+    environment:
+      - DATABASE_DB=gradeit
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=/run/secrets/db-password
+      - DATABASE_HOST=db
+      - NODE_ENV=development
+    ports:
+      - 80:80
+      - 9229:9229
+      - 9230:9230
+    secrets:
+      - db-password
+    volumes:
+      - ./backend/src:/code/src:ro
+      - ./backend/package.json:/code/package.json
+      - ./backend/package-lock.json:/code/package-lock.json
+      - back-notused:/opt/app/node_modules
+    networks:
+      - public
+      - private
+    depends_on:
+      - db
+  db:
+    image: postgres
+    restart: always
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - private
+    environment:
+      - POSTGRES_DB=gradeit
+      - POSTGRES_USER=gradeit
+      - POSTGRES_PASSWORD=cosc499rocks
+  test-db:
+    image: postgres
+    restart: always
+    secrets:
+      - db-password
+    networks:
+      - private
+    expose:
+      - 5433
+    ports:
+      - 5433
+    environment:
+      - POSTGRES_DB=gradeit
+      - POSTGRES_USER=gradeit
+      - POSTGRES_PASSWORD=cosc499rocks
+    command: -p 5433
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@admin.org
+      PGADMIN_DEFAULT_PASSWORD: cosc499rocks
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+    - private
+  frontend:
+    build:
+      context: frontend
+      target: development
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/code/src
+      - /code/node_modules
+    networks:
+      - public
+    depends_on:
+      - backend
+  python-cv:
+    build:
+      context: flask
+    ports:
+    - 8000:8000
+    volumes:
+      - ./flask/data:/app/data
+      - ./flask/data_images:/app/data_images
+    command: ["python", "app.py"]
+    user: appuser
+    networks:
+      - private
+networks:
+  public:
+  private:
+volumes:
+  pgadmin-data:
+  back-notused:
+  db-data:
+secrets:
+  db-password:
+    file: db/password.txt

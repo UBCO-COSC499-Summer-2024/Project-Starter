@@ -1,0 +1,16 @@
+kind: pipeline
+name: default
+
+steps:
+- name: backend test
+  image: node:18.18.1
+  commands:
+  - cd app/backend
+  - npm install
+  - npm test
+- name: frontend test
+  image: node:18.18.1
+  commands:
+  - cd app/frontend
+  - npm install
+  - npm test

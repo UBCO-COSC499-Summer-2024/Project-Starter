@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  python-cv:
+    build: .
+    ports:
+    - 8000:8000
+    volumes:
+      - ./data:/app/data
+      - ./data_images:/app/data_images
+    command: ["python", "app.py"]
+    user: appuser
